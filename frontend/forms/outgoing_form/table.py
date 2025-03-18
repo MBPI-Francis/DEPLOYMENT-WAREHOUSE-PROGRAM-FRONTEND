@@ -20,6 +20,7 @@ class OutgoingFormTable:
         # Instantiate the shared_function class
         self.shared_functions = SharedFunctions()
 
+        self.get_status_api = self.shared_functions.get_status_api()
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
         self.get_rm_code_api = self.shared_functions.get_rm_code_api()
 
@@ -49,7 +50,7 @@ class OutgoingFormTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Reference No.", "Quantity(kg)", "Outgoing Date", "Entry Date"),
+            columns=("Raw Material", "Warehouse", "Reference No.", "Quantity(kg)", "Status","Outgoing Date", "Entry Date"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -96,6 +97,7 @@ class OutgoingFormTable:
                     item["wh_name"],
                     item["ref_number"],
                     item["qty_kg"],
+                    item["status"],
                     item["outgoing_date"],
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 )
@@ -128,7 +130,7 @@ class OutgoingFormTable:
         edit_window = Toplevel(self.root)
         edit_window.title("Edit Record")
 
-        fields = ["Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Outgoing Date"]
+        fields = ["Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Status","Outgoing Date"]
         entries = {}
 
 
@@ -155,6 +157,16 @@ class OutgoingFormTable:
                 entry = ttk.Combobox(edit_window, values=warehouse_names, state="readonly", width=30)
                 entry.set(record[idx])  # Set current value in the combobox
                 ToolTip(entry, text="Select a warehouse")  # Tooltip
+
+            elif field == "Status":
+                # Warehouse JSON-format choices (coming from the API)
+                status = self.get_status_api
+                status_to_id = {item["name"]: item["id"] for item in status}
+                status_names = list(status_to_id.keys())
+
+                entry = ttk.Combobox(edit_window, values=status_names, state="readonly", width=30, )
+                entry.set(record[idx])  # Set current value in the combobox
+                ToolTip(entry, text="Choose a status")  # Tooltip
 
             elif field == "Outgoing Date":
                 entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
@@ -199,6 +211,14 @@ class OutgoingFormTable:
             else:
                 return None
 
+        def get_selected_status_id():
+            selected_name = entries["Status"].get()
+            selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
+            if selected_id:
+                return selected_id
+            else:
+                return None
+
         def update_record():
             # Convert date to YYYY-MM-DD
             try:
@@ -210,6 +230,7 @@ class OutgoingFormTable:
                 "rm_code_id": get_selected_rm_code_id(),
                 "warehouse_id": get_selected_warehouse_id(),
                 "ref_number": entries["Ref No."].get(),
+                "status_id": get_selected_status_id(),
                 "outgoing_date":  outgoing_date,
                 "qty_kg": entries["Quantity(kg)"].get(),
             }
@@ -225,7 +246,7 @@ class OutgoingFormTable:
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
                 entries["Quantity(kg)"].get(),
-                self.get_status_id()
+                get_selected_status_id()
 
             )
 
@@ -275,17 +296,6 @@ class OutgoingFormTable:
             self.tree.move(k, "", index)
         self.tree.heading(col, command=lambda: self.sort_column(col, not reverse))
 
-
-    def get_status_id(self):
-        url = server_ip + "/api/status/v1/search_status/"
-        params = {"name": "good"}  # Send name as a query parameter
-        response = requests.get(url, params=params)
-
-        if response.status_code == 200:
-            data = response.json()  # Parse JSON response
-            return data['id']
-        else:
-            return []
 
     def search_data(self, event=None):
         """Filter and display only matching records in the Treeview."""

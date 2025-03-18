@@ -36,6 +36,14 @@ def entry_fields(note_form_tab):
         else:
             return None
 
+    def get_selected_status_id():
+        selected_name = status_combobox.get()
+        selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
+        if selected_id:
+            return selected_id
+        else:
+            return None
+
         # Function to clear all entry fields
     def clear_fields():
 
@@ -47,19 +55,6 @@ def entry_fields(note_form_tab):
         rm_codes_combobox.set("")
         qty_entry.delete(0, ttk.END)
 
-    def get_status_id():
-        url = server_ip + "/api/status/v1/search_status/"
-        params = {"name": "good"}  # Send name as a query parameter
-        response = requests.get(url, params=params)
-
-        if response.status_code == 200:
-            data = response.json()  # Parse JSON response
-            return data['id']
-        else:
-            return []
-
-
-
     def submit_data():
 
         # Collect the form data
@@ -68,7 +63,8 @@ def entry_fields(note_form_tab):
         ref_number = ref_number_entry.get()
         qty = qty_entry.get()
         outgoing_date = outgoing_date_entry.entry.get()
-        status_id = get_status_id()
+
+        status_id = get_selected_status_id()
 
         # Set focus to the Entry field
         rm_codes_combobox.focus_set()
@@ -90,6 +86,7 @@ def entry_fields(note_form_tab):
             "ref_number": ref_number,
             "outgoing_date": outgoing_date,
             "qty_kg": qty,
+            "status_id": status_id
         }
 
 
@@ -145,7 +142,7 @@ def entry_fields(note_form_tab):
 
     # Combobox for Warehouse Drop Down
     warehouse_label = ttk.Label(warehouse_frame, text="Warehouse", font=("Helvetica", 10, "bold"))
-    warehouse_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
+    warehouse_label.grid(row=0, column=0, padx=(5,0), pady=(0, 0), sticky=W)
 
     # Checkbox for Warehouse lock
     checkbox_warehouse_var = ttk.IntVar()
@@ -159,8 +156,8 @@ def entry_fields(note_form_tab):
     ToolTip(lock_warehouse, text="Lock the warehouse by clicking this")
 
     # Warehouse Combobox field
-    warehouse_combobox = ttk.Combobox(warehouse_frame, values=warehouse_names, state="readonly", width=43)
-    warehouse_combobox.grid(row=1, column=0, padx=10, pady=(0, 0), sticky=W)
+    warehouse_combobox = ttk.Combobox(warehouse_frame, values=warehouse_names, state="readonly", width=22)
+    warehouse_combobox.grid(row=1, column=0, padx=(10,5), pady=(0, 0), sticky=W)
     ToolTip(warehouse_combobox, text="Choose a warehouse")
 
     # Status JSON-format choices (coming from the API)
@@ -169,15 +166,15 @@ def entry_fields(note_form_tab):
     status_names = list(status_to_id.keys())
 
     status_label = ttk.Label(warehouse_frame, text="Status", font=("Helvetica", 10, "bold"))
-    status_label.grid(row=0, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+    status_label.grid(row=0, column=1, padx=(0, 0), pady=(0, 0), sticky=W)
 
     status_combobox = ttk.Combobox(
         warehouse_frame,
         values=status_names,
         state="readonly",
-        width=40,
+        width=22,
     )
-    status_combobox.grid(row=1, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+    status_combobox.grid(row=1, column=1, padx=(0, 0), pady=(0, 0), sticky=W)
     ToolTip(status_combobox, text="Please choose the raw material status")
 
     # Reference Number FRAME (Right-aligned)
@@ -200,7 +197,7 @@ def entry_fields(note_form_tab):
         variable=checkbox_reference_var,
         bootstyle="round-toggle"
     )
-    lock_reference.grid(row=0, pady=(0, 0), padx=10, sticky=E)  # Position the checkbox next to the combobox
+    lock_reference.grid(row=0, pady=(0, 0), padx=(10, 0), sticky=E)  # Position the checkbox next to the combobox
     ToolTip(lock_reference, text="Lock the reference number by clicking this")
 
     # RM CODE FRAME
@@ -221,7 +218,7 @@ def entry_fields(note_form_tab):
 
     # Combobox for RM CODE Drop Down
     rm_codes_label = ttk.Label(rmcode_frame, text="Raw Material", font=("Helvetica", 10, "bold"))
-    rm_codes_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
+    rm_codes_label.grid(row=0, column=0, padx=(5,0), pady=(0, 0), sticky=W)
 
     rm_codes_combobox = ttk.Combobox(
         rmcode_frame,
@@ -243,13 +240,13 @@ def entry_fields(note_form_tab):
 
     # Quantity Entry Field
     qty_label = ttk.Label(rmcode_frame, text="Quantity", font=("Helvetica", 10, "bold"))
-    qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
+    qty_label.grid(row=0, column=2, padx=(2,0), pady=(0, 0), sticky=W)
     qty_entry = ttk.Entry(rmcode_frame,
-                          width=15,
+                          width=21,
                           validate="key",  # Trigger validation on keystrokes
                           validatecommand=(validate_numeric_command, "%P")  # Pass the current widget content ("%P")
                           )
-    qty_entry.grid(row=1, column=2, padx=2, pady=(0, 0), sticky=W)
+    qty_entry.grid(row=1, column=2, padx=(5,0), pady=(0, 0), sticky=W)
     ToolTip(qty_entry, text="Enter the Quantity(kg)")
 
     date_frame = ttk.Frame(form_frame)
