@@ -46,8 +46,10 @@ class ImportData:
                 self.root.after(0, lambda: messagebox.showinfo("Success", "File uploaded successfully!"))
 
             else:
+                error_message = response.json().get("detail", "Unknown error")
                 self.root.after(0, lambda: messagebox.showerror("Error",
-                    f"Failed to import data. Status code: {response.status_code}"))
+                    f"Failed to import data. {error_message}"))
+
 
         except Exception as e:
             self.root.after(0, self.hide_loader)
