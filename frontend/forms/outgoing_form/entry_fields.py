@@ -15,6 +15,7 @@ def entry_fields(note_form_tab):
     # Instantiate the shared_function class
     shared_functions = SharedFunctions()
 
+    get_status_api = shared_functions.get_status_api()
     get_warehouse_api = shared_functions.get_warehouse_api()
     get_rm_code_api = shared_functions.get_rm_code_api()
     
@@ -162,6 +163,23 @@ def entry_fields(note_form_tab):
     warehouse_combobox.grid(row=1, column=0, padx=10, pady=(0, 0), sticky=W)
     ToolTip(warehouse_combobox, text="Choose a warehouse")
 
+    # Status JSON-format choices (coming from the API)
+    status = get_status_api
+    status_to_id = {item["name"]: item["id"] for item in status}
+    status_names = list(status_to_id.keys())
+
+    status_label = ttk.Label(warehouse_frame, text="Status", font=("Helvetica", 10, "bold"))
+    status_label.grid(row=0, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+
+    status_combobox = ttk.Combobox(
+        warehouse_frame,
+        values=status_names,
+        state="readonly",
+        width=40,
+    )
+    status_combobox.grid(row=1, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+    ToolTip(status_combobox, text="Please choose the raw material status")
+
     # Reference Number FRAME (Right-aligned)
     refno_frame = ttk.Frame(form_frame)
     refno_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
@@ -203,7 +221,7 @@ def entry_fields(note_form_tab):
 
     # Combobox for RM CODE Drop Down
     rm_codes_label = ttk.Label(rmcode_frame, text="Raw Material", font=("Helvetica", 10, "bold"))
-    rm_codes_label.grid(row=4, column=0, padx=5, pady=(0, 0), sticky=W)
+    rm_codes_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
 
     rm_codes_combobox = ttk.Combobox(
         rmcode_frame,
@@ -215,22 +233,23 @@ def entry_fields(note_form_tab):
     # Bind the key release event to the combobox to trigger uppercase conversion
     rm_codes_combobox.bind("<KeyRelease>", on_combobox_key_release)
 
-    rm_codes_combobox.grid(row=5, column=0, columnspan=2, pady=(0, 0), padx=(10, 0))
+    rm_codes_combobox.grid(row=1, column=0, pady=(0, 0), padx=(10, 0))
     ToolTip(rm_codes_combobox, text="Choose a raw material")
 
-    # Register the validation command
 
+
+    # Register the validation command
     validate_numeric_command = rmcode_frame.register(EntryValidation.validate_numeric_input)
 
     # Quantity Entry Field
     qty_label = ttk.Label(rmcode_frame, text="Quantity", font=("Helvetica", 10, "bold"))
-    qty_label.grid(row=4, column=2, padx=2, pady=(0, 0), sticky=W)
+    qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
     qty_entry = ttk.Entry(rmcode_frame,
                           width=15,
                           validate="key",  # Trigger validation on keystrokes
                           validatecommand=(validate_numeric_command, "%P")  # Pass the current widget content ("%P")
                           )
-    qty_entry.grid(row=5, column=2, padx=2, pady=(0, 0), sticky=W)
+    qty_entry.grid(row=1, column=2, padx=2, pady=(0, 0), sticky=W)
     ToolTip(qty_entry, text="Enter the Quantity(kg)")
 
     date_frame = ttk.Frame(form_frame)

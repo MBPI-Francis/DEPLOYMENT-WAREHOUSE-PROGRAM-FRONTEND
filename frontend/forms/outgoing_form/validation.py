@@ -19,6 +19,9 @@ class EntryValidation:
             elif key == "qty_kg" and not value:
                 text_list.append("Quantity")
 
+            elif key == "status_id" and not value:
+                text_list.append("Status")
+
             elif key == "outgoing_date" and not value:
                 text_list.append("Outgoing Date")
         return text_list
