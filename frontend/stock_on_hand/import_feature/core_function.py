@@ -7,6 +7,7 @@ import threading
 from ttkbootstrap.dialogs import Messagebox
 from backend.settings.database import server_ip
 from frontend.stock_on_hand.table import BeginningBalanceTable
+import os
 
 
 class ImportData:
@@ -14,21 +15,49 @@ class ImportData:
         self.root = root
         self.loader_window = None  # Loader window reference
 
+    # def import_data(self):
+    #     """Handles file selection and starts the import process."""
+    #     file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+    #
+    #     print(file_path)
+    #
+    #     if not file_path:
+    #         messagebox.showwarning("Warning", "No file selected.")
+    #         # print("No file selected.")
+    #         return
+    #
+    #     # Show loader while uploading
+    #     self.root.after(0, self.show_loader)
+    #
+    #     # Run API request in a separate thread
+    #     thread = threading.Thread(target=self.upload_file, args=(file_path,))
+    #     thread.start()
+
     def import_data(self):
         """Handles file selection and starts the import process."""
         file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
 
         if not file_path:
             messagebox.showwarning("Warning", "No file selected.")
-            # print("No file selected.")
             return
 
-        # Show loader while uploading
-        self.root.after(0, self.show_loader)
+        # Fix network path format
+        if file_path.startswith("//"):
+            file_path = file_path.replace("/", "\\")  # Convert to UNC path correctly
 
-        # Run API request in a separate thread
-        thread = threading.Thread(target=self.upload_file, args=(file_path,))
-        thread.start()
+        print(f"Selected file: {file_path}")  # Debugging
+
+        try:
+            # Show loader while uploading
+            self.root.after(0, self.show_loader)
+
+            # Run API request in a separate thread
+            thread = threading.Thread(target=self.upload_file, args=(file_path,))
+            thread.daemon = True
+            thread.start()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Unexpected error: {str(e)}")
 
     def upload_file(self, file_path):
         """Uploads the file to the FastAPI backend."""
