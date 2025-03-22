@@ -101,6 +101,7 @@ class OutgoingFormTable:
                     item["outgoing_date"],
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 )
+
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])
 
@@ -110,6 +111,7 @@ class OutgoingFormTable:
     def show_context_menu(self, event):
         """Show right-click menu with Edit/Delete options."""
         item = self.tree.identify_row(event.y)
+
         if item:
             menu = ttk.Menu(self.root, tearoff=0)
             menu.add_command(label="Edit", command=lambda: self.edit_record(item))
@@ -120,9 +122,9 @@ class OutgoingFormTable:
     def edit_record(self, item):
         """Open edit form."""
         record = self.tree.item(item, 'values')
-
         # Remove "Beginning Balance" (index 4) and "Entry Date" (index 6)
-        record = (record[0], record[1], record[2], record[3], record[4])
+        record = (record[0], record[1], record[2], record[3], record[4], record[5])
+
 
         if not record:
             return
@@ -130,12 +132,20 @@ class OutgoingFormTable:
         edit_window = Toplevel(self.root)
         edit_window.title("Edit Record")
 
-        fields = ["Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Status","Outgoing Date"]
+        fields = ["Raw Material",
+                  "Warehouse",
+                  "Ref No.",
+                  "Quantity(kg)",
+                  "Status",
+                  "Outgoing Date"
+                  ]
+
         entries = {}
 
 
         for idx, field in enumerate(fields):
             ttk.Label(edit_window, text=field).grid(row=idx, column=0, padx=10, pady=5, sticky=W)
+
 
             if field == "Raw Material":
                 # Fetch Raw Material Data from API
@@ -158,6 +168,7 @@ class OutgoingFormTable:
                 entry.set(record[idx])  # Set current value in the combobox
                 ToolTip(entry, text="Select a warehouse")  # Tooltip
 
+
             elif field == "Status":
                 # Warehouse JSON-format choices (coming from the API)
                 status = self.get_status_api
@@ -168,6 +179,7 @@ class OutgoingFormTable:
                 entry.set(record[idx])  # Set current value in the combobox
                 ToolTip(entry, text="Choose a status")  # Tooltip
 
+
             elif field == "Outgoing Date":
                 entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
                 entry.entry.delete(0, "end")
@@ -176,7 +188,6 @@ class OutgoingFormTable:
 
 
             elif field == "Quantity(kg)":
-
                 validate_numeric_command = edit_window.register(EntryValidation.validate_numeric_input)
                 entry = ttk.Entry(edit_window,
                                       width=30,
@@ -221,6 +232,7 @@ class OutgoingFormTable:
 
         def update_record():
             # Convert date to YYYY-MM-DD
+
             try:
                 outgoing_date = datetime.strptime(entries["Outgoing Date"].entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
             except ValueError:
@@ -251,7 +263,6 @@ class OutgoingFormTable:
             )
 
             if validatation_result:
-
                 try:
                     url = server_ip + f"/api/outgoing_reports/v1/update/{item}/"
                     response = requests.put(url, json=data)
@@ -270,7 +281,6 @@ class OutgoingFormTable:
                     "The entered quantity in 'Quantity' exceeds the available stock in the database.",
                     "Data Entry Error")
                 return
-
 
 
 
@@ -319,6 +329,7 @@ class OutgoingFormTable:
             self.populate_treeview(filtered_data)
         else:
             messagebox.showinfo("Search", "No matching record found.")
+
 
     def populate_treeview(self, data):
         """Helper function to insert data into the Treeview."""
