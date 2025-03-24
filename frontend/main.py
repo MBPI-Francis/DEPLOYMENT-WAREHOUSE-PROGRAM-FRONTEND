@@ -9,6 +9,7 @@ from frontend.raw_material.main_view import RawMaterialView
 from frontend.forms.main_view import ConsumptionEntryView
 from frontend.stock_on_hand.main_view import StockOnHandView
 from tkinter import StringVar, N, S, E, W, VERTICAL
+from tkinter import font
 
 
 class App(ttk.Window):
@@ -16,6 +17,18 @@ class App(ttk.Window):
         super().__init__(themename=theme_name)  # Choose the ttkbootstrap theme
         self.title("Warehouse RM Stock Movement Program")
         self.geometry("1300x700")
+
+        # ----------- [FONTSTYLE FOR THE TABLES] ----------
+        # Define a custom font
+        # self.tree_font = font.Font(family="Tahoma", size=10)  # Adjust size
+        # self.header_font = font.Font(family="Tahoma", size=10, weight="bold")  # Bold for headers
+        #
+        # # Create a custom style for the Treeview
+        # style = ttk.Style()
+        # style.configure("Treeview", font=self.tree_font)  # Apply font to table rows
+        # style.configure("Treeview.Heading", font=self.header_font)  # Apply font to column headers
+
+
 
         # Store the selected theme in a StringVar
         self.selected_theme = StringVar(value=theme_name)

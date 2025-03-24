@@ -52,9 +52,14 @@ class TransferFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                    "Raw Material", "Reference No.", "Quantity(kg)",
-                    "Warehouse (FROM)", "Warehouse (TO)", "Status",
-                    "Transfer Date", "Entry Date"),
+                    "Raw Material",
+                    "Reference No.",
+                    "Quantity(kg)",
+                    "Warehouse (FROM)",
+                    "Warehouse (TO)",
+                    "Status",
+                    "Transfer Date",
+                    "Entry Date"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -96,12 +101,13 @@ class TransferFormTable:
             data = response.json()
             self.tree.delete(*self.tree.get_children())  # Clear existing data
             for item in data:
+                qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
 
                 record = (
                     item["id"],  # Store ID
                     item["raw_material"],
                     item["ref_number"],
-                    item["qty_kg"],
+                    qty_kg_formatted,
                     item["from_warehouse"],
                     item["to_warehouse"],
                     item["status"],
@@ -132,11 +138,16 @@ class TransferFormTable:
         edit_window = Toplevel(self.root)
         edit_window.title("Edit Record")
 
-        fields = ["Raw Material", "Reference No.", "Quantity(kg)",
-            "Warehouse (FROM)", "Warehouse (TO)", "Status",
-            "Transfer Date"]
-        entries = {}
+        fields = ["Raw Material",
+                  "Reference No.",
+                  "Quantity(kg)",
+                  "Warehouse (FROM)",
+                  "Warehouse (TO)",
+                  "Status",
+                  "Transfer Date"
+                  ]
 
+        entries = {}
 
         for idx, field in enumerate(fields):
             ttk.Label(edit_window, text=field).grid(row=idx, column=0, padx=10, pady=5, sticky=W)

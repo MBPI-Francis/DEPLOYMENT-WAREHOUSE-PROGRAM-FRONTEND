@@ -41,7 +41,7 @@ class PreparationFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=("Raw Material", "Warehouse", "Status", "Reference No.",
-                    "Quantity (Prepared)", "Quantity (Return)",
+                    "QTY (Prepared)", "QTY (Return)",
                     "Preparation Date",
                     "Entry Date",
                      "Date Computed"),
@@ -78,8 +78,8 @@ class PreparationFormTable:
                         "Warehouse",
                         "Status",
                         "Reference No.",
-                        "Quantity (Prepared)",
-                        "Quantity (Return)",
+                        "QTY (Prepared)",
+                        "QTY (Return)",
                         "Preparation Date",
                         "Entry Date",
                         "Date Computed"]
@@ -104,14 +104,16 @@ class PreparationFormTable:
 
         self.tree.delete(*self.tree.get_children())
         for item in self.fetch_data():
+            qty_prepared_formatted = "{:,.2f}".format(float(item["qty_prepared"]))  # Format qty_kg with commas
+            qty_return_formatted = "{:,.2f}".format(float(item["qty_return"]))  # Format qty_kg with commas
             record = (
                 item["id"],  # Store ID
                 item["raw_material"],
                 item["wh_name"],
                 item["status"],
                 item["ref_number"],
-                item["qty_prepared"],
-                item["qty_return"],
+                qty_prepared_formatted ,
+                qty_return_formatted,
                 item["preparation_date"],
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 item["date_computed"],

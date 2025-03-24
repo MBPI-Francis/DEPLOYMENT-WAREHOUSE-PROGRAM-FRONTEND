@@ -48,7 +48,7 @@ class NoteTable:
                 (
                     item["rmcode"],
                     item["warehousename"],
-                    item["new_beginning_balance"],
+                    "{:,.2f}".format(float(item["new_beginning_balance"])),  # Format with commas
                     item["status"]
                 )
                 for item in data

@@ -49,7 +49,7 @@ class NoteTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=("Raw Material", "Warehouse", "Status", "Reference No.",
-                  "Quantity (Prepared)", "Quantity (Return)",
+                  "QTY (Prepared)", "QTY (Return)",
                   "Preparation Date",
                   "Entry Date"),
             show='headings',
@@ -85,8 +85,8 @@ class NoteTable:
                         "Warehouse",
                         "Status",
                         "Reference No.",
-                        "Quantity (Prepared)",
-                        "Quantity (Return)",
+                        "QTY (Prepared)",
+                        "QTY (Return)",
                         "Preparation Date",
                         "Entry Date"]
         for col in col_names:
@@ -110,15 +110,16 @@ class NoteTable:
 
         self.tree.delete(*self.tree.get_children())
         for item in self.fetch_data():
-
+            qty_return_formatted = "{:,.2f}".format(float(item["qty_return"]))  # Format qty_kg with commas
+            qty_prepared_formatted = "{:,.2f}".format(float(item["qty_prepared"]))  # Format qty_kg with commas
             record = (
                 item["id"],  # Store ID
                 item["raw_material"],
                 item["wh_name"],
                 item["status"],
                 item["ref_number"],
-                item["qty_prepared"],
-                item["qty_return"],
+                qty_return_formatted,
+                qty_prepared_formatted,
                 item["preparation_date"],
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
             )
@@ -156,8 +157,8 @@ class NoteTable:
                     "Warehouse",
                     "Status",
                     "Reference No.",
-                    "Quantity (Prepared)",
-                    "Quantity (Return)",
+                    "QTY (Prepared)",
+                    "QTY (Return)",
                     "Preparation Date"]
         entries = {}
 
@@ -204,7 +205,7 @@ class NoteTable:
                 entry.entry.insert(0, formatted_date)
 
 
-            elif field == "Quantity (Prepared)":
+            elif field == "QTY (Prepared)":
                 validate_numeric_command = edit_window.register(EntryValidation.validate_numeric_input)
                 entry = ttk.Entry(edit_window,
                                       width=30,
@@ -213,10 +214,10 @@ class NoteTable:
                                       # Pass the current widget content ("%P")
                                       )
                 entry.insert(0, record[idx])
-                ToolTip(entry, text="Enter the Quantity (Prepared)")
+                ToolTip(entry, text="Enter the QTY (Prepared)")
 
 
-            elif field == "Quantity (Return)":
+            elif field == "QTY (Return)":
 
                 validate_numeric_command = edit_window.register(EntryValidation.validate_numeric_input)
                 entry = ttk.Entry(edit_window,
@@ -226,7 +227,7 @@ class NoteTable:
                                       # Pass the current widget content ("%P")
                                       )
                 entry.insert(0, record[idx])
-                ToolTip(entry, text="Enter the Quantity (Return)")
+                ToolTip(entry, text="Enter the QTY (Return)")
 
 
             else:
@@ -262,7 +263,7 @@ class NoteTable:
                 return None
 
         def update_record():
-            qty_return = entries["Quantity (Return)"].get()
+            qty_return = entries["QTY (Return)"].get()
 
             if qty_return == None or qty_return == '':
                 qty_return = float(0.00)
@@ -279,7 +280,7 @@ class NoteTable:
                 "ref_number": entries["Reference No."].get(),
                 "status_id": get_selected_status_id(),
                 "preparation_date":  preparation_date,
-                "qty_prepared": entries["Quantity (Prepared)"].get(),
+                "qty_prepared": entries["QTY (Prepared)"].get(),
                 "qty_return": qty_return,
             }
 
@@ -292,7 +293,7 @@ class NoteTable:
             validatation_result = EntryValidation.validate_soh_value(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
-                entries["Quantity (Prepared)"].get(),
+                entries["QTY (Prepared)"].get(),
                 get_selected_status_id()
             )
 
@@ -307,13 +308,13 @@ class NoteTable:
 
 
                     else:
-                        messagebox.showerror("Error", "Failed to update record - ",response.status_code)
+                        messagebox.showerror("Error", "Failed to update record - ", response.status_code)
                 except requests.exceptions.RequestException as e:
                     messagebox.showerror("Error", f"Failed to update: {e}")
 
             else:
                 Messagebox.show_error(
-                    "The entered quantity in 'Quantity (Prepared)' exceeds the available stock in the database.",
+                    "The entered value in 'QTY (Prepared)' exceeds the available stock in the database.",
                     "Data Entry Error")
                 return
 

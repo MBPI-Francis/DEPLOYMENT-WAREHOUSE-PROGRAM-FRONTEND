@@ -9,6 +9,7 @@ from .validation import EntryValidation
 from backend.settings.database import server_ip
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
+from tkinter import font
 
 
 class NoteTable:
@@ -42,7 +43,11 @@ class NoteTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Product Code", "Lot No.", "Product Kind", "Consumption Date", "Entry Date"),
+            columns=("Product Code",
+                     "Lot No.",
+                     "Product Kind",
+                     "Consumption Date",
+                     "Entry Date"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -67,6 +72,7 @@ class NoteTable:
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
+
 
 
         # Load Data
@@ -131,7 +137,11 @@ class NoteTable:
         name_to_id = {item["name"]: item["id"] for item in product_kinds}
         product_kind_names = list(name_to_id.keys())
 
-        fields = ["Product Code", "Lot No.", "Product Kind", "Consumption Date"]
+        fields = ["Product Code",
+                  "Lot No.",
+                  "Product Kind",
+                  "Consumption Date"
+                  ]
         entries = {}
 
         for i, label_text in enumerate(fields):

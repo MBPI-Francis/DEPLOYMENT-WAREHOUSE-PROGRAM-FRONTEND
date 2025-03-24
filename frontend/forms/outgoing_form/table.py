@@ -50,7 +50,13 @@ class OutgoingFormTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Reference No.", "Quantity(kg)", "Status","Outgoing Date", "Entry Date"),
+            columns=("Raw Material",
+                     "Warehouse",
+                     "Reference No.",
+                     "Quantity(kg)",
+                     "Status",
+                     "Outgoing Date",
+                     "Entry Date"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -90,13 +96,14 @@ class OutgoingFormTable:
             data = response.json()
             self.tree.delete(*self.tree.get_children())  # Clear existing data
             for item in data:
+                qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
 
                 record = (
                     item["id"],  # Store ID
                     item["raw_material"],
                     item["wh_name"],
                     item["ref_number"],
-                    item["qty_kg"],
+                    qty_kg_formatted,
                     item["status"],
                     item["outgoing_date"],
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),

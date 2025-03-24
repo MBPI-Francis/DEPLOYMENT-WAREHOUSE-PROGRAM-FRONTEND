@@ -48,7 +48,7 @@ class BeginningBalanceTable:
                 (
                     item["rmcode"],
                     item["warehousename"],
-                    item["beginningbalance"],
+                    "{:,.2f}".format(float(item["beginningbalance"])),  # Format with commas
                     item["statusname"],
                     datetime.fromisoformat(item["stockchangedate"]).strftime("%m/%d/%Y %I:%M %p")
                 )

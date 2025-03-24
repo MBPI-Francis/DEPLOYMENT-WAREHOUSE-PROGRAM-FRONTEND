@@ -4,7 +4,6 @@ from ttkbootstrap.constants import *
 from .entry_fields import entry_fields
 
 
-
 def preparation_form_tab(notebook):
     preparation_form_tab = ttk.Frame(notebook)
     notebook.add(preparation_form_tab, text="Preparation Form")

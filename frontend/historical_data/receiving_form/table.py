@@ -90,12 +90,13 @@ class NoteTable:
         self.original_data = []  # Store all records
 
         for item in self.fetch_data():
+            qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
             record = (
                 item["id"],  # Store ID
                 item["raw_material"],
                 item["wh_name"],
                 item["ref_number"],
-                item["qty_kg"],
+                qty_kg_formatted,
                 item["receiving_date"],
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 item["date_computed"],

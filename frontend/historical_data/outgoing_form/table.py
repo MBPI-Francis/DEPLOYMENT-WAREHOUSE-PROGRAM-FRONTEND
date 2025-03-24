@@ -78,13 +78,13 @@ class OutgoingFormTable:
             data = response.json()
             self.tree.delete(*self.tree.get_children())  # Clear existing data
             for item in data:
-
+                qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
                 record = (
                     item["id"],  # Store ID
                     item["raw_material"],
                     item["wh_name"],
                     item["ref_number"],
-                    item["qty_kg"],
+                    qty_kg_formatted,
                     item["outgoing_date"],
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 )

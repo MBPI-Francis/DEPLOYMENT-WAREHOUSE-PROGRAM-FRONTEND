@@ -49,7 +49,7 @@ class HistoricalSOHTable:
                 (
                     item["rm_code"],
                     item["wh_name"],
-                    item["qty"],
+                    "{:,.2f}".format(float(item["qty"])),  # Format with commas
                     item["status_name"],
                     datetime.fromisoformat(item["stock_change_date"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["date_computed"]
