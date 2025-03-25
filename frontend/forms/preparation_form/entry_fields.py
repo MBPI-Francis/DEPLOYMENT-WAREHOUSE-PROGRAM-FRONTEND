@@ -7,7 +7,7 @@ from backend.settings.database import server_ip
 from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
-from .table import NoteTable
+from .table import PreparationFormTable
 from .validation import EntryValidation
 from frontend.forms.shared import SharedFunctions
 
@@ -68,6 +68,11 @@ def entry_fields(note_form_tab):
         qty_return = qty_return_entry.get()
 
 
+        # If the user didn't enter a value in the qty return field, then it will store 0.00 value in the variable
+        if qty_return == None or qty_return == '':
+            qty_return = '0'
+
+
         # This code removes the commas in the qty value
         cleaned_qty_prepared = float(qty_prepared.replace(",", ""))
         cleaned_qty_return = float(qty_return.replace(",", ""))
@@ -78,12 +83,6 @@ def entry_fields(note_form_tab):
 
         # Set focus to the Entry field
         rm_codes_combobox.focus_set()
-
-
-        # If the user didn't enter a value in the qty return field, then it will store 0.00 value in the variable
-        if qty_return == None or qty_return == '':
-            qty_return = float(0.00)
-
 
         # Convert date to YYYY-MM-DD
         try:
@@ -103,6 +102,18 @@ def entry_fields(note_form_tab):
             "qty_return": cleaned_qty_return,
         }
 
+
+
+        if cleaned_qty_return > cleaned_qty_prepared:
+            Messagebox.show_error(
+                "Cannot add the record because the QTY (Return) exceeds the QTY (Prepared). "
+                "Make sure the value of QTY (Prepared) is higher than the QTY (Return)",
+                "Data Entry Error",
+                alert=True
+            )
+            return
+
+
         # Validate the data entries in front-end side
         if EntryValidation.entry_validation(data):
             error_text = EntryValidation.entry_validation(data)
@@ -121,7 +132,7 @@ def entry_fields(note_form_tab):
                 response = requests.post(f"{server_ip}/api/preparation_forms/v1/create/", json=data)
                 if response.status_code == 200:  # Successfully created
                     clear_fields()
-                    note_table.refresh_table()
+                    prepration_form_table.refresh_table()
                     # refresh_table()  # Refresh the table
             except requests.exceptions.RequestException as e:
                 Messagebox.show_error(e, "Data Entry Error")
@@ -570,5 +581,5 @@ def entry_fields(note_form_tab):
 #     btn_submit.grid(row=8, column=2, columnspan=2, pady=10)
 
     # Calling the table
-    note_table = NoteTable(note_form_tab)
+    prepration_form_table = PreparationFormTable(note_form_tab)
 

@@ -12,7 +12,7 @@ from .validation import EntryValidation
 from ..shared import SharedFunctions
 
 
-class NoteTable:
+class PreparationFormTable:
     def __init__(self, root):
         self.root = root
         shared_functions = SharedFunctions()
@@ -268,6 +268,9 @@ class NoteTable:
             if qty_return == None or qty_return == '':
                 qty_return = float(0.00)
 
+
+
+
             # Convert date to YYYY-MM-DD
             try:
                 preparation_date = datetime.strptime(entries["Preparation Date"].entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
@@ -290,10 +293,10 @@ class NoteTable:
                 Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
                 return
 
-            validatation_result = EntryValidation.validate_soh_value(
+            validatation_result = EntryValidation.validate_soh_value_for_update(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
-                entries["QTY (Prepared)"].get(),
+                float(entries["QTY (Prepared)"].get()),
                 get_selected_status_id()
             )
 
