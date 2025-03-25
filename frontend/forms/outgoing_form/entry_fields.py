@@ -9,6 +9,7 @@ from .table import OutgoingFormTable
 from .validation import EntryValidation
 from ..preparation_form.validation import EntryValidation as PrepValidation
 from ..shared import SharedFunctions
+from tkinter import StringVar
 
 def entry_fields(note_form_tab):
 
@@ -61,7 +62,11 @@ def entry_fields(note_form_tab):
         warehouse_id = get_selected_warehouse_id()
         rm_code_id = get_selected_rm_code_id()
         ref_number = ref_number_entry.get()
+
         qty = qty_entry.get()
+        # This code removes the commas in the qty value
+        cleaned_qty = float(qty.replace(",", ""))
+
         outgoing_date = outgoing_date_entry.entry.get()
 
         status_id = get_selected_status_id()
@@ -85,7 +90,7 @@ def entry_fields(note_form_tab):
             "warehouse_id": warehouse_id,
             "ref_number": ref_number,
             "outgoing_date": outgoing_date,
-            "qty_kg": qty,
+            "qty_kg": cleaned_qty,
             "status_id": status_id
         }
 
@@ -100,7 +105,7 @@ def entry_fields(note_form_tab):
         validatation_result = PrepValidation.validate_soh_value(
             rm_code_id,
             warehouse_id,
-            qty,
+            cleaned_qty,
             status_id
         )
 
@@ -235,19 +240,73 @@ def entry_fields(note_form_tab):
 
 
 
-    # Register the validation command
+    # Function to format numeric input dynamically with cursor preservation
+    def format_numeric_input(event):
+        """
+        Formats the input dynamically while preserving the cursor position.
+        """
+        input_value = qty_var.get()
+
+        # Get current cursor position
+        cursor_position = qty_entry.index("insert")
+
+        # Remove commas for processing
+        raw_value = input_value.replace(",", "")
+
+        if raw_value == "" or raw_value == ".":
+            return  # Prevent formatting when only `.` is typed
+
+        try:
+            if "." in raw_value and raw_value[-1] == ".":
+                return  # Allow user to manually enter decimal places
+
+            # Convert input to float and format
+            float_value = float(raw_value)
+
+            if "." in raw_value:
+                integer_part, decimal_part = raw_value.split(".")
+                formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
+                formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
+            else:
+                formatted_value = "{:,}".format(int(float_value))  # Format whole number
+
+            # Adjust cursor position based on new commas added
+            num_commas_before = input_value[:cursor_position].count(",")
+            num_commas_after = formatted_value[:cursor_position].count(",")
+
+            new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+
+            # Prevent cursor jumping by resetting the value and restoring cursor position
+            qty_entry.delete(0, "end")
+            qty_entry.insert(0, formatted_value)
+            qty_entry.icursor(new_cursor_position)  # Restore cursor position
+        except ValueError:
+            pass  # Ignore invalid input
+
+    # Tkinter StringVar for real-time updates
+    qty_var = StringVar()
+
+    # Validation Command for Entry Widget
     validate_numeric_command = rmcode_frame.register(EntryValidation.validate_numeric_input)
 
     # Quantity Entry Field
     qty_label = ttk.Label(rmcode_frame, text="Quantity", font=("Helvetica", 10, "bold"))
-    qty_label.grid(row=0, column=2, padx=(2,0), pady=(0, 0), sticky=W)
+    qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
+
     qty_entry = ttk.Entry(rmcode_frame,
                           width=21,
-                          validate="key",  # Trigger validation on keystrokes
-                          validatecommand=(validate_numeric_command, "%P")  # Pass the current widget content ("%P")
-                          )
-    qty_entry.grid(row=1, column=2, padx=(5,0), pady=(0, 0), sticky=W)
+                          textvariable=qty_var,
+                          validate="key",
+                          validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
+    qty_entry.grid(row=1, column=2, padx=2, pady=(0, 0), sticky=W)
+
+    # Bind the event to format input dynamically while preserving cursor position
+    qty_entry.bind("<KeyRelease>", format_numeric_input)
+
     ToolTip(qty_entry, text="Enter the Quantity(kg)")
+
+
+
 
     date_frame = ttk.Frame(form_frame)
     date_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")

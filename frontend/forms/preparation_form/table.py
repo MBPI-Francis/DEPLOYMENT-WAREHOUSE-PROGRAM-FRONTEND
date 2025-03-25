@@ -118,8 +118,8 @@ class NoteTable:
                 item["wh_name"],
                 item["status"],
                 item["ref_number"],
-                qty_return_formatted,
                 qty_prepared_formatted,
+                qty_return_formatted,
                 item["preparation_date"],
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
             )
