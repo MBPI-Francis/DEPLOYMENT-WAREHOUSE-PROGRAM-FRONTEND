@@ -24,24 +24,47 @@ class EntryValidation:
                 text_list.append("Outgoing Date")
         return text_list
 
-    # Validation function for numeric input
+    # # Validation function for numeric input
+    # @staticmethod
+    # def validate_numeric_input(input_value):
+    #     """
+    #     Validates that the input contains only numeric characters or a decimal point
+    #     with up to two decimal places.
+    #     """
+    #     if input_value == "":
+    #         return True  # Allow empty input
+    #     try:
+    #         # Convert input to float and ensure it has up to two decimal places
+    #         float_value = float(input_value)
+    #         parts = input_value.split(".")
+    #         if len(parts) == 1:  # No decimal point
+    #             return True
+    #         elif len(parts) == 2 and len(parts[1]) <= 2:  # Check decimal places
+    #             return True
+    #         else:
+    #             return False
+    #     except ValueError:
+    #         return False  # Reject invalid inputs
+
+
     @staticmethod
     def validate_numeric_input(input_value):
-        """
-        Validates that the input contains only numeric characters or a decimal point
-        with up to two decimal places.
-        """
         if input_value == "":
             return True  # Allow empty input
+
+        raw_value = input_value.replace(",", "")  # Remove commas for validation
+
+        if raw_value.count(".") > 1:  # Ensure only one decimal point
+            return False
+
         try:
-            # Convert input to float and ensure it has up to two decimal places
-            float_value = float(input_value)
-            parts = input_value.split(".")
-            if len(parts) == 1:  # No decimal point
-                return True
-            elif len(parts) == 2 and len(parts[1]) <= 2:  # Check decimal places
-                return True
-            else:
+            float_value = float(raw_value)  # Check if it's a valid float
+
+            # Ensure only two decimal places
+            parts = raw_value.split(".")
+            if len(parts) == 2 and len(parts[1]) > 2:
                 return False
+
+            return True
         except ValueError:
             return False  # Reject invalid inputs
