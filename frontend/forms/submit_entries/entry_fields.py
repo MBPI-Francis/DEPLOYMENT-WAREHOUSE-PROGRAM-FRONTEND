@@ -13,7 +13,7 @@ from tkinter.filedialog import asksaveasfilename
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 from openpyxl.worksheet.datavalidation import DataValidation
-
+from openpyxl.styles import numbers
 
 def entry_fields(note_form_tab):
 
@@ -461,6 +461,7 @@ def create_soh_whse_excel(date_entry_value, data):
         # Insert data into the respective warehouse sheet
         for record in data:
             if record["warehousenumber"] == int(sheet_name[-1]):  # Match warehouse number to sheet
+
                 row = [
                     record["rmcode"],  # rmcode
                     "",  # No of bags (blank)
@@ -471,6 +472,10 @@ def create_soh_whse_excel(date_entry_value, data):
                     ""  # Drop list (blank)
                 ]
                 sheet.append(row)
+
+                # Apply number format (thousands separator)
+                qty_cell = sheet.cell(row=sheet.max_row, column=5)  # Column 5 is qty_value
+                qty_cell.number_format = numbers.FORMAT_NUMBER_COMMA_SEPARATED1  # Apply Excel formatting
 
         # Create a dropdown list for the "drop list" column
         dv = DataValidation(
