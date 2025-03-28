@@ -55,6 +55,10 @@ def entry_fields(note_form_tab):
         rm_code_id = get_selected_rm_code_id()
         ref_number = ref_number_entry.get()
         qty = qty_entry.get()
+
+        if qty is None or qty == '':
+            qty = '0'
+
         # This code removes the commas in the qty value
         cleaned_qty = float(qty.replace(",", ""))
 
@@ -95,6 +99,16 @@ def entry_fields(note_form_tab):
 
                 table.refresh_table()
                 # refresh_table()  # Refresh the table
+
+                # Get the last inserted row ID
+                last_row_id = table.tree.get_children()[-1]  # Get the last row's ID
+
+                # Highlight the last row
+                table.tree.selection_set(last_row_id)  # Select the last row
+                table.tree.focus(last_row_id)  # Focus on the last row
+                table.tree.see(last_row_id)  # Scroll to make it visible
+
+
         except requests.exceptions.RequestException as e:
             Messagebox.show_info(e, "Data Entry Error")
 
@@ -123,7 +137,7 @@ def entry_fields(note_form_tab):
     checkbox_warehouse_var = ttk.IntVar()
     lock_warehouse = ttk.Checkbutton(
         warehouse_frame,
-        text="Lock",
+
         variable=checkbox_warehouse_var,
         bootstyle="round-toggle"
     )
@@ -142,7 +156,7 @@ def entry_fields(note_form_tab):
     refno_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # REF Number Entry Field
-    ref_number_label = ttk.Label(refno_frame, text="RR no.", font=("Helvetica", 10, "bold"))
+    ref_number_label = ttk.Label(refno_frame, text="RR No.", font=("Helvetica", 10, "bold"))
     ref_number_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
     ref_number_entry = ttk.Entry(refno_frame, width=30)
     ref_number_entry.grid(row=1, column=0, padx=5, pady=(0,0), sticky=W)
@@ -153,11 +167,11 @@ def entry_fields(note_form_tab):
     # Checkbox beside the combobox
     lock_reference = ttk.Checkbutton(
         refno_frame,
-        text="Lock",
+
         variable=checkbox_reference_var,
         bootstyle="round-toggle"
     )
-    lock_reference.grid(row=0, pady=(0,0), padx=10, sticky=E)  # Position the checkbox next to the combobox
+    lock_reference.grid(row=0, pady=(0,0), padx=(0,6), sticky=E)  # Position the checkbox next to the combobox
     ToolTip(lock_reference, text="Lock the reference number by clicking this")
 
 
@@ -246,7 +260,7 @@ def entry_fields(note_form_tab):
     validate_numeric_command = rmcode_frame.register(EntryValidation.validate_numeric_input)
 
     # Quantity Entry Field
-    qty_label = ttk.Label(rmcode_frame, text="Quantity", font=("Helvetica", 10, "bold"))
+    qty_label = ttk.Label(rmcode_frame, text="Quantity(kg)", font=("Helvetica", 10, "bold"))
     qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
 
     qty_entry = ttk.Entry(rmcode_frame,
@@ -260,7 +274,6 @@ def entry_fields(note_form_tab):
     qty_entry.bind("<KeyRelease>", format_numeric_input)
 
     ToolTip(qty_entry, text="Enter the Quantity(kg)")
-
 
 
 

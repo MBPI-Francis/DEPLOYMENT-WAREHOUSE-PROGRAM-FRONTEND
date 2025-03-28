@@ -38,7 +38,7 @@ class OutgoingFormTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Reference No.", "Quantity(kg)", "Outgoing Date", "Entry Date"),
+            columns=("Raw Material", "Warehouse", "Reference No.", "Quantity(kg)", "Outgoing Date", "Date Encoded"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -85,7 +85,7 @@ class OutgoingFormTable:
                     item["wh_name"],
                     item["ref_number"],
                     qty_kg_formatted,
-                    item["outgoing_date"],
+                    datetime.fromisoformat(item["outgoing_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 )
                 self.original_data.append(record)  # Save record

@@ -16,3 +16,5 @@ class EntryValidation:
             elif key == "consumption_date" and not value:
                 text_list.append("Consumption Date")
         return text_list
+
+

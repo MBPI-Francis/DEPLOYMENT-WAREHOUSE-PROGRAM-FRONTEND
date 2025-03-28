@@ -40,11 +40,16 @@ class PreparationFormTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Status", "Reference No.",
-                    "QTY (Prepared)", "QTY (Return)",
-                    "Preparation Date",
-                    "Entry Date",
-                     "Date Computed"),
+            columns=("Raw Material",
+                    "Warehouse",
+                    "Status",
+                    "Reference No.",
+                    "QTY (Prepared)",
+                    "QTY (Return)",
+                    "Consumption",
+                    "Date Reported",
+                    "Date Encoded",
+                    "Date Computed"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -80,8 +85,9 @@ class PreparationFormTable:
                         "Reference No.",
                         "QTY (Prepared)",
                         "QTY (Return)",
-                        "Preparation Date",
-                        "Entry Date",
+                        "Consumption",
+                        "Date Reported",
+                        "Date Encoded",
                         "Date Computed"]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
@@ -106,6 +112,10 @@ class PreparationFormTable:
         for item in self.fetch_data():
             qty_prepared_formatted = "{:,.2f}".format(float(item["qty_prepared"]))  # Format qty_kg with commas
             qty_return_formatted = "{:,.2f}".format(float(item["qty_return"]))  # Format qty_kg with commas
+
+            consumption = float(item["qty_prepared"]) - float(item["qty_return"])
+            consumption_formatted = "{:,.2f}".format(consumption)
+
             record = (
                 item["id"],  # Store ID
                 item["raw_material"],
@@ -114,9 +124,10 @@ class PreparationFormTable:
                 item["ref_number"],
                 qty_prepared_formatted ,
                 qty_return_formatted,
-                item["preparation_date"],
+                consumption_formatted,
+                datetime.fromisoformat(item["preparation_date"]).strftime("%m/%d/%Y"),
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
-                item["date_computed"],
+                datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
             )
             self.original_data.append(record)  # Save record
             self.tree.insert("", END, iid=record[0], values=record[1:])

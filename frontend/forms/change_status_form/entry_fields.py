@@ -5,7 +5,7 @@ from backend.settings.database import server_ip
 from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
-from .table import NoteTable
+from .table import ChangeStatusFormTable
 from .validation import EntryValidation
 from ..preparation_form.validation import EntryValidation as PrepValidation
 from tkinter import StringVar
@@ -60,9 +60,12 @@ def entry_fields(note_form_tab):
 
         if not checkbox_warehouse_var.get():
             warehouse_combobox.set("")
+
+        if not checkbox_status_var.get():
+            current_status_combobox.set("")
+            new_status_combobox.set("")
+
         rm_codes_combobox.set("")
-        current_status_combobox.set("")
-        new_status_combobox.set("")
         qty_entry.delete(0, ttk.END)
 
 
@@ -74,6 +77,10 @@ def entry_fields(note_form_tab):
         ref_number = ref_number_entry.get()
 
         qty = qty_entry.get()
+
+        if qty is None or qty == '':
+            qty = '0'
+
         cleaned_qty = float(qty.replace(",", ""))
 
         current_status = get_selected_current_status_id()
@@ -124,6 +131,16 @@ def entry_fields(note_form_tab):
                 if response.status_code == 200:  # Successfully created
                     clear_fields()
                     note_table.refresh_table()
+
+                    # Get the last inserted row ID
+                    last_row_id = note_table.tree.get_children()[-1]  # Get the last row's ID
+
+                    # Highlight the last row
+                    note_table.tree.selection_set(last_row_id)  # Select the last row
+                    note_table.tree.focus(last_row_id)  # Focus on the last row
+                    note_table.tree.see(last_row_id)  # Scroll to make it visible
+
+
             except requests.exceptions.RequestException as e:
                 Messagebox.show_error(e, "Data Entry Error")
 
@@ -160,7 +177,7 @@ def entry_fields(note_form_tab):
     checkbox_warehouse_var = ttk.IntVar()
     lock_warehouse = ttk.Checkbutton(
         warehouse_frame,
-        text="Lock",
+
         variable=checkbox_warehouse_var,
         bootstyle="round-toggle"
     )
@@ -179,23 +196,23 @@ def entry_fields(note_form_tab):
     refno_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # REF Number Entry Field
-    ref_number_label = ttk.Label(refno_frame, text="PF ID no.", font=("Helvetica", 10, "bold"))
+    ref_number_label = ttk.Label(refno_frame, text="CSF No.", font=("Helvetica", 10, "bold"))
     ref_number_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
     ref_number_entry = ttk.Entry(refno_frame, width=30)
     ref_number_entry.grid(row=1, column=0, padx=5, pady=(0, 0), sticky=W)
-    ToolTip(ref_number_entry, text="Enter the Reference Number")
+    ToolTip(ref_number_entry, text="Enter the Change Status Form number")
 
     checkbox_reference_var = ttk.IntVar()  # Integer variable to store checkbox state (0 or 1)
 
     # Checkbox beside the combobox
     lock_reference = ttk.Checkbutton(
         refno_frame,
-        text="Lock",
+
         variable=checkbox_reference_var,
         bootstyle="round-toggle"
     )
     lock_reference.grid(row=0, pady=(0, 0), padx=10, sticky=E)  # Position the checkbox next to the combobox
-    ToolTip(lock_reference, text="Lock the reference number by clicking this")
+    ToolTip(lock_reference, text="Lock the CSF No. by clicking this")
 
     # RM CODE FRAME
     rmcode_frame = ttk.Frame(form_frame)
@@ -281,7 +298,7 @@ def entry_fields(note_form_tab):
     validate_numeric_command = rmcode_frame.register(EntryValidation.validate_numeric_input)
 
     # Quantity Entry Field
-    qty_label = ttk.Label(rmcode_frame, text="Quantity", font=("Helvetica", 10, "bold"))
+    qty_label = ttk.Label(rmcode_frame, text="Quantity(kg)", font=("Helvetica", 10, "bold"))
     qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
 
     qty_entry = ttk.Entry(rmcode_frame,
@@ -298,7 +315,6 @@ def entry_fields(note_form_tab):
 
 
 
-
     # STATUS FRAME
     status_frame = ttk.Frame(form_frame)
     status_frame.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="w")
@@ -309,8 +325,8 @@ def entry_fields(note_form_tab):
     status_names = list(status_to_id.keys())
 
 
-    # Combobox for Current Status Drop Down
-    current_status_label = ttk.Label(status_frame, text="Current Status", font=("Helvetica", 10, "bold"))
+    # Combobox for Previous Status Drop Down
+    current_status_label = ttk.Label(status_frame, text="Previous Status", font=("Helvetica", 10, "bold"))
     current_status_label.grid(row=2, column=0, padx=5, pady=(0,0), sticky=W)
     current_status_combobox = ttk.Combobox(
         status_frame,
@@ -319,11 +335,11 @@ def entry_fields(note_form_tab):
         width=20,
     )
     current_status_combobox.grid(row=3, column=0, pady=0, padx=(10,2), sticky=W)
-    ToolTip(current_status_combobox, text="Choose the current status")
+    ToolTip(current_status_combobox, text="Choose the previous status")
 
 
     # Combobox for Warehouse Drop Down
-    new_status_label = ttk.Label(status_frame, text="New Status", font=("Helvetica", 10, "bold"))
+    new_status_label = ttk.Label(status_frame, text="Present Status", font=("Helvetica", 10, "bold"))
     new_status_label.grid(row=2, column=1, padx=(0,0), pady=(0,0), sticky=W)
     new_status_combobox = ttk.Combobox(
         status_frame,
@@ -332,7 +348,18 @@ def entry_fields(note_form_tab):
         width=20,
     )
     new_status_combobox.grid(row=3, column=1, pady=0, padx=0, sticky=W)
-    ToolTip(new_status_combobox, text="Choose a new status")
+    ToolTip(new_status_combobox, text="Choose the present status")
+
+    checkbox_status_var = ttk.IntVar()  # Integer variable to store checkbox state (0 or 1)
+
+    # Checkbox beside the combobox
+    lock_status = ttk.Checkbutton(
+        status_frame,
+        variable=checkbox_status_var,
+        bootstyle="round-toggle"
+    )
+    lock_status.grid(row=2, column=1, pady=(0, 0), padx=(0,0), sticky=E)  # Position the checkbox next to the combobox
+    ToolTip(lock_status, text="Lock both Previous and Present Status by clicking this")
 
 
     # DATE FRAME
@@ -370,5 +397,5 @@ def entry_fields(note_form_tab):
 
 
     # Calling the table
-    note_table = NoteTable(note_form_tab)
+    note_table = ChangeStatusFormTable(note_form_tab)
 

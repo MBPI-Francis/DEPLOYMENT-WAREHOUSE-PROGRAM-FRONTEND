@@ -59,11 +59,16 @@ def entry_fields(note_form_tab):
 
                 note_table.load_data()
                 # refresh_table()  # Refresh the table
+
+                # Get the last inserted row ID
+                last_row_id = note_table.tree.get_children()[-1]  # Get the last row's ID
+
+                # Highlight the last row
+                note_table.tree.selection_set(last_row_id)  # Select the last row
+                note_table.tree.focus(last_row_id)  # Focus on the last row
+                note_table.tree.see(last_row_id)  # Scroll to make it visible
         except requests.exceptions.RequestException as e:
             Messagebox.show_info(e, "Data Entry Error")
-
-        # Function to get the selected item's ID
-
 
 
 
@@ -87,6 +92,8 @@ def entry_fields(note_form_tab):
 
         # Convert the text to uppercase and set it back
         lot_number_var.set(lot_num_current_text.upper())
+
+
 
     # Date Entry field
     date_label = ttk.Label(form_frame, text="Consumption Date", font=("Helvetica", 10, "bold"))

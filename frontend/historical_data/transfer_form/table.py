@@ -44,7 +44,7 @@ class TransferFormTable:
             columns=(
                     "Raw Material", "Reference No.", "Quantity(kg)",
                     "Warehouse (FROM)", "Warehouse (TO)", "Status",
-                    "Transfer Date", "Entry Date", "Date Computed"),
+                    "Transfer Date", "Date Encoded", "Date Computed"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -96,9 +96,9 @@ class TransferFormTable:
                     item["from_warehouse"],
                     item["to_warehouse"],
                     item["status"],
-                    item["transfer_date"],
+                    datetime.fromisoformat(item["transfer_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
-                    item["date_computed"],
+                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
                 )
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])

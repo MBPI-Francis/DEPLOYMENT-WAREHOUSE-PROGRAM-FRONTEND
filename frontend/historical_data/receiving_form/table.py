@@ -40,7 +40,7 @@ class NoteTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Receiving Date", "Entry Date", "Date Computed"),
+            columns=("Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Receiving Date", "Date Encoded", "Date Computed"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -69,7 +69,7 @@ class NoteTable:
         self.refresh_table()
 
         # Define column headers
-        col_names = ["Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Receiving Date", "Entry Date", "Date Computed"]
+        col_names = ["Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Receiving Date", "Date Encoded", "Date Computed"]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
@@ -97,9 +97,9 @@ class NoteTable:
                 item["wh_name"],
                 item["ref_number"],
                 qty_kg_formatted,
-                item["receiving_date"],
+                datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
-                item["date_computed"],
+                datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y")
 
             )
             self.original_data.append(record)  # Save record

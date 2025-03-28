@@ -40,8 +40,8 @@ class ChangeStatusFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                    "Raw Material", "Warehouse", "Reference No.", "Quantity(kg)",
-                    "Current Status", "New Status", "Change Date", "Entry Date", "Date Computed"),
+                    "Raw Material", "Warehouse", "CSF No.", "Quantity(kg)",
+                    "Previous Status", "Present Status", "Change Date", "Date Encoded", "Date Computed"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -92,9 +92,9 @@ class ChangeStatusFormTable:
                     qty_kg_formatted,
                     item["current_status"],
                     item["new_status"],
-                    item["change_status_date"],
+                    datetime.fromisoformat(item["change_status_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
-                    item["date_computed"],
+                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
                 )
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])
@@ -106,7 +106,6 @@ class ChangeStatusFormTable:
         item = self.tree.identify_row(event.y)
         if item:
             menu = ttk.Menu(self.root, tearoff=0)
-            menu.add_command(label="Edit", command=lambda: self.edit_record(item))
             # menu.add_command(label="Delete", command=lambda: self.confirm_delete(item))
             menu.add_command(label="Delete", command=lambda: self.delete_entry(item))
             menu.post(event.x_root, event.y_root)

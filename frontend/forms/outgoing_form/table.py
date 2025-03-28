@@ -36,7 +36,7 @@ class OutgoingFormTable:
         # Add button to clear data
         btn_clear = ttk.Button(
             search_frame,
-            text="Clear All Data",
+            text="Clear Data",
             command=self.confirmation_panel_clear,
             bootstyle=WARNING,
         )
@@ -52,11 +52,11 @@ class OutgoingFormTable:
             master=tree_frame,
             columns=("Raw Material",
                      "Warehouse",
-                     "Reference No.",
+                     "OGR No.",
                      "Quantity(kg)",
                      "Status",
                      "Outgoing Date",
-                     "Entry Date"),
+                     "Date Encoded"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -105,7 +105,7 @@ class OutgoingFormTable:
                     item["ref_number"],
                     qty_kg_formatted,
                     item["status"],
-                    item["outgoing_date"],
+                    datetime.fromisoformat(item["outgoing_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 )
 
@@ -129,7 +129,7 @@ class OutgoingFormTable:
     def edit_record(self, item):
         """Open edit form."""
         record = self.tree.item(item, 'values')
-        # Remove "Beginning Balance" (index 4) and "Entry Date" (index 6)
+        # Remove "Beginning Balance" (index 4) and "Date Encoded" (index 6)
         record = (record[0], record[1], record[2], record[3], record[4], record[5])
 
 
@@ -141,7 +141,7 @@ class OutgoingFormTable:
 
         fields = ["Raw Material",
                   "Warehouse",
-                  "Ref No.",
+                  "OGR No.",
                   "Quantity(kg)",
                   "Status",
                   "Outgoing Date"
@@ -190,7 +190,7 @@ class OutgoingFormTable:
             elif field == "Outgoing Date":
                 entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
                 entry.entry.delete(0, "end")
-                formatted_date = datetime.strptime(record[idx], "%Y-%m-%d").strftime("%m/%d/%Y")
+                formatted_date = record[idx]
                 entry.entry.insert(0, formatted_date)
 
 
@@ -248,7 +248,7 @@ class OutgoingFormTable:
             data = {
                 "rm_code_id": get_selected_rm_code_id(),
                 "warehouse_id": get_selected_warehouse_id(),
-                "ref_number": entries["Ref No."].get(),
+                "ref_number": entries["OGR No."].get(),
                 "status_id": get_selected_status_id(),
                 "outgoing_date":  outgoing_date,
                 "qty_kg": entries["Quantity(kg)"].get(),

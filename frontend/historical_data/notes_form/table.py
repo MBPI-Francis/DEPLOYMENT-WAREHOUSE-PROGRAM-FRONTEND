@@ -41,7 +41,7 @@ class NoteTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Product Code", "Lot No.", "Product Kind", "Consumption Date", "Entry Date", "Date Computed"),
+            columns=("Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded", "Date Computed"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -62,7 +62,7 @@ class NoteTable:
 
 
         # Define column headers
-        col_names = ["Product Code", "Lot No.", "Product Kind", "Consumption Date", "Entry Date", "Date Computed"]
+        col_names = ["Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded", "Date Computed"]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)

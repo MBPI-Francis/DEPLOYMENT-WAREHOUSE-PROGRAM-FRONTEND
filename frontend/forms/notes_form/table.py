@@ -10,6 +10,7 @@ from backend.settings.database import server_ip
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
 from tkinter import font
+from ttkbootstrap.style import Style
 
 
 class NoteTable:
@@ -25,10 +26,11 @@ class NoteTable:
         self.search_entry.bind("<Return>", self.search_data)
 
 
+
         # Add button to clear data
         btn_clear = ttk.Button(
             search_frame,
-            text="Clear All Data",
+            text="Clear Data",
             command=self.confirmation_panel_clear,
             bootstyle=WARNING,
         )
@@ -47,7 +49,7 @@ class NoteTable:
                      "Lot No.",
                      "Product Kind",
                      "Consumption Date",
-                     "Entry Date"),
+                     "Date Encoded"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -68,15 +70,14 @@ class NoteTable:
 
 
         # Define column headers
-        col_names = ["Product Code", "Lot No.", "Product Kind", "Consumption Date", "Entry Date"]
+        col_names = ["Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded"]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
 
-
-
         # Load Data
         self.load_data()
+
 
         # Bind right-click
         self.tree.bind("<Button-3>", self.show_context_menu)

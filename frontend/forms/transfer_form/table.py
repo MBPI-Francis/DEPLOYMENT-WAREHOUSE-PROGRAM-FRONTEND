@@ -37,7 +37,7 @@ class TransferFormTable:
         # Add button to clear data
         btn_clear = ttk.Button(
             search_frame,
-            text="Clear All Data",
+            text="Clear Data",
             command=self.confirmation_panel_clear,
             bootstyle=WARNING,
         )
@@ -53,13 +53,13 @@ class TransferFormTable:
             master=tree_frame,
             columns=(
                     "Raw Material",
-                    "Reference No.",
+                    "TF No.",
                     "Quantity(kg)",
                     "Warehouse (FROM)",
                     "Warehouse (TO)",
                     "Status",
                     "Transfer Date",
-                    "Entry Date"),
+                    "Date Encoded"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -111,8 +111,9 @@ class TransferFormTable:
                     item["from_warehouse"],
                     item["to_warehouse"],
                     item["status"],
-                    item["transfer_date"],
+                    datetime.fromisoformat(item["transfer_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
+
                 )
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])
@@ -139,7 +140,7 @@ class TransferFormTable:
         edit_window.title("Edit Record")
 
         fields = ["Raw Material",
-                  "Reference No.",
+                  "TF No.",
                   "Quantity(kg)",
                   "Warehouse (FROM)",
                   "Warehouse (TO)",
@@ -199,7 +200,7 @@ class TransferFormTable:
             elif field == "Transfer Date":
                 entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
                 entry.entry.delete(0, "end")
-                formatted_date = datetime.strptime(record[idx], "%Y-%m-%d").strftime("%m/%d/%Y")
+                formatted_date = record[idx]
                 entry.entry.insert(0, formatted_date)
 
 
@@ -267,7 +268,7 @@ class TransferFormTable:
                 "rm_code_id": get_selected_rm_code_id(),
                 "from_warehouse_id": get_selected_warehouse_from_id(),
                 "to_warehouse_id": get_selected_warehouse_to_id(),
-                "ref_number": entries["Reference No."].get(),
+                "ref_number": entries["TF No."].get(),
                 "status_id": get_selected_status_id(),
                 "transfer_date": transfer_date,
                 "qty_kg": entries["Quantity(kg)"].get(),

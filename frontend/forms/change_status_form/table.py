@@ -14,7 +14,7 @@ from frontend.forms.preparation_form.validation import EntryValidation as PrepVa
 from frontend.forms.shared import SharedFunctions
 
 
-class NoteTable:
+class ChangeStatusFormTable:
     def __init__(self, root):
         self.root = root
         shared_functions = SharedFunctions()
@@ -35,7 +35,7 @@ class NoteTable:
         # Add button to clear data
         btn_clear = ttk.Button(
             search_frame,
-            text="Clear All Data",
+            text="Clear Data",
             command=self.confirmation_panel_clear,
             bootstyle=WARNING,
         )
@@ -51,8 +51,8 @@ class NoteTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                    "Raw Material", "Warehouse", "Reference No.", "Quantity(kg)",
-                    "Current Status", "New Status", "Change Date", "Entry Date"),
+                    "Raw Material", "Warehouse", "CSF No.", "Quantity(kg)",
+                    "Previous Status", "Present Status", "Change Date", "Date Encoded"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -104,7 +104,7 @@ class NoteTable:
                     qty_kg_formatted,
                     item["current_status"],
                     item["new_status"],
-                    item["change_status_date"],
+                    datetime.fromisoformat(item["change_status_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 )
                 self.original_data.append(record)  # Save record
@@ -132,8 +132,8 @@ class NoteTable:
         edit_window = Toplevel(self.root)
         edit_window.title("Edit Record")
 
-        fields = ["Raw Material", "Warehouse", "Reference No.", "Quantity(kg)",
-            "Current Status", "New Status", "Change Date",]
+        fields = ["Raw Material", "Warehouse", "CSF No.", "Quantity(kg)",
+            "Previous Status", "Present Status", "Change Date",]
         entries = {}
 
 
@@ -164,10 +164,10 @@ class NoteTable:
             elif field == "Change Date":
                 entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
                 entry.entry.delete(0, "end")
-                formatted_date = datetime.strptime(record[idx], "%Y-%m-%d").strftime("%m/%d/%Y")
+                formatted_date = record[idx]
                 entry.entry.insert(0, formatted_date)
 
-            elif field == "Current Status":
+            elif field == "Previous Status":
                 # Warehouse JSON-format choices (coming from the API)
                 status = self.get_status_api
                 status_to_id = {item["name"]: item["id"] for item in status}
@@ -178,7 +178,7 @@ class NoteTable:
                 ToolTip(entry, text="You shouldn't update the current status")  # Tooltip
 
 
-            elif field == "New Status":
+            elif field == "Present Status":
                 # Warehouse JSON-format choices (coming from the API)
                 status = self.get_status_api
                 status_to_id = {item["name"]: item["id"] for item in status}
@@ -225,7 +225,7 @@ class NoteTable:
                 return None
 
         def get_selected_current_status_id():
-            selected_name = entries["Current Status"].get()
+            selected_name = entries["Previous Status"].get()
             selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
             if selected_id:
                 return selected_id
@@ -233,7 +233,7 @@ class NoteTable:
                 return None
 
         def get_selected_new_status_id():
-            selected_name = entries["New Status"].get()
+            selected_name = entries["Present Status"].get()
             selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
             if selected_id:
                 return selected_id
@@ -252,7 +252,7 @@ class NoteTable:
                 "warehouse_id": get_selected_warehouse_id(),
                 "current_status_id": get_selected_current_status_id(),
                 "new_status_id": get_selected_new_status_id(),
-                "ref_number": entries["Reference No."].get(),
+                "ref_number": entries["CSF No."].get(),
                 "change_status_date":  change_status_date,
                 "qty_kg": entries["Quantity(kg)"].get(),
             }

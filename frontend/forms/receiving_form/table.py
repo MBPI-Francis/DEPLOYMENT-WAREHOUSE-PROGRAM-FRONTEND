@@ -33,7 +33,7 @@ class ReceivingFormTable:
         # Add button to clear data
         btn_clear = ttk.Button(
             search_frame,
-            text="Clear All Data",
+            text="Clear Data",
             command=self.confirmation_panel_clear,
             bootstyle=WARNING,
         )
@@ -47,7 +47,7 @@ class ReceivingFormTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "RR no.#", "Quantity(kg)", "Receiving Date", "Entry Date"),
+            columns=("Raw Material", "Warehouse", "RR No.", "Quantity(kg)", "Receiving Date", "Date Encoded"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -78,10 +78,10 @@ class ReceivingFormTable:
         # Define column headers
         col_names = ["Raw Material",
                      "Warehouse",
-                     "RR no.#",
+                     "RR No.",
                      "Quantity(kg)",
                      "Receiving Date",
-                     "Entry Date"
+                     "Date Encoded"
                      ]
 
         for col in col_names:
@@ -112,7 +112,7 @@ class ReceivingFormTable:
                 item["wh_name"],
                 item["ref_number"],
                 qty_kg_formatted,  # Formatted qty_kg
-                item["receiving_date"],
+                datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
             )
             self.original_data.append(record)  # Save record
@@ -145,7 +145,7 @@ class ReceivingFormTable:
         edit_window = Toplevel(self.root)
         edit_window.title("Edit Record")
 
-        fields = ["Raw Material", "Warehouse", "RR no.#", "Quantity(kg)", "Receiving Date"]
+        fields = ["Raw Material", "Warehouse", "RR No.", "Quantity(kg)", "Receiving Date"]
         entries = {}
 
 
@@ -177,7 +177,7 @@ class ReceivingFormTable:
             elif field == "Receiving Date":
                 entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
                 entry.entry.delete(0, "end")
-                formatted_date = datetime.strptime(record[idx], "%Y-%m-%d").strftime("%m/%d/%Y")
+                formatted_date = record[idx]
                 entry.entry.insert(0, formatted_date)
 
 

@@ -34,7 +34,7 @@ class PreparationFormTable:
         # Add button to clear data
         btn_clear = ttk.Button(
             search_frame,
-            text="Clear All Data",
+            text="Clear Data",
             command=self.confirmation_panel_clear,
             bootstyle=WARNING,
         )
@@ -48,10 +48,10 @@ class PreparationFormTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Status", "Reference No.",
-                  "QTY (Prepared)", "QTY (Return)",
+            columns=("Raw Material", "Warehouse", "Status", "PF ID No.",
+                  "QTY (Prepared)", "QTY (Return)", "Consumption",
                   "Preparation Date",
-                  "Entry Date"),
+                  "Date Encoded"),
             show='headings',
             bootstyle=PRIMARY
         )
@@ -84,11 +84,12 @@ class PreparationFormTable:
         col_names = [   "Raw Material",
                         "Warehouse",
                         "Status",
-                        "Reference No.",
+                        "PF ID No.",
                         "QTY (Prepared)",
                         "QTY (Return)",
+                        "Consumption",
                         "Preparation Date",
-                        "Entry Date"]
+                        "Date Encoded"]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
@@ -112,6 +113,10 @@ class PreparationFormTable:
         for item in self.fetch_data():
             qty_return_formatted = "{:,.2f}".format(float(item["qty_return"]))  # Format qty_kg with commas
             qty_prepared_formatted = "{:,.2f}".format(float(item["qty_prepared"]))  # Format qty_kg with commas
+
+            consumption = float(item["qty_prepared"]) - float(item["qty_return"])
+            consumption_formatted = "{:,.2f}".format(consumption)
+
             record = (
                 item["id"],  # Store ID
                 item["raw_material"],
@@ -120,7 +125,8 @@ class PreparationFormTable:
                 item["ref_number"],
                 qty_prepared_formatted,
                 qty_return_formatted,
-                item["preparation_date"],
+                consumption_formatted,
+                datetime.fromisoformat(item["preparation_date"]).strftime("%m/%d/%Y"),
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
             )
             self.original_data.append(record)  # Save record
@@ -150,13 +156,17 @@ class PreparationFormTable:
         if not record:
             return
 
+        # Remove "Beginning Balance" (index 4) and "Date Encoded" (index 6)
+        record = (record[0], record[1], record[2], record[3], record[4], record[5], record[7])
+
+
         edit_window = Toplevel(self.root)
         edit_window.title("Edit Record")
 
         fields = [ "Raw Material",
                     "Warehouse",
                     "Status",
-                    "Reference No.",
+                    "PF ID No.",
                     "QTY (Prepared)",
                     "QTY (Return)",
                     "Preparation Date"]
@@ -201,7 +211,7 @@ class PreparationFormTable:
             elif field == "Preparation Date":
                 entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
                 entry.entry.delete(0, "end")
-                formatted_date = datetime.strptime(record[idx], "%Y-%m-%d").strftime("%m/%d/%Y")
+                formatted_date = record[idx]
                 entry.entry.insert(0, formatted_date)
 
 
@@ -280,7 +290,7 @@ class PreparationFormTable:
             data = {
                 "rm_code_id": get_selected_rm_code_id(),
                 "warehouse_id": get_selected_warehouse_id(),
-                "ref_number": entries["Reference No."].get(),
+                "ref_number": entries["PF ID No."].get(),
                 "status_id": get_selected_status_id(),
                 "preparation_date":  preparation_date,
                 "qty_prepared": entries["QTY (Prepared)"].get(),
