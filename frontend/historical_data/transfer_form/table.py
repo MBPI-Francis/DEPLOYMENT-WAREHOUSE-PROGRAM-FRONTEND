@@ -42,9 +42,15 @@ class TransferFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                    "Raw Material", "Reference No.", "Quantity(kg)",
-                    "Warehouse (FROM)", "Warehouse (TO)", "Status",
-                    "Transfer Date", "Date Encoded", "Date Computed"),
+                    "Raw Material",
+                    "Reference No.",
+                    "Quantity(kg)",
+                    "Warehouse (FROM)",
+                    "Warehouse (TO)",
+                    "Status",
+                    "Transfer Date",
+                    "Date Encoded",
+                    "Date Computed"),
             show='headings',
             bootstyle=PRIMARY
         )

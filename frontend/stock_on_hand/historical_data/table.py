@@ -14,9 +14,9 @@ class HistoricalSOHTable:
         self.coldata = [
             {"text": "Raw Material Code", "stretch": True, "anchor": "w"},
             {"text": "Warehouse", "stretch": True},
-            {"text": "Beginning Balance", "stretch": True},
+            {"text": "Stocks", "stretch": True},
             {"text": "Status", "stretch": True},
-            {"text": "Last Movement", "stretch": True},
+            {"text": "Date Created", "stretch": True},
             {"text": "Date Computed", "stretch": True}
         ]
         self.rowdata = self.fetch_and_format_data()
