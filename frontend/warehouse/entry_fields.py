@@ -55,7 +55,7 @@ def entry_fields(note_form_tab):
     validate_numeric_command = form_frame.register(EntryValidation.validate_numeric_input)
 
     # Warehouse Number Entry Field
-    warehouse_number_label = ttk.Label(form_frame, text="Warehouse Number:", font=("Helvetica", 10, "bold"))
+    warehouse_number_label = ttk.Label(form_frame, text="Warehouse Number:", style="CustomLabel.TLabel")
     warehouse_number_label.grid(row=0, column=0, padx=5, pady=5, sticky=W)
     warehouse_number_entry = ttk.Entry(form_frame, width=30,
                                         validate="key",  # Trigger validation on keystrokes
@@ -64,7 +64,7 @@ def entry_fields(note_form_tab):
     ToolTip(warehouse_number_entry, text="Enter new warehouse number")
 
     # Warehouse Name Entry Field
-    warehouse_name_label = ttk.Label(form_frame, text="Warehouse Name:", font=("Helvetica", 10, "bold"))
+    warehouse_name_label = ttk.Label(form_frame, text="Warehouse Name:", style="CustomLabel.TLabel")
     warehouse_name_label.grid(row=0, column=3, padx=5, pady=5, sticky=W)
     warehouse_name_entry = ttk.Entry(form_frame, width=30)
     warehouse_name_entry.grid(row=1, column=3, padx=5, pady=5)

@@ -83,7 +83,7 @@ form_frame = tb.Frame(root, padding=10)
 form_frame.pack()
 
 # Date Label
-date_label = tb.Label(form_frame, text="Consumption Date", font=("Helvetica", 10, "bold"))
+date_label = tb.Label(form_frame, text="Consumption Date", style="CustomLabel.TLabel")
 date_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky="w")
 
 # Calculate yesterday's date

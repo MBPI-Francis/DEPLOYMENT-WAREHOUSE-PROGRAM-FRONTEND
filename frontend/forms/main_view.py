@@ -1,4 +1,5 @@
 import ttkbootstrap as ttk
+from ttkbootstrap import Style
 from ttkbootstrap.constants import *
 from .change_status_form.main_tab import held_form_tab
 from .notes_form.main_tab import notes_form_tab
@@ -24,7 +25,8 @@ class ConsumptionEntryView:
         )
         label.grid(row=0, column=0, sticky="nsew")
         
-        
+
+
         
         # Create the Notebook widget
         notebook = ttk.Notebook(consumption_entry_frame)

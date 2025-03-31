@@ -3,9 +3,12 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from .table import NoteTable
 from .entry_fields import entry_fields
+from ttkbootstrap.style import Style
 
 
 def notes_form_tab(notebook):
+
+
     note_form_tab = ttk.Frame(notebook)
     notebook.add(note_form_tab, text="Notes Form")
     # Populate the Raw Materials Tab

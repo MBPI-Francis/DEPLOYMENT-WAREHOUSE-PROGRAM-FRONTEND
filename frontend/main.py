@@ -1,4 +1,5 @@
 import ttkbootstrap as ttk
+from ttkbootstrap import Style
 from ttkbootstrap.constants import *
 from frontend.status.main_view import StatusView
 from frontend.historical_data.main_view import HistoricalDataView   
@@ -27,6 +28,27 @@ class App(ttk.Window):
         # style = ttk.Style()
         # style.configure("Treeview", font=self.tree_font)  # Apply font to table rows
         # style.configure("Treeview.Heading", font=self.header_font)  # Apply font to column headers
+
+
+        # ---------------------------[Font style for the TAB FONTS]---------------------------
+        # Initialize ttkbootstrap style
+        style = Style()
+
+        def apply_custom_styles():
+            """Function to reapply styles after theme change."""
+            style.configure("Custom.Treeview", rowheight=25, font=("Halvetica", 10))  # Set row height
+            style.configure("Treeview.Heading", background=style.colors.primary, foreground="white",
+                            font=("Helvetica", 10, "bold"))  # Set header background to PRIMARY
+
+            # Increase tab font size
+            style.configure("TNotebook.Tab", font=("Halvetica", 11, "bold"))  # Change font and size
+            style.configure("CustomLabel.TLabel", font=("Helvetica", 11, "bold"))
+
+        # Apply styles initially
+        apply_custom_styles()
+
+        # Listen for theme changes and reapply styles
+        style.master.bind("<<ThemeChanged>>", lambda event: apply_custom_styles())
 
 
 

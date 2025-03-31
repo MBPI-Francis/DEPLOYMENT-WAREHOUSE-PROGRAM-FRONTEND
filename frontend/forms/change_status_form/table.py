@@ -27,7 +27,7 @@ class ChangeStatusFormTable:
         # Frame for search
         search_frame = ttk.Frame(self.root)
         search_frame.pack(fill=X, padx=10, pady=(10, 0))
-        ttk.Label(search_frame, text="Search:").pack(side=LEFT, padx=5)
+        ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side=LEFT, padx=5)
         self.search_entry = ttk.Entry(search_frame, width=50)
         self.search_entry.pack(side=LEFT)
         self.search_entry.bind("<Return>", self.search_data)

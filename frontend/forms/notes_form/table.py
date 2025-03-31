@@ -20,7 +20,7 @@ class NoteTable:
         # Frame for search
         search_frame = ttk.Frame(self.root)
         search_frame.pack(fill=X, padx=10, pady=(10, 0))
-        ttk.Label(search_frame, text="Search:").pack(side=LEFT, padx=5)
+        ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side=LEFT, padx=5)
         self.search_entry = ttk.Entry(search_frame, width=50)
         self.search_entry.pack(side=LEFT)
         self.search_entry.bind("<Return>", self.search_data)
@@ -43,20 +43,6 @@ class NoteTable:
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
 
 
-        # Initialize ttkbootstrap style
-        style = Style()
-
-        def apply_custom_styles():
-            """Function to reapply styles after theme change."""
-            style.configure("Custom.Treeview", rowheight=25, font=("Halvetica", 10))  # Set row height
-            style.configure("Treeview.Heading", background=style.colors.primary, foreground="white",
-                            font=("Helvetica", 10, "bold"))  # Set header background to PRIMARY
-
-        # Apply styles initially
-        apply_custom_styles()
-
-        # Listen for theme changes and reapply styles
-        style.master.bind("<<ThemeChanged>>", lambda event: apply_custom_styles())
 
         # Now define self.tree
         self.tree = ttk.Treeview(

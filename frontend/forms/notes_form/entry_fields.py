@@ -96,7 +96,7 @@ def entry_fields(note_form_tab):
 
 
     # Date Entry field
-    date_label = ttk.Label(form_frame, text="Consumption Date", font=("Helvetica", 10, "bold"))
+    date_label = ttk.Label(form_frame, text="Consumption Date", style="CustomLabel.TLabel")
     date_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
 
     # Calculate yesterday's date
@@ -117,7 +117,7 @@ def entry_fields(note_form_tab):
     # Product Code Entry Field
 
     product_code_var = ttk.StringVar(value="")
-    product_code_label = ttk.Label(form_frame, text="Product Code", font=("Helvetica", 10, "bold"))
+    product_code_label = ttk.Label(form_frame, text="Product Code", style="CustomLabel.TLabel")
     product_code_label.grid(row=2, column=0, padx=5, pady=(0,0), sticky=W)
     product_code_entry = ttk.Entry(form_frame, width=30, textvariable=product_code_var)
     product_code_entry.grid(row=3, column=0, padx=5, pady=(0,5), sticky=W)
@@ -127,7 +127,7 @@ def entry_fields(note_form_tab):
 
     # Lot Number Entry Field
     lot_number_var = ttk.StringVar(value="")
-    lot_number_label = ttk.Label(form_frame, text="Lot Number", font=("Helvetica", 10, "bold"))
+    lot_number_label = ttk.Label(form_frame, text="Lot Number", style="CustomLabel.TLabel")
     lot_number_label.grid(row=2, column=1, padx=5, pady=(0,0), sticky=W)
     lot_number_entry = ttk.Entry(form_frame, width=30, textvariable=lot_number_var)
     lot_number_entry.grid(row=3, column=1, padx=5, pady=(0,5))
@@ -140,7 +140,7 @@ def entry_fields(note_form_tab):
     product_kind_names = list(name_to_id.values())
 
     # Combobox for Product Kind Drop Down
-    product_kind_label = ttk.Label(form_frame, text="Product Kind", font=("Helvetica", 10, "bold"))
+    product_kind_label = ttk.Label(form_frame, text="Product Kind", style="CustomLabel.TLabel")
     product_kind_label.grid(row=2, column=3, padx=5, pady=(0,0), sticky=W)
     product_kind_combobox = ttk.Combobox(
         form_frame,

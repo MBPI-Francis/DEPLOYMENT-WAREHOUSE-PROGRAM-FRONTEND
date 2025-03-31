@@ -81,7 +81,7 @@ def entry_fields(note_form_tab):
 
     # Raw Material Code Entry Field
     rm_code_var = ttk.StringVar(value="")
-    rm_code_label = ttk.Label(form_frame, text="Raw Material Code:", font=("Helvetica", 10, "bold"))
+    rm_code_label = ttk.Label(form_frame, text="Raw Material Code:", style="CustomLabel.TLabel")
     rm_code_label.grid(row=0, column=0, padx=5, pady=5, sticky=W)
     rm_code_entry = ttk.Entry(form_frame, width=30,
                               validate="key",

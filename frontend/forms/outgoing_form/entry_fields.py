@@ -165,7 +165,7 @@ def entry_fields(note_form_tab):
     warehouse_names = list(warehouse_to_id.keys())
 
     # Combobox for Warehouse Drop Down
-    warehouse_label = ttk.Label(warehouse_frame, text="Warehouse", font=("Helvetica", 10, "bold"))
+    warehouse_label = ttk.Label(warehouse_frame, text="Warehouse", style="CustomLabel.TLabel")
     warehouse_label.grid(row=0, column=0, padx=(5,0), pady=(0, 0), sticky=W)
 
     # Checkbox for Warehouse lock
@@ -188,7 +188,7 @@ def entry_fields(note_form_tab):
     status_to_id = {item["name"]: item["id"] for item in status}
     status_names = list(status_to_id.keys())
 
-    status_label = ttk.Label(warehouse_frame, text="Status", font=("Helvetica", 10, "bold"))
+    status_label = ttk.Label(warehouse_frame, text="Status", style="CustomLabel.TLabel")
     status_label.grid(row=0, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
 
     status_combobox = ttk.Combobox(
@@ -222,7 +222,7 @@ def entry_fields(note_form_tab):
     refno_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # REF Number Entry Field
-    ref_number_label = ttk.Label(refno_frame, text="OGR No.", font=("Helvetica", 10, "bold"))
+    ref_number_label = ttk.Label(refno_frame, text="OGR No.", style="CustomLabel.TLabel")
     ref_number_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
     ref_number_entry = ttk.Entry(refno_frame, width=30)
     ref_number_entry.grid(row=1, column=0, padx=5, pady=(0, 0), sticky=W)
@@ -257,7 +257,7 @@ def entry_fields(note_form_tab):
         rm_codes_combobox.set(current_text.upper())
 
     # Combobox for RM CODE Drop Down
-    rm_codes_label = ttk.Label(rmcode_frame, text="Raw Material", font=("Helvetica", 10, "bold"))
+    rm_codes_label = ttk.Label(rmcode_frame, text="Raw Material", style="CustomLabel.TLabel")
     rm_codes_label.grid(row=0, column=0, padx=(5,0), pady=(0, 0), sticky=W)
 
     rm_codes_combobox = ttk.Combobox(
@@ -325,7 +325,7 @@ def entry_fields(note_form_tab):
     validate_numeric_command = rmcode_frame.register(EntryValidation.validate_numeric_input)
 
     # Quantity Entry Field
-    qty_label = ttk.Label(rmcode_frame, text="Quantity(kg)", font=("Helvetica", 10, "bold"))
+    qty_label = ttk.Label(rmcode_frame, text="Quantity(kg)", style="CustomLabel.TLabel")
     qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
 
     qty_entry = ttk.Entry(rmcode_frame,
@@ -347,7 +347,7 @@ def entry_fields(note_form_tab):
     date_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # Date Entry field
-    date_label = ttk.Label(date_frame, text="Outgoing Date", font=("Helvetica", 10, "bold"))
+    date_label = ttk.Label(date_frame, text="Outgoing Date", style="CustomLabel.TLabel")
     date_label.grid(row=0, column=0, padx=5, pady=0, sticky=W)
 
     # Calculate yesterday's date
