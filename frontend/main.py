@@ -12,7 +12,6 @@ from frontend.stock_on_hand.main_view import StockOnHandView
 from tkinter import StringVar, N, S, E, W, VERTICAL
 from tkinter import font
 
-
 class App(ttk.Window):
     def __init__(self, theme_name="litera"):
         super().__init__(themename=theme_name)  # Choose the ttkbootstrap theme
@@ -33,7 +32,6 @@ class App(ttk.Window):
         # ---------------------------[Font style for the TAB FONTS]---------------------------
         # Initialize ttkbootstrap style
         style = Style()
-
         def apply_custom_styles():
             """Function to reapply styles after theme change."""
             style.configure("Custom.Treeview", rowheight=25, font=("Halvetica", 10))  # Set row height

@@ -1,108 +1,78 @@
-import ttkbootstrap as tb
+import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from ttkbootstrap.widgets import DateEntry
 from datetime import datetime, timedelta
-import re
 
+class CustomDateEntry(DateEntry):
+    def __init__(self, master=None, **kwargs):
+        super().__init__(master, **kwargs)
+        self.entry.bind("<KeyRelease>", self.auto_format)  # Trigger auto-format on key press
+        self.entry.bind("<FocusOut>", self.complete_date)  # Ensure correct format when leaving the field
+        self.entry.bind("<Return>", self.complete_date)  # Ensure correct format when leaving the field
 
-def format_date_while_typing(event):
-    """Auto-formats the date entry while typing, keeping the structure intact and ensuring valid MM/DD."""
-    text = re.sub(r"[^\d]", "", date_entry.entry.get())  # Remove non-numeric characters
-    cursor_pos = date_entry.entry.index("insert")  # Get cursor position
-    key_pressed = event.keysym  # Capture key event
+    def auto_format(self, event=None):
+        """Automatically formats date while typing."""
+        raw_date = self.entry.get().replace(" ", "").replace("-", "/")  # Normalize input
+        digits = [c for c in raw_date if c.isdigit()]  # Extract only numbers
 
-    # Ensure we only allow up to 8 digits (MMDDYYYY)
-    if len(text) > 8:
-        text = text[:8]
+        if not digits:
+            return  # No numbers, exit
 
-    # Extract month, day, and year
-    month = text[:2] if len(text) >= 2 else text
-    day = text[2:4] if len(text) >= 4 else text[2:]
-    year = text[4:] if len(text) > 4 else ""
+        formatted_date = ""
+        if len(digits) >= 1:  # MM
+            formatted_date += digits[0]
+        if len(digits) >= 2:  # MM/
+            formatted_date += digits[1] + "/"
+        if len(digits) >= 3:  # MM/DD
+            formatted_date += digits[2]
+        if len(digits) >= 4:  # MM/DD/
+            formatted_date += digits[3] + "/"
+        if len(digits) >= 5:  # MM/DD/YY
+            formatted_date += digits[4]
+        if len(digits) >= 6:  # MM/DD/YYYY
+            formatted_date += digits[5]
 
-    # Ensure month is valid (1-12)
-    if len(month) == 2 and (int(month) < 1 or int(month) > 12):
-        month = "12"
+        # Update entry field
+        self.entry.delete(0, "end")
+        self.entry.insert(0, formatted_date)
 
-    # Ensure day is valid (1-31)
-    if len(day) == 2 and (int(day) < 1 or int(day) > 31):
-        day = "31"
+    def complete_date(self, event=None):
+        """Ensures correct MM/DD/YYYY format when pressing Enter or leaving focus."""
+        raw_date = self.entry.get().strip()
 
-    # Format MM/DD/YYYY
-    formatted_date = f"{month}"
-    if len(text) >= 3:
-        formatted_date += f"/{day}"
-    if len(text) > 4:
-        formatted_date += f"/{year}"
-
-    # Update entry field with formatted date
-    date_entry.entry.delete(0, "end")
-    date_entry.entry.insert(0, formatted_date)
-
-    # Adjust cursor position naturally
-    if key_pressed == "BackSpace":
-        cursor_pos -= 1
-    elif cursor_pos in [2, 5] and key_pressed not in ["Left", "Right", "BackSpace"]:
-        cursor_pos += 1  # Skip slash `/` when typing
-
-    date_entry.entry.icursor(cursor_pos)
-
-
-def complete_year(event):
-    """Completes the year when the user presses Tab, Enter, or loses focus, ensuring MM/DD/YYYY validity."""
-    text = date_entry.entry.get()
-    parts = text.split("/")
-
-    if len(parts) == 3:
-        month, day, year = parts
-
-        # Ensure MM and DD have leading zeros
-        month = month.zfill(2)
-        day = day.zfill(2)
-
-        # Convert 2-digit year to 4-digit (assumes 2000+)
-        if len(year) == 2:
-            year = "20" + year
-
-        # Validate the date (handle months with different max days)
         try:
-            datetime(int(year), int(month), int(day))  # Checks if it's a real date
+            # Try parsing with full year first
+            date_obj = datetime.strptime(raw_date, "%m/%d/%Y")
         except ValueError:
-            day = "28"  # Default to last valid day in case of invalid input
+            try:
+                # If the user entered a two-digit year, assume 20XX
+                date_obj = datetime.strptime(raw_date, "%m/%d/%y")
+            except ValueError:
+                return  # Exit if invalid
 
-        # Update formatted date
-        formatted_date = f"{month}/{day}/{year}"
-        date_entry.entry.delete(0, "end")
-        date_entry.entry.insert(0, formatted_date)
+        # Format to MM/DD/YYYY with leading zeros
+        formatted_date = date_obj.strftime("%m/%d/%Y")
+        self.entry.delete(0, "end")
+        self.entry.insert(0, formatted_date)
 
+# Create the application window
+app = ttk.Window(themename="flatly")
+app.title("Auto-Formatted Date Entry")
 
-# Create the ttkbootstrap window
-root = tb.Window(themename="cosmo")
+yesterday_date = datetime.today() - timedelta(days=1)
 
-# Frame for layout
-form_frame = tb.Frame(root, padding=10)
-form_frame.pack()
+frame = ttk.Frame(app, padding=20)
+frame.pack(pady=20)
 
-# Date Label
-date_label = tb.Label(form_frame, text="Consumption Date", style="CustomLabel.TLabel")
-date_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky="w")
+ttk.Label(frame, text="Enter Date (MM/DD/YYYY):", font=("Arial", 12)).pack(anchor="w")
 
-# Calculate yesterday's date
-yesterday_date = datetime.now() - timedelta(days=1)
-
-# ttkbootstrap DateEntry (allows both typing & calendar selection)
-date_entry = tb.DateEntry(
-    form_frame,
+date_entry = CustomDateEntry(
+    frame,
     bootstyle=PRIMARY,
     dateformat="%m/%d/%Y",
     startdate=yesterday_date,
-    width=15
+    width=25
 )
-date_entry.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="w")
+date_entry.pack(pady=5)
 
-# Bind events
-date_entry.entry.bind("<KeyRelease>", format_date_while_typing)  # Format while typing
-date_entry.entry.bind("<Tab>", complete_year)  # Complete year on Tab
-date_entry.entry.bind("<Return>", complete_year)  # Complete year on Enter
-
-# Run application
-root.mainloop()
+app.mainloop()

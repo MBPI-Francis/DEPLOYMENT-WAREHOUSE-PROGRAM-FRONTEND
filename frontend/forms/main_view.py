@@ -27,7 +27,7 @@ class ConsumptionEntryView:
         
 
 
-        
+
         # Create the Notebook widget
         notebook = ttk.Notebook(consumption_entry_frame)
         # notebook.pack(fill=BOTH, expand=True, padx=10, pady=10)

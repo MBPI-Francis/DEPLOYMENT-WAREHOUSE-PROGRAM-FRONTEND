@@ -7,8 +7,6 @@ from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
 from .table import NoteTable
 from .validation import EntryValidation
-
-
 def entry_fields(note_form_tab):
 
         # Function to clear all entry fields
