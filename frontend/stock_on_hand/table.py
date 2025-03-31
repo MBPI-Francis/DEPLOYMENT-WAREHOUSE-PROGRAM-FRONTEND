@@ -44,6 +44,7 @@ class BeginningBalanceTable:
 
             data = response.json()
 
+
             # Format data for the table
             rowdata = [
                 (

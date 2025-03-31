@@ -133,7 +133,7 @@ def entry_fields(note_form_tab):
                     note_table.refresh_table()
 
                     # Get the last inserted row ID
-                    last_row_id = note_table.tree.get_children()[-1]  # Get the last row's ID
+                    last_row_id = note_table.tree.get_children()[0]  # Get the last row's ID
 
                     # Highlight the last row
                     note_table.tree.selection_set(last_row_id)  # Select the last row

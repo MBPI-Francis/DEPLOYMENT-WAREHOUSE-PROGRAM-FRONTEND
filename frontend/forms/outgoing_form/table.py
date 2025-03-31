@@ -58,6 +58,7 @@ class OutgoingFormTable:
                      "Outgoing Date",
                      "Date Encoded"),
             show='headings',
+            style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
         )
 

@@ -144,7 +144,7 @@ def entry_fields(note_form_tab):
                     # refresh_table()  # Refresh the table
 
                     # Get the last inserted row ID
-                    last_row_id = prepration_form_table.tree.get_children()[-1]  # Get the last row's ID
+                    last_row_id = prepration_form_table.tree.get_children()[0]  # Get the last row's ID
 
                     # Highlight the last row
                     prepration_form_table.tree.selection_set(last_row_id)  # Select the last row

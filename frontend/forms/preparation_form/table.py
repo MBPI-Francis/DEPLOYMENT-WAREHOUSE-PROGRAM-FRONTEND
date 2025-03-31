@@ -53,6 +53,7 @@ class PreparationFormTable:
                   "Preparation Date",
                   "Date Encoded"),
             show='headings',
+            style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
         )
 

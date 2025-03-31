@@ -49,6 +49,7 @@ class ReceivingFormTable:
             master=tree_frame,
             columns=("Raw Material", "Warehouse", "RR No.", "Quantity(kg)", "Receiving Date", "Date Encoded"),
             show='headings',
+            style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
         )
 

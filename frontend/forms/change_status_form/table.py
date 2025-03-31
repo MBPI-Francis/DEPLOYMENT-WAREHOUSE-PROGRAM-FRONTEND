@@ -54,6 +54,7 @@ class ChangeStatusFormTable:
                     "Raw Material", "Warehouse", "CSF No.", "Quantity(kg)",
                     "Previous Status", "Present Status", "Change Date", "Date Encoded"),
             show='headings',
+            style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
         )
 

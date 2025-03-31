@@ -129,7 +129,7 @@ def entry_fields(note_form_tab):
                     outgoing_form_table.refresh_table()
 
                     # Get the last inserted row ID
-                    last_row_id = outgoing_form_table.tree.get_children()[-1]  # Get the last row's ID
+                    last_row_id = outgoing_form_table.tree.get_children()[0]  # Get the last row's ID
 
                     # Highlight the last row
                     outgoing_form_table.tree.selection_set(last_row_id)  # Select the last row

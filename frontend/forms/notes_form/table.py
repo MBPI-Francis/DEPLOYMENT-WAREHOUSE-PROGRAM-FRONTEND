@@ -42,16 +42,29 @@ class NoteTable:
         tree_frame = ttk.Frame(self.root)
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
 
-        # First, define self.tree before using it
+
+        # Initialize ttkbootstrap style
+        style = Style()
+
+        def apply_custom_styles():
+            """Function to reapply styles after theme change."""
+            style.configure("Custom.Treeview", rowheight=25, font=("Halvetica", 10))  # Set row height
+            style.configure("Treeview.Heading", background=style.colors.primary, foreground="white",
+                            font=("Helvetica", 10, "bold"))  # Set header background to PRIMARY
+
+        # Apply styles initially
+        apply_custom_styles()
+
+        # Listen for theme changes and reapply styles
+        style.master.bind("<<ThemeChanged>>", lambda event: apply_custom_styles())
+
+        # Now define self.tree
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Product Code",
-                     "Lot No.",
-                     "Product Kind",
-                     "Consumption Date",
-                     "Date Encoded"),
+            columns=("Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded"),
             show='headings',
-            bootstyle=PRIMARY
+            style="Custom.Treeview",  # Apply row height adjustment
+            bootstyle=PRIMARY,  # Ensure Treeview follows theme
         )
 
         # Create a vertical scrollbar and attach it to the treeview
@@ -81,6 +94,7 @@ class NoteTable:
 
         # Bind right-click
         self.tree.bind("<Button-3>", self.show_context_menu)
+
 
     def load_data(self):
         """Fetch data from API and populate treeview."""
