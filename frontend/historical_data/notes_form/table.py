@@ -22,18 +22,6 @@ class NoteTable:
         self.search_entry.pack(side=LEFT)
         self.search_entry.bind("<Return>", self.search_data)
 
-
-        # Add button to restore data
-        btn_clear = ttk.Button(
-            search_frame,
-            text="Recycle Bin",
-            # command,
-            bootstyle=SECONDARY,
-        )
-        btn_clear.pack(side=RIGHT)
-        ToolTip(btn_clear, text="Click the button to recycle deleted records.")
-
-
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
@@ -43,6 +31,7 @@ class NoteTable:
             master=tree_frame,
             columns=("Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded", "Date Computed"),
             show='headings',
+            style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
         )
 
@@ -70,9 +59,6 @@ class NoteTable:
 
         # Load Data
         self.load_data()
-
-        # Bind right-click
-        self.tree.bind("<Button-3>", self.show_context_menu)
 
     def load_data(self):
         """Fetch data from API and populate treeview."""
@@ -107,32 +93,6 @@ class NoteTable:
         for index, (val, k) in enumerate(items):
             self.tree.move(k, "", index)
         self.tree.heading(col, command=lambda: self.sort_treeview(col, not reverse))
-
-    def show_context_menu(self, event):
-        """Show right-click context menu."""
-        item = self.tree.identify_row(event.y)
-        if item:
-            menu = Menu(self.tree, tearoff=0)
-            menu.add_command(label="Delete", command=lambda: self.confirm_delete(item))
-            menu.post(event.x_root, event.y_root)
-
-    def confirm_delete(self, note_id):
-        """Show confirmation before deleting record."""
-        if messagebox.askyesno("Confirm", "Are you sure you want to delete this record?"):
-            self.delete_record(note_id)
-
-    def delete_record(self, note_id):
-        """Send DELETE request to API."""
-        url = f"{server_ip}/api/notes/v1/delete/{note_id}/"
-        response = requests.delete(url)
-        if response.status_code == 200:
-            messagebox.showinfo("Success", "Record deleted successfully")
-            self.load_data()
-        else:
-            messagebox.showerror("Error", "Failed to delete record")
-
-
-
 
     def search_data(self, event=None):
         """Filter and display only matching records in the Treeview."""

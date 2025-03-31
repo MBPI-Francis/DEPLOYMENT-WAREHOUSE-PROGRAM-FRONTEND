@@ -24,16 +24,6 @@ class TransferFormTable:
         self.search_entry.bind("<Return>", self.search_data)
 
 
-        # Add button to restore data
-        btn_clear = ttk.Button(
-            search_frame,
-            text="Recycle Bin",
-            # command,
-            bootstyle=SECONDARY,
-        )
-        btn_clear.pack(side=RIGHT)
-        ToolTip(btn_clear, text="Click the button to recycle deleted records.")
-
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
@@ -52,6 +42,7 @@ class TransferFormTable:
                     "Date Encoded",
                     "Date Computed"),
             show='headings',
+            style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
         )
 
@@ -76,8 +67,6 @@ class TransferFormTable:
             self.tree.column(col, width=150, anchor="w")
 
         self.tree.pack(fill=BOTH, expand=YES, padx=10, pady=10)
-        self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click menu
-
         self.refresh_table()
 
 
@@ -111,25 +100,7 @@ class TransferFormTable:
         except requests.exceptions.RequestException as e:
             return []
 
-    def show_context_menu(self, event):
-        """Show right-click menu with Edit/Delete options."""
-        item = self.tree.identify_row(event.y)
-        if item:
-            menu = ttk.Menu(self.root, tearoff=0)
-            menu.add_command(label="Delete", command=lambda: self.delete_entry(item))
-            menu.post(event.x_root, event.y_root)
 
-
-    def delete_entry(self, entry_id):
-        """Delete selected entry via API."""
-        if messagebox.askyesno("Confirm", "Are you sure you want to delete this entry?"):
-            url = server_ip + f"/api/transfer_forms/v1/delete/{entry_id}/"
-            response = requests.delete(url)
-            if response.status_code == 200:
-                self.tree.delete(entry_id)
-                messagebox.showinfo("Success", "Entry deleted successfully.")
-            else:
-                messagebox.showerror("Error", "Failed to delete entry.")
 
     def sort_column(self, col, reverse):
         """Sort Treeview column in ascending/descending order."""
