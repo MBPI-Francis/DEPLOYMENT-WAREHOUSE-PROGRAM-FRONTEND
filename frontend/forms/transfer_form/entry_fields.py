@@ -10,7 +10,6 @@ from frontend.forms.shared import SharedFunctions
 from frontend.forms.transfer_form.table import TransferFormTable
 from frontend.forms.transfer_form.validation import EntryValidation as TranferValidation
 from tkinter import StringVar
-from frontend.forms.preparation_form.validation import EntryValidation as PrepValidation
 from uuid import  UUID
 
 def entry_fields(note_form_tab):
@@ -160,7 +159,7 @@ def entry_fields(note_form_tab):
         if result:
 
             # Validate if the entry value exceeds the stock
-            validatation_result = PrepValidation.validate_soh_value(
+            validatation_result = shared_functions.validate_soh_value(
                 rm_code_id,
                 warehouse_from_id,
                 cleaned_qty,
@@ -174,16 +173,16 @@ def entry_fields(note_form_tab):
                     if response.status_code == 200:  # Successfully created
                         clear_fields()
 
-                        note_table.refresh_table()
+                        transfer_form_table.refresh_table()
                         # refresh_table()  # Refresh the table
 
                         # Get the last inserted row ID
-                        last_row_id = note_table.tree.get_children()[0]  # Get the last row's ID
+                        last_row_id = transfer_form_table.tree.get_children()[0]  # Get the last row's ID
 
                         # Highlight the last row
-                        note_table.tree.selection_set(last_row_id)  # Select the last row
-                        note_table.tree.focus(last_row_id)  # Focus on the last row
-                        note_table.tree.see(last_row_id)  # Scroll to make it visible
+                        transfer_form_table.tree.selection_set(last_row_id)  # Select the last row
+                        transfer_form_table.tree.focus(last_row_id)  # Focus on the last row
+                        transfer_form_table.tree.see(last_row_id)  # Scroll to make it visible
 
                 except requests.exceptions.RequestException as e:
                     Messagebox.show_info(e, "Data Entry Error")
@@ -226,6 +225,7 @@ def entry_fields(note_form_tab):
         values=warehouse_names,
         state="readonly",
         width=41,
+        font=shared_functions.custom_font_size
     )
     warehouse_from_combobox.grid(row=1, column=0, padx=(10, 0), pady=(0, 0), sticky=W)
     ToolTip(warehouse_from_combobox, text="Choose a warehouse where the raw material is coming from")
@@ -240,6 +240,7 @@ def entry_fields(note_form_tab):
         values=warehouse_names,
         state="readonly",
         width=36,
+        font=shared_functions.custom_font_size
     )
     warehouse_to_combobox.grid(row=1, column=1, padx=(10,0), pady=(0, 0), sticky=W)
     ToolTip(warehouse_to_combobox, text="Choose a warehouse where the raw material is transferred to")
@@ -263,7 +264,8 @@ def entry_fields(note_form_tab):
     # REF Number Entry Field
     ref_number_label = ttk.Label(refno_frame, text="TF No.", style="CustomLabel.TLabel")
     ref_number_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
-    ref_number_entry = ttk.Entry(refno_frame, width=30)
+    ref_number_entry = ttk.Entry(refno_frame, width=30,
+                                 font=shared_functions.custom_font_size)
     ref_number_entry.grid(row=1, column=0, padx=5, pady=(0, 0), sticky=W)
     ToolTip(ref_number_entry, text="Enter the Transfer Form Number")
 
@@ -305,6 +307,7 @@ def entry_fields(note_form_tab):
         values=rm_names,
         state="normal",
         width=23,
+        font=shared_functions.custom_font_size
     )
 
     # Bind the key release event to the combobox to trigger uppercase conversion
@@ -368,6 +371,7 @@ def entry_fields(note_form_tab):
 
     qty_entry = ttk.Entry(rmcode_frame,
                           width=15,
+                          font=shared_functions.custom_font_size,
                           textvariable=qty_var,
                           validate="key",
                           validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
@@ -392,6 +396,7 @@ def entry_fields(note_form_tab):
         values=status_names,
         state="readonly",
         width=36,
+        font=shared_functions.custom_font_size
     )
     status_combobox.grid(row=1, column=3, padx=(10,0), pady=(0, 0), sticky=W)
     ToolTip(status_combobox, text="Please choose the raw material status")
@@ -428,20 +433,21 @@ def entry_fields(note_form_tab):
         width=25
     )
     transfer_date_entry.grid(row=1, column=0, padx=5, pady=0, sticky=W)
+    transfer_date_entry.entry.config(font=shared_functions.custom_font_size)
     ToolTip(transfer_date_entry, text="Please enter the transfer date.")
 
 
     # Add button to submit data
-    btn_submit = ttk.Button(
+    btn_add = ttk.Button(
         form_frame,
         text="+ Add",
         command=submit_data,
     )
-    btn_submit.grid(row=2, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
-    ToolTip(btn_submit, text="Click this add button to add the entry to the list")
+    btn_add.grid(row=2, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
+    ToolTip(btn_add, text="Click this add button to add the entry to the list")
 
     # Calling the table
-    note_table = TransferFormTable(note_form_tab)
+    transfer_form_table = TransferFormTable(note_form_tab)
 
 
 

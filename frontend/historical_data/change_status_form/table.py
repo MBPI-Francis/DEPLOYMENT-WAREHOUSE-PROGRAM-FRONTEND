@@ -22,7 +22,6 @@ class ChangeStatusFormTable:
         self.search_entry.bind("<Return>", self.search_data)
 
 
-
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
@@ -31,8 +30,15 @@ class ChangeStatusFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                    "Raw Material", "Warehouse", "CSF No.", "Quantity(kg)",
-                    "Previous Status", "Present Status", "Change Date", "Date Encoded", "Date Computed"),
+                    "Raw Material",
+                    "Warehouse",
+                    "CSF No.",
+                    "Quantity(kg)",
+                    "Previous Status",
+                    "Present Status",
+                    "Change Date",
+                    "Date Encoded",
+                    "Date Computed"),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY

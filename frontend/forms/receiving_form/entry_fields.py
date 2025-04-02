@@ -145,7 +145,12 @@ def entry_fields(note_form_tab):
     ToolTip(lock_warehouse, text="Lock the warehouse by clicking this")
 
     # Warehouse Combobox field
-    warehouse_combobox = ttk.Combobox(warehouse_frame, values=warehouse_names, state="readonly", width=43)
+    warehouse_combobox = ttk.Combobox(warehouse_frame,
+                                      values=warehouse_names,
+                                      state="readonly",
+                                      width=43,
+                                      font=shared_functions.custom_font_size
+                                      )
     warehouse_combobox.grid(row=1, column=0, padx=10, pady=(0, 0), sticky=W)
     ToolTip(warehouse_combobox, text="Choose a warehouse")
 
@@ -158,7 +163,7 @@ def entry_fields(note_form_tab):
     # REF Number Entry Field
     ref_number_label = ttk.Label(refno_frame, text="RR No.", style="CustomLabel.TLabel")
     ref_number_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
-    ref_number_entry = ttk.Entry(refno_frame, width=30)
+    ref_number_entry = ttk.Entry(refno_frame, width=30, font=shared_functions.custom_font_size)
     ref_number_entry.grid(row=1, column=0, padx=5, pady=(0,0), sticky=W)
     ToolTip(ref_number_entry, text="Enter the Reference Number")
 
@@ -167,7 +172,6 @@ def entry_fields(note_form_tab):
     # Checkbox beside the combobox
     lock_reference = ttk.Checkbutton(
         refno_frame,
-
         variable=checkbox_reference_var,
         bootstyle="round-toggle"
     )
@@ -201,6 +205,7 @@ def entry_fields(note_form_tab):
         values=rm_names,
         state="normal",
         width=25,
+        font=shared_functions.custom_font_size
     )
 
     # Bind the key release event to the combobox to trigger uppercase conversion
@@ -265,6 +270,7 @@ def entry_fields(note_form_tab):
 
     qty_entry = ttk.Entry(rmcode_frame,
                           width=15,
+                          font=shared_functions.custom_font_size,
                           textvariable=qty_var,
                           validate="key",
                           validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
@@ -296,17 +302,17 @@ def entry_fields(note_form_tab):
         width=25
     )
     received_date_entry.grid(row=1, column=0, padx=5, pady=0, sticky=W)
-
-    ToolTip(received_date_entry, text="Please enter the receiving data.")
+    ToolTip(received_date_entry, text="Please enter the receiving date.")
+    received_date_entry.entry.config(font=shared_functions.custom_font_size)
 
     # Add button to submit data
-    btn_submit = ttk.Button(
+    btn_add = ttk.Button(
         form_frame,
         text="+ Add",
         command=submit_data,
     )
-    btn_submit.grid(row=2, column=0, columnspan=2, pady=0, padx=400, sticky=NSEW)
-    ToolTip(btn_submit, text="Click this add button to add the entry to the list")
+    btn_add.grid(row=2, column=0, columnspan=2, pady=0, padx=400, sticky=NSEW)
+    ToolTip(btn_add, text="Click this add button to add the entry to the list")
 
     # Calling the table
     table = ReceivingFormTable(note_form_tab)

@@ -10,18 +10,18 @@ from tkinter import simpledialog
 from ttkbootstrap.widgets import DateEntry
 from .validation import EntryValidation
 from ttkbootstrap.dialogs import Messagebox
-from frontend.forms.preparation_form.validation import EntryValidation as PrepValidation
 from frontend.forms.shared import SharedFunctions
 
 
 class ChangeStatusFormTable:
     def __init__(self, root):
         self.root = root
-        shared_functions = SharedFunctions()
+        self.shared_functions = SharedFunctions()
+        self.edit_window = None
 
-        self.get_status_api = shared_functions.get_status_api()
-        self.get_rm_code_api = shared_functions.get_rm_code_api()
-        self.get_warehouse_api = shared_functions.get_warehouse_api()
+        self.get_status_api = self.shared_functions.get_status_api()
+        self.get_rm_code_api = self.shared_functions.get_rm_code_api()
+        self.get_warehouse_api = self.shared_functions.get_warehouse_api()
 
 
         # Frame for search
@@ -123,15 +123,48 @@ class ChangeStatusFormTable:
             menu.add_command(label="Delete", command=lambda: self.delete_entry(item))
             menu.post(event.x_root, event.y_root)
 
+    def on_edit_window_close(self):
+        """Reset the edit_window reference when it is closed."""
+        self.edit_window.destroy()
+        self.edit_window = None
+
     def edit_record(self, item):
+
+        # If the window already exists, bring it to the front and return
+        if self.edit_window and self.edit_window.winfo_exists():
+            self.edit_window.lift()
+            return
+
+
         """Open edit form."""
         record = self.tree.item(item, 'values')
 
         if not record:
             return
 
-        edit_window = Toplevel(self.root)
-        edit_window.title("Edit Record")
+        # Get the main window position and size
+        self.root.update_idletasks()  # Ensure updated dimensions
+        root_x = self.root.winfo_x()
+        root_y = self.root.winfo_y()
+        root_width = self.root.winfo_width()
+        root_height = self.root.winfo_height()
+
+        # Define edit window size
+        window_width = 320
+        window_height = 250
+
+        # Calculate the position (center relative to main window)
+        x = root_x + (root_width // 2) - (window_width // 2)
+        y = root_y + (root_height // 2) - (window_height // 2)
+
+        # Create the window **with position already set**
+        self.edit_window = Toplevel(self.root)
+        self.edit_window.title("Edit Record")
+        self.edit_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+        # Prevent opening multiple windows
+        self.edit_window.protocol("WM_DELETE_WINDOW", self.on_edit_window_close)
+        
 
         fields = ["Raw Material", "Warehouse", "CSF No.", "Quantity(kg)",
             "Previous Status", "Present Status", "Change Date",]
@@ -139,7 +172,7 @@ class ChangeStatusFormTable:
 
 
         for idx, field in enumerate(fields):
-            ttk.Label(edit_window, text=field).grid(row=idx, column=0, padx=10, pady=5, sticky=W)
+            ttk.Label(self.edit_window, text=field).grid(row=idx, column=0, padx=10, pady=5, sticky=W)
 
             if field == "Raw Material":
                 # Fetch Raw Material Data from API
@@ -147,7 +180,7 @@ class ChangeStatusFormTable:
                 code_to_id = {item["rm_code"]: item["id"] for item in rm_codes}
                 rm_names = list(code_to_id.keys())
 
-                entry = ttk.Combobox(edit_window, values=rm_names, state="normal", width=30)
+                entry = ttk.Combobox(self.edit_window, values=rm_names, state="normal", width=30)
                 entry.set(record[idx])  # Set current value in the combobox
                 ToolTip(entry, text="Choose a raw material")  # Tooltip
 
@@ -158,12 +191,12 @@ class ChangeStatusFormTable:
                 warehouse_to_id = {item["wh_name"]: item["id"] for item in warehouses}
                 warehouse_names = list(warehouse_to_id.keys())
 
-                entry = ttk.Combobox(edit_window, values=warehouse_names, state="readonly", width=30)
+                entry = ttk.Combobox(self.edit_window, values=warehouse_names, state="readonly", width=30)
                 entry.set(record[idx])  # Set current value in the combobox
                 ToolTip(entry, text="Select a warehouse")  # Tooltip
 
             elif field == "Change Date":
-                entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
+                entry = DateEntry(self.edit_window, dateformat="%m/%d/%Y", width=30)
                 entry.entry.delete(0, "end")
                 formatted_date = record[idx]
                 entry.entry.insert(0, formatted_date)
@@ -174,7 +207,7 @@ class ChangeStatusFormTable:
                 status_to_id = {item["name"]: item["id"] for item in status}
                 status_names = list(status_to_id.keys())
 
-                entry = ttk.Combobox(edit_window, values=status_names, state="disabled", width=30,)
+                entry = ttk.Combobox(self.edit_window, values=status_names, state="disabled", width=30,)
                 entry.set(record[idx])  # Set current value in the combobox
                 ToolTip(entry, text="You shouldn't update the current status")  # Tooltip
 
@@ -185,14 +218,14 @@ class ChangeStatusFormTable:
                 status_to_id = {item["name"]: item["id"] for item in status}
                 status_names = list(status_to_id.keys())
 
-                entry = ttk.Combobox(edit_window, values=status_names, state="disabled", width=30,)
+                entry = ttk.Combobox(self.edit_window, values=status_names, state="disabled", width=30,)
                 entry.set(record[idx])  # Set current value in the combobox
                 ToolTip(entry, text="You shouldn't update the new status")  # Tooltip
 
             elif field == "Quantity(kg)":
 
-                validate_numeric_command = edit_window.register(EntryValidation.validate_numeric_input)
-                entry = ttk.Entry(edit_window,
+                validate_numeric_command = self.edit_window.register(EntryValidation.validate_numeric_input)
+                entry = ttk.Entry(self.edit_window,
                                       width=30,
                                       validate="key",  # Trigger validation on keystrokes
                                       validatecommand=(validate_numeric_command, "%P")
@@ -203,7 +236,7 @@ class ChangeStatusFormTable:
 
 
             else:
-                entry = ttk.Entry(edit_window, width=30)
+                entry = ttk.Entry(self.edit_window, width=30)
                 entry.insert(0, record[idx])
 
 
@@ -265,7 +298,7 @@ class ChangeStatusFormTable:
                 return
 
             # Validate if the entry value exceeds the stock
-            validatation_result = PrepValidation.validate_soh_value(
+            validatation_result = self.shared_functions.validate_soh_value(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
                 float(entries["Quantity(kg)"].get()),
@@ -280,7 +313,7 @@ class ChangeStatusFormTable:
                     response = requests.put(url, json=data)
                     if response.status_code == 200:
                         self.refresh_table()
-                        edit_window.destroy()
+                        self.edit_window.destroy()
                         messagebox.showinfo("Success", "Record updated successfully")
 
                     else:
@@ -294,7 +327,7 @@ class ChangeStatusFormTable:
                     "Data Entry Error")
                 return
 
-        ttk.Button(edit_window, text="Save", command=update_record, width=30).grid(row=len(fields), column=0, columnspan=2,
+        ttk.Button(self.edit_window, text="Save", command=update_record, width=30).grid(row=len(fields), column=0, columnspan=2,
                                                                          pady=10)
 
     def delete_entry(self, entry_id):

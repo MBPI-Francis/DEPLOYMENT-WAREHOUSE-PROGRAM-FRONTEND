@@ -5,6 +5,7 @@ import requests
 from backend.settings.database import server_ip
 import threading
 import time
+from tkinter.font import Font
 
 
 # class SharedFunctions:
@@ -75,12 +76,20 @@ class SharedFunctions:
         "status": {"data": None},
     }
 
+    def __init__(self):
+        """Initialize the SharedFunctions instance."""
+        self.custom_font_size = Font(family="Halvetica", size=10)
+
     def __new__(cls):
         """Ensure only one instance exists (Singleton)."""
         if cls._instance is None:
             cls._instance = super(SharedFunctions, cls).__new__(cls)
             cls._instance._initialize_cache()  # Load cache once at startup
         return cls._instance
+
+
+
+
 
     def _fetch_data(self, endpoint):
         """Fetch data from API."""
@@ -110,4 +119,66 @@ class SharedFunctions:
     def get_status_api(self):
         """Return cached status data."""
         return self._cache["status"]["data"] or []
+
+
+    @staticmethod
+    def validate_soh_value(rm_id, warehouse_id, entered_qty: float, status_id=None):
+        # Prepare parameters
+        params = {
+            "rm_id": rm_id,
+            "warehouse_id": warehouse_id,
+            "entered_qty": float(entered_qty),
+        }
+
+        # Include status_id only if it's not None
+        if status_id:
+            params["status_id"] = status_id
+        # Handle response
+
+        try:
+            # Make the GET request
+
+            response = requests.get(f"{server_ip}/api/check/rm-stock-value/", params=params)
+
+            if response.status_code == 200:
+
+                is_valid = response.json()
+
+                if is_valid:
+                    return is_valid
+
+                else:
+                    return False
+        except requests.exceptions.RequestException as e:
+            return None
+
+
+    @staticmethod
+    def validate_soh_value_for_update(rm_id, warehouse_id, entered_qty: float, status_id=None):
+        # Prepare parameters
+        params = {
+            "rm_id": rm_id,
+            "warehouse_id": warehouse_id,
+            "entered_qty": float(entered_qty),
+        }
+
+        # Include status_id only if it's not None
+        if status_id:
+            params["status_id"] = status_id
+        # Handle response
+        try:
+            # Make the GET request
+            response = requests.get(f"{server_ip}/api/check/rm-stock-value/for-update/", params=params)
+
+            if response.status_code == 200:
+
+                is_valid = response.json()
+
+                if is_valid:
+                    return is_valid
+
+                else:
+                    return False
+        except requests.exceptions.RequestException as e:
+            return None
 

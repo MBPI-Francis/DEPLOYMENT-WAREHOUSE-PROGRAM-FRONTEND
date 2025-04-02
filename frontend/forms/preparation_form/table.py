@@ -15,11 +15,12 @@ from ..shared import SharedFunctions
 class PreparationFormTable:
     def __init__(self, root):
         self.root = root
-        shared_functions = SharedFunctions()
+        self.shared_functions = SharedFunctions()
 
-        self.get_status_api = shared_functions.get_status_api()
-        self.get_rm_code_api = shared_functions.get_rm_code_api()
-        self.get_warehouse_api = shared_functions.get_warehouse_api()
+        self.edit_window = None
+        self.get_status_api = self.shared_functions.get_status_api()
+        self.get_rm_code_api = self.shared_functions.get_rm_code_api()
+        self.get_warehouse_api = self.shared_functions.get_warehouse_api()
 
 
         # Frame for search
@@ -151,7 +152,18 @@ class PreparationFormTable:
             menu.add_command(label="Delete", command=lambda: self.confirm_delete(item))
             menu.post(event.x_root, event.y_root)
 
+
+    def on_edit_window_close(self):
+        """Reset the edit_window reference when it is closed."""
+        self.edit_window.destroy()
+        self.edit_window = None
+
     def edit_record(self, item):
+        # If the window already exists, bring it to the front and return
+        if self.edit_window and self.edit_window.winfo_exists():
+            self.edit_window.lift()
+            return
+
         """Open edit form."""
         record = self.tree.item(item, 'values')
         if not record:
@@ -161,8 +173,28 @@ class PreparationFormTable:
         record = (record[0], record[1], record[2], record[3], record[4], record[5], record[7])
 
 
-        edit_window = Toplevel(self.root)
-        edit_window.title("Edit Record")
+        # Get the main window position and size
+        self.root.update_idletasks()  # Ensure updated dimensions
+        root_x = self.root.winfo_x()
+        root_y = self.root.winfo_y()
+        root_width = self.root.winfo_width()
+        root_height = self.root.winfo_height()
+
+        # Define edit window size
+        window_width = 320
+        window_height = 340
+
+        # Calculate the position (center relative to main window)
+        x = root_x + (root_width // 2) - (window_width // 2)
+        y = root_y + (root_height // 2) - (window_height // 2)
+
+        # Create the window **with position already set**
+        self.edit_window = Toplevel(self.root)
+        self.edit_window.title("Edit Record")
+        self.edit_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+        # Prevent opening multiple windows
+        self.edit_window.protocol("WM_DELETE_WINDOW", self.on_edit_window_close)
 
         fields = [ "Raw Material",
                     "Warehouse",
@@ -175,7 +207,7 @@ class PreparationFormTable:
 
 
         for idx, field in enumerate(fields):
-            ttk.Label(edit_window, text=field).grid(row=idx, column=0, padx=10, pady=5, sticky=W)
+            ttk.Label(self.edit_window, text=field).grid(row=idx, column=0, padx=10, pady=5, sticky=W)
 
             if field == "Raw Material":
                 # Fetch Raw Material Data from API
@@ -183,9 +215,11 @@ class PreparationFormTable:
                 code_to_id = {item["rm_code"]: item["id"] for item in rm_codes}
                 rm_names = list(code_to_id.keys())
 
-                entry = ttk.Combobox(edit_window, values=rm_names, state="normal", width=30)
-                entry.set(record[idx])  # Set current value in the combobox
-                ToolTip(entry, text="Choose a raw material")  # Tooltip
+                rm_entry = ttk.Combobox(self.edit_window, values=rm_names, state="normal", width=20,
+                                        font=self.shared_functions.custom_font_size)
+                rm_entry.set(record[idx])  # Set current value in the combobox
+                rm_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ToolTip(rm_entry, text="Choose a raw material")  # Tooltip
 
 
             elif field == "Warehouse":
@@ -194,9 +228,12 @@ class PreparationFormTable:
                 warehouse_to_id = {item["wh_name"]: item["id"] for item in warehouses}
                 warehouse_names = list(warehouse_to_id.keys())
 
-                entry = ttk.Combobox(edit_window, values=warehouse_names, state="readonly", width=30)
-                entry.set(record[idx])  # Set current value in the combobox
-                ToolTip(entry, text="Select a warehouse")  # Tooltip
+                wh_entry = ttk.Combobox(self.edit_window, values=warehouse_names, state="readonly", width=20,
+                                     font=self.shared_functions.custom_font_size)
+                wh_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                wh_entry.set(record[idx])  # Set current value in the combobox
+
+                ToolTip(wh_entry, text="Select a warehouse")  # Tooltip
 
             elif field == "Status":
                 # Warehouse JSON-format choices (coming from the API)
@@ -204,60 +241,159 @@ class PreparationFormTable:
                 status_to_id = {item["name"]: item["id"] for item in status}
                 status_names = list(status_to_id.keys())
 
-                entry = ttk.Combobox(edit_window, values=status_names, state="readonly", width=30, )
-                entry.set(record[idx])  # Set current value in the combobox
-                ToolTip(entry, text="Choose a status")  # Tooltip
+                status_entry = ttk.Combobox(self.edit_window, values=status_names, state="readonly", width=20,
+                                            font=self.shared_functions.custom_font_size)
+                status_entry.set(record[idx])  # Set current value in the combobox
+                status_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ToolTip(status_entry, text="Choose a status")  # Tooltip
 
 
             elif field == "Preparation Date":
-                entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=30)
-                entry.entry.delete(0, "end")
+                date_entry = DateEntry(self.edit_window, dateformat="%m/%d/%Y", width=18)
+                date_entry.entry.delete(0, "end")
                 formatted_date = record[idx]
-                entry.entry.insert(0, formatted_date)
+                date_entry.entry.insert(0, formatted_date)
+                date_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                date_entry.entry.config(font=self.shared_functions.custom_font_size)
 
 
             elif field == "QTY (Prepared)":
-                validate_numeric_command = edit_window.register(EntryValidation.validate_numeric_input)
-                entry = ttk.Entry(edit_window,
-                                      width=30,
-                                      validate="key",  # Trigger validation on keystrokes
-                                      validatecommand=(validate_numeric_command, "%P")
-                                      # Pass the current widget content ("%P")
-                                      )
-                entry.insert(0, record[idx])
-                ToolTip(entry, text="Enter the QTY (Prepared)")
+                # Function to format numeric input dynamically with cursor preservation
+                def format_numeric_input_prepared(event):
+                    """
+                    Formats the input dynamically while preserving the cursor position.
+                    """
+                    input_value = qty_prepared_var.get()
+
+                    # Get current cursor position
+                    cursor_position = qty_prepared_entry.index("insert")
+
+                    # Remove commas for processing
+                    raw_value = input_value.replace(",", "")
+
+                    if raw_value == "" or raw_value == ".":
+                        return  # Prevent formatting when only `.` is typed
+
+                    try:
+                        if "." in raw_value and raw_value[-1] == ".":
+                            return  # Allow user to manually enter decimal places
+
+                        # Convert input to float and format
+                        float_value = float(raw_value)
+
+                        if "." in raw_value:
+                            integer_part, decimal_part = raw_value.split(".")
+                            formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
+                            formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
+                        else:
+                            formatted_value = "{:,}".format(int(float_value))  # Format whole number
+
+                        # Adjust cursor position based on new commas added
+                        num_commas_before = input_value[:cursor_position].count(",")
+                        num_commas_after = formatted_value[:cursor_position].count(",")
+
+                        new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+
+                        # Prevent cursor jumping by resetting the value and restoring cursor position
+                        qty_prepared_entry.delete(0, "end")
+                        qty_prepared_entry.insert(0, formatted_value)
+                        qty_prepared_entry.icursor(new_cursor_position)  # Restore cursor position
+                    except ValueError:
+                        pass  # Ignore invalid input
+
+                qty_prepared_var = StringVar()
+                validate_numeric_command = self.edit_window.register(EntryValidation.validate_numeric_input)
+                qty_prepared_entry = ttk.Entry(self.edit_window,
+                                               width=22,
+                                               font=self.shared_functions.custom_font_size,
+                                               textvariable=qty_prepared_var,
+                                               validate="key",  # Trigger validation on keystrokes
+                                               validatecommand=(validate_numeric_command, "%P")
+                                               # Pass the current widget content ("%P")
+                                               )
+                qty_prepared_entry.insert(0, record[idx])
+                qty_prepared_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ToolTip(qty_prepared_entry, text="Enter the QTY (Prepared)")
+                qty_prepared_entry.bind("<KeyRelease>", format_numeric_input_prepared)
 
 
             elif field == "QTY (Return)":
 
-                validate_numeric_command = edit_window.register(EntryValidation.validate_numeric_input)
-                entry = ttk.Entry(edit_window,
-                                      width=30,
-                                      validate="key",  # Trigger validation on keystrokes
-                                      validatecommand=(validate_numeric_command, "%P")
-                                      # Pass the current widget content ("%P")
+                # Function to format numeric input dynamically with cursor preservation
+                def format_numeric_input_return(event):
+                    """
+                    Formats the input dynamically while preserving the cursor position.
+                    """
+                    input_value = qty_return_var.get()
+
+                    # Get current cursor position
+                    cursor_position = qty_return_entry.index("insert")
+
+                    # Remove commas for processing
+                    raw_value = input_value.replace(",", "")
+
+                    if raw_value == "" or raw_value == ".":
+                        return  # Prevent formatting when only `.` is typed
+
+                    try:
+                        if "." in raw_value and raw_value[-1] == ".":
+                            return  # Allow user to manually enter decimal places
+
+                        # Convert input to float and format
+                        float_value = float(raw_value)
+
+                        if "." in raw_value:
+                            integer_part, decimal_part = raw_value.split(".")
+                            formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
+                            formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
+                        else:
+                            formatted_value = "{:,}".format(int(float_value))  # Format whole number
+
+                        # Adjust cursor position based on new commas added
+                        num_commas_before = input_value[:cursor_position].count(",")
+                        num_commas_after = formatted_value[:cursor_position].count(",")
+
+                        new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+
+                        # Prevent cursor jumping by resetting the value and restoring cursor position
+                        qty_return_entry.delete(0, "end")
+                        qty_return_entry.insert(0, formatted_value)
+                        qty_return_entry.icursor(new_cursor_position)  # Restore cursor position
+                    except ValueError:
+                        pass  # Ignore invalid input
+
+                qty_return_var = StringVar()
+                validate_numeric_command = self.edit_window.register(EntryValidation.validate_numeric_input)
+                qty_return_entry = ttk.Entry(self.edit_window,
+                                             width=22,
+                                             font=self.shared_functions.custom_font_size,
+                                             textvariable=qty_return_var,
+                                             validate="key",  # Trigger validation on keystrokes
+                                             validatecommand=(validate_numeric_command, "%P")
+                                             # Pass the current widget content ("%P")
+                                             )
+                qty_return_entry.insert(0, record[idx])
+                qty_return_entry.bind("<KeyRelease>", format_numeric_input_return)
+                qty_return_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ToolTip(qty_return_entry, text="Enter the value for the Quantity (Return) in KG")
+
+
+            elif field == "PF ID No.":
+                ref_entry = ttk.Entry(self.edit_window, width=22,
+                                      font=self.shared_functions.custom_font_size,
                                       )
-                entry.insert(0, record[idx])
-                ToolTip(entry, text="Enter the QTY (Return)")
-
-
-            else:
-                entry = ttk.Entry(edit_window, width=30)
-                entry.insert(0, record[idx])
-
-
-            entries[field] = entry
-            entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ref_entry.insert(0, record[idx])
+                ref_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
 
 
         def get_selected_rm_code_id():
-            selected_name = entries["Raw Material"].get()
+            selected_name = rm_entry.get()
             selected_id = code_to_id.get(selected_name)
             return selected_id if selected_id else None
 
 
         def get_selected_warehouse_id():
-            selected_name = entries["Warehouse"].get()
+            selected_name = wh_entry.get()
             selected_id = warehouse_to_id.get(selected_name)  # Get the corresponding ID
             if selected_id:
                 return selected_id
@@ -266,7 +402,7 @@ class PreparationFormTable:
 
 
         def get_selected_status_id():
-            selected_name = entries["Status"].get()
+            selected_name = status_entry.get()
             selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
             if selected_id:
                 return selected_id
@@ -274,27 +410,25 @@ class PreparationFormTable:
                 return None
 
         def update_record():
-            qty_return = entries["QTY (Return)"].get()
+            qty_return = qty_return_entry.get()
 
-            if qty_return == None or qty_return == '':
+            if qty_return is None or qty_return == '':
                 qty_return = float(0.00)
-
-
 
 
             # Convert date to YYYY-MM-DD
             try:
-                preparation_date = datetime.strptime(entries["Preparation Date"].entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
+                preparation_date = datetime.strptime(date_entry.entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
             except ValueError:
                 Messagebox.show_error("Error", "Invalid date format. Please use MM/DD/YYYY.")
                 return
             data = {
                 "rm_code_id": get_selected_rm_code_id(),
                 "warehouse_id": get_selected_warehouse_id(),
-                "ref_number": entries["PF ID No."].get(),
+                "ref_number": ref_entry.get(),
                 "status_id": get_selected_status_id(),
                 "preparation_date":  preparation_date,
-                "qty_prepared": entries["QTY (Prepared)"].get(),
+                "qty_prepared": qty_prepared_entry.get(),
                 "qty_return": qty_return,
             }
 
@@ -304,10 +438,10 @@ class PreparationFormTable:
                 Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
                 return
 
-            validatation_result = EntryValidation.validate_soh_value_for_update(
+            validatation_result = self.shared_functions.validate_soh_value_for_update(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
-                float(entries["QTY (Prepared)"].get()),
+                float(qty_prepared_entry.get()),
                 get_selected_status_id()
             )
 
@@ -317,7 +451,7 @@ class PreparationFormTable:
                     response = requests.put(url, json=data)
                     if response.status_code == 200:
                         self.refresh_table()
-                        edit_window.destroy()
+                        self.edit_window.destroy()
                         messagebox.showinfo("Success", "Record updated successfully")
 
 
@@ -332,7 +466,7 @@ class PreparationFormTable:
                     "Data Entry Error")
                 return
 
-        ttk.Button(edit_window, text="Save", command=update_record, width=30).grid(row=len(fields), column=0, columnspan=2,
+        ttk.Button(self.edit_window, text="Save", command=update_record, width=30).grid(row=len(fields), column=0, columnspan=2,
                                                                          pady=10)
     def confirm_delete(self, item_id):
         """Show confirmation before deleting record."""

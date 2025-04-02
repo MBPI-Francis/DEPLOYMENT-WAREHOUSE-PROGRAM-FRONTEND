@@ -111,7 +111,6 @@ def entry_fields(note_form_tab):
         }
 
 
-
         if cleaned_qty_return > cleaned_qty_prepared:
             Messagebox.show_error(
                 "Cannot add the record because the QTY (Return) exceeds the QTY (Prepared). "
@@ -128,7 +127,7 @@ def entry_fields(note_form_tab):
             Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
             return
 
-        validatation_result = EntryValidation.validate_soh_value(
+        validatation_result = shared_functions.validate_soh_value(
             rm_code_id,
             warehouse_id,
             cleaned_qty_prepared,
@@ -194,7 +193,11 @@ def entry_fields(note_form_tab):
     ToolTip(lock_warehouse, text="Lock the warehouse by clicking this")
 
     # Warehouse Combobox field
-    warehouse_combobox = ttk.Combobox(warehouse_frame, values=warehouse_names, state="readonly", width=30)
+    warehouse_combobox = ttk.Combobox(warehouse_frame,
+                                      values=warehouse_names,
+                                      state="readonly",
+                                      width=30,
+                                      font=shared_functions.custom_font_size)
     warehouse_combobox.grid(row=1, column=0, padx=(10,0), pady=(0, 0), sticky=W)
     ToolTip(warehouse_combobox, text="Choose a warehouse")
 
@@ -211,6 +214,7 @@ def entry_fields(note_form_tab):
         values=status_names,
         state="readonly",
         width=40,
+        font=shared_functions.custom_font_size
     )
     status_combobox.grid(row=1, column=3, padx=(10, 0), pady=(0, 0), sticky=W)
     ToolTip(status_combobox, text="Please choose the raw material status")
@@ -237,7 +241,7 @@ def entry_fields(note_form_tab):
     # REF Number Entry Field
     ref_number_label = ttk.Label(refno_frame, text="PF ID No.", style="CustomLabel.TLabel")
     ref_number_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
-    ref_number_entry = ttk.Entry(refno_frame, width=30)
+    ref_number_entry = ttk.Entry(refno_frame, width=30, font=shared_functions.custom_font_size)
     ref_number_entry.grid(row=1, column=0, padx=5, pady=(0, 0), sticky=W)
     ToolTip(ref_number_entry, text="Enter the Reference Number")
 
@@ -279,6 +283,7 @@ def entry_fields(note_form_tab):
         values=rm_names,
         state="normal",
         width=30,
+        font=shared_functions.custom_font_size
     )
 
     # Bind the key release event to the combobox to trigger uppercase conversion
@@ -387,6 +392,7 @@ def entry_fields(note_form_tab):
     qty_prepared_label.grid(row=0, column=1, padx=(10, 0), pady=0, sticky=W)
     qty_prepared_entry = ttk.Entry(rmcode_frame,
                                    width=20,
+                                   font=shared_functions.custom_font_size,
                                    textvariable=qty_prepared_var,
                                    validate="key",  # Trigger validation on keystrokes
                                    validatecommand=(validate_numeric_command, "%P")  # Pass the current widget content ("%P")
@@ -401,6 +407,7 @@ def entry_fields(note_form_tab):
     qty_return_label.grid(row=0, column=2, padx=(5,0), pady=0, sticky=W)
     qty_return_entry = ttk.Entry(rmcode_frame,
                           width=20,
+                            font=shared_functions.custom_font_size,
                         textvariable=qty_return_var,
                           validate="key",  # Trigger validation on keystrokes
                           validatecommand=(validate_numeric_command, "%P")  # Pass the current widget content ("%P")
@@ -429,21 +436,18 @@ def entry_fields(note_form_tab):
         width=25
     )
     preparation_date_entry.grid(row=1, column=0, padx=5, pady=0, sticky=W)
-
+    preparation_date_entry.entry.config(font=shared_functions.custom_font_size)
     ToolTip(preparation_date_entry, text="Please enter the preparation date.")
 
 
-
     # Add button to submit data
-    btn_submit = ttk.Button(
+    btn_add = ttk.Button(
         form_frame,
         text="+ Add",
         command=submit_data,
     )
-    btn_submit.grid(row=2, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
-    ToolTip(btn_submit, text="Click this add button to add the entry to the list")
-
-
+    btn_add.grid(row=2, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
+    ToolTip(btn_add, text="Click this add button to add the entry to the list")
 
     prepration_form_table = PreparationFormTable(note_form_tab)
 

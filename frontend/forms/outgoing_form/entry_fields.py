@@ -7,7 +7,6 @@ from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
 from .table import OutgoingFormTable
 from .validation import EntryValidation
-from ..preparation_form.validation import EntryValidation as PrepValidation
 from ..shared import SharedFunctions
 from tkinter import StringVar
 
@@ -110,8 +109,9 @@ def entry_fields(note_form_tab):
             Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
             return
 
+
         # Validate if the entry value exceeds the stock
-        validatation_result = PrepValidation.validate_soh_value(
+        validatation_result = shared_functions.validate_soh_value(
             rm_code_id,
             warehouse_id,
             cleaned_qty,
@@ -180,7 +180,12 @@ def entry_fields(note_form_tab):
 
 
     # Warehouse Combobox field
-    warehouse_combobox = ttk.Combobox(warehouse_frame, values=warehouse_names, state="readonly", width=22)
+    warehouse_combobox = ttk.Combobox(warehouse_frame,
+                                      values=warehouse_names,
+                                      state="readonly",
+                                      width=22,
+                                      font=shared_functions.custom_font_size
+                                      )
     warehouse_combobox.grid(row=1, column=0, padx=(10,0), pady=(0, 0), sticky=W)
 
     # Status JSON-format choices (coming from the API)
@@ -196,6 +201,7 @@ def entry_fields(note_form_tab):
         values=status_names,
         state="readonly",
         width=21,
+        font=shared_functions.custom_font_size
     )
     status_combobox.grid(row=1, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
     # Checkbox for Warehouse lock
@@ -215,8 +221,6 @@ def entry_fields(note_form_tab):
     ToolTip(warehouse_combobox, text="Choose a warehouse")
 
 
-
-
     # Reference Number FRAME (Right-aligned)
     refno_frame = ttk.Frame(form_frame)
     refno_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
@@ -224,7 +228,7 @@ def entry_fields(note_form_tab):
     # REF Number Entry Field
     ref_number_label = ttk.Label(refno_frame, text="OGR No.", style="CustomLabel.TLabel")
     ref_number_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
-    ref_number_entry = ttk.Entry(refno_frame, width=30)
+    ref_number_entry = ttk.Entry(refno_frame, width=30, font=shared_functions.custom_font_size)
     ref_number_entry.grid(row=1, column=0, padx=5, pady=(0, 0), sticky=W)
     ToolTip(ref_number_entry, text="Enter the Reference Number")
 
@@ -233,7 +237,6 @@ def entry_fields(note_form_tab):
     # Checkbox beside the combobox
     lock_reference = ttk.Checkbutton(
         refno_frame,
-
         variable=checkbox_reference_var,
         bootstyle="round-toggle"
     )
@@ -265,6 +268,7 @@ def entry_fields(note_form_tab):
         values=rm_names,
         state="normal",
         width=25,
+        font=shared_functions.custom_font_size
     )
 
     # Bind the key release event to the combobox to trigger uppercase conversion
@@ -330,6 +334,7 @@ def entry_fields(note_form_tab):
 
     qty_entry = ttk.Entry(rmcode_frame,
                           width=21,
+                          font=shared_functions.custom_font_size,
                           textvariable=qty_var,
                           validate="key",
                           validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
@@ -339,10 +344,6 @@ def entry_fields(note_form_tab):
     qty_entry.bind("<KeyRelease>", format_numeric_input)
 
     ToolTip(qty_entry, text="Enter the Quantity(kg)")
-
-
-
-
     date_frame = ttk.Frame(form_frame)
     date_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")
 
@@ -363,16 +364,17 @@ def entry_fields(note_form_tab):
     )
     outgoing_date_entry.grid(row=1, column=0, padx=5, pady=0, sticky=W)
 
+    outgoing_date_entry.entry.config(font=shared_functions.custom_font_size)
     ToolTip(outgoing_date_entry, text="Please enter the outgoing date")
 
     # Add button to submit data
-    btn_submit = ttk.Button(
+    btn_add = ttk.Button(
         form_frame,
         text="+ Add",
         command=submit_data,
     )
-    btn_submit.grid(row=2, column=0, columnspan=2, pady=0, padx=400, sticky=NSEW)
-    ToolTip(btn_submit, text="Click this add button to add the entry to the list")
+    btn_add.grid(row=2, column=0, columnspan=2, pady=0, padx=400, sticky=NSEW)
+    ToolTip(btn_add, text="Click this add button to add the entry to the list")
 
     outgoing_form_table = OutgoingFormTable(note_form_tab)
 

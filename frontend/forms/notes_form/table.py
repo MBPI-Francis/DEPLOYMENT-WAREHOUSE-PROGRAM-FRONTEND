@@ -11,11 +11,15 @@ from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
 from tkinter import font
 from ttkbootstrap.style import Style
+from frontend.forms.shared import SharedFunctions
+
 
 
 class NoteTable:
     def __init__(self, root):
         self.root = root
+        self.shared_functions = SharedFunctions()
+        self.edit_window = None  # Track the edit window
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -35,7 +39,7 @@ class NoteTable:
             bootstyle=WARNING,
         )
         btn_clear.pack(side=RIGHT)
-        ToolTip(btn_clear, text="Click the button to clear all the Note Form data.")
+        ToolTip(btn_clear, text="Click the button to clear all the Notes Form data.")
 
 
         # Create a frame to hold the Treeview and Scrollbars
@@ -124,14 +128,45 @@ class NoteTable:
             menu.add_command(label="Delete", command=lambda: self.confirm_delete(item))
             menu.post(event.x_root, event.y_root)
 
+
+    def on_edit_window_close(self):
+        """Reset the edit_window reference when it is closed."""
+        self.edit_window.destroy()
+        self.edit_window = None
+
     def edit_record(self, item):
+
+        # If the window already exists, bring it to the front and return
+        if self.edit_window and self.edit_window.winfo_exists():
+            self.edit_window.lift()
+            return
+
         record = self.tree.item(item, "values")
         if not record:
             return
 
-        edit_window = Toplevel(self.root)
-        edit_window.title("Edit Record")
-        edit_window.geometry("300x225")
+        # Get the main window position and size
+        self.root.update_idletasks()  # Ensure updated dimensions
+        root_x = self.root.winfo_x()
+        root_y = self.root.winfo_y()
+        root_width = self.root.winfo_width()
+        root_height = self.root.winfo_height()
+
+        # Define edit window size
+        window_width = 320
+        window_height = 225
+
+        # Calculate the position (center relative to main window)
+        x = root_x + (root_width // 2) - (window_width // 2)
+        y = root_y + (root_height // 2) - (window_height // 2)
+
+        # Create the window **with position already set**
+        self.edit_window = Toplevel(self.root)
+        self.edit_window.title("Edit Record")
+        self.edit_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+        # Prevent opening multiple windows
+        self.edit_window.protocol("WM_DELETE_WINDOW", self.on_edit_window_close)
 
         # Fetch product kinds from API
         product_kinds = self.get_product_kinds_api()
@@ -146,41 +181,40 @@ class NoteTable:
         entries = {}
 
         for i, label_text in enumerate(fields):
-            Label(edit_window, text=label_text).grid(row=i, column=0, padx=10, pady=5, sticky='w')
+            Label(self.edit_window, text=label_text, font=self.shared_functions.custom_font_size).grid(row=i, column=0, padx=10, pady=5, sticky='w')
             if label_text == "Product Kind":
-                # Mapping MB -> 'Masterbatch Color' and DC -> 'Dry Color'
-                kind_mapping = {
-                    "MB": product_kind_names[1],  # 'Masterbatch Color'
-                    "DC": product_kind_names[0]  # 'Dry Color'
-                }
+                # Product Kind JSON-format choices (coming from the API)
+                product_kinds = self.get_product_kinds_api()
+                name_to_id = {item["name"]: item["id"] for item in product_kinds}
+                product_kind_names = list(name_to_id.values())
 
-                entry = ttk.Combobox(edit_window, values=product_kind_names, state="readonly", width=20)
+                entry = ttk.Combobox(self.edit_window, values=product_kind_names,
+                                     state="readonly",
+                                     width=20,
+                                     font=self.shared_functions.custom_font_size
+                                     )
+                entry.set(record[i])  # Set current value in the combobox
 
-                # Get the mapped value or use record[i] if it's not MB/DC
-                entry_value = kind_mapping.get(record[i], record[i])
-                entry.set(entry_value)
+                ToolTip(entry, text="Choose a product kind")
+
 
 
             elif label_text == "Consumption Date":
-                entry = DateEntry(edit_window, dateformat="%m/%d/%Y", width=20)
+                entry = DateEntry(self.edit_window, dateformat="%m/%d/%Y", width=18)
                 entry.entry.delete(0, "end")
                 entry.entry.insert(0, datetime.strptime(record[i], "%m/%d/%Y").strftime("%m/%d/%Y"))
+                entry.entry.config(font=self.shared_functions.custom_font_size)
 
             else:
-                entry = ttk.Entry(edit_window, width=22)
+                entry = ttk.Entry(self.edit_window,
+                                  width=22,
+                                  font=self.shared_functions.custom_font_size)
                 entry.insert(0, record[i])
 
             entry.grid(row=i, column=1, padx=5, pady=5, sticky=W)
             entries[label_text] = entry
         def update_data():
 
-            def get_selected_product_kind_id():
-                selected_name = entries["Product Kind"].get()
-                selected_id = name_to_id.get(selected_name)  # Get the corresponding ID
-                if selected_id:
-                    return selected_id
-                else:
-                    return None
 
             def get_product_kinds_api():
                 url = server_ip + "/api/product_kinds/v1/list/"
@@ -195,10 +229,6 @@ class NoteTable:
                     return []
 
 
-            # Product Kind JSON-format choices (coming from the API)
-            product_kinds = get_product_kinds_api()
-            name_to_id = {kind_item["name"]: kind_item["id"] for kind_item in product_kinds}
-            product_kind_names = list(name_to_id.keys())
 
             # Convert date to YYYY-MM-DD
             try:
@@ -210,7 +240,7 @@ class NoteTable:
             data = {
                 "product_code": entries["Product Code"].get(),
                 "lot_number": entries["Lot No."].get(),
-                "product_kind_id": get_selected_product_kind_id(),
+                "product_kind_id":  entries["Product Kind"].get(),
                 "stock_change_date": consumption_date,
             }
 
@@ -226,11 +256,11 @@ class NoteTable:
             if response.status_code == 200:
                 messagebox.showinfo("Success", "Record updated successfully")
                 self.load_data()
-                edit_window.destroy()
+                self.edit_window.destroy()
             else:
                 messagebox.showerror("Error", "Failed to update record")
 
-        ttk.Button(edit_window, text="Update", command=update_data, width=30).grid(row=len(fields), columnspan=2, pady=10)
+        ttk.Button(self.edit_window, text="Update", command=update_data, width=30).grid(row=len(fields), columnspan=2, pady=10)
 
     def confirm_delete(self, note_id):
         """Show confirmation before deleting record."""
