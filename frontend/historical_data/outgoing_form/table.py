@@ -29,7 +29,15 @@ class OutgoingFormTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Reference No.", "Quantity(kg)", "Outgoing Date", "Date Encoded"),
+            columns=(
+                     "Date Encoded",
+                     "OGR No.",
+                     "Raw Material",
+                     "Quantity(kg)",
+                     "Status",
+                     "Warehouse",
+                     "Outgoing Date",
+                     "Date Computed"),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
@@ -72,12 +80,14 @@ class OutgoingFormTable:
                 qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
                 record = (
                     item["id"],  # Store ID
-                    item["raw_material"],
-                    item["wh_name"],
-                    item["ref_number"],
-                    qty_kg_formatted,
-                    datetime.fromisoformat(item["outgoing_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
+                    item["ref_number"],
+                    item["raw_material"],
+                    qty_kg_formatted,
+                    item["status"],
+                    item["wh_name"],
+                    datetime.fromisoformat(item["outgoing_date"]).strftime("%m/%d/%Y"),
+                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y")
                 )
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])

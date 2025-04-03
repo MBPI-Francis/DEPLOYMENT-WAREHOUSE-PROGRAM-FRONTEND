@@ -29,7 +29,14 @@ class NoteTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded", "Date Computed"),
+            columns=(
+                     "Date Encoded",
+                     "Product Code",
+                     "Lot No.",
+                     "Product Kind",
+                     "Consumption Date",
+                     "Date Computed"
+                     ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY

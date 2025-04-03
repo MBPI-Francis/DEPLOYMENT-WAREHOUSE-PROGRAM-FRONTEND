@@ -23,7 +23,7 @@ class NoteTable:
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
-        search_frame.pack(fill=X, padx=10, pady=(10, 0))
+        search_frame.pack(fill=X, padx=10, pady=(0, 0))
         ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side=LEFT, padx=5)
         self.search_entry = ttk.Entry(search_frame, width=50)
         self.search_entry.pack(side=LEFT)
@@ -41,17 +41,31 @@ class NoteTable:
         btn_clear.pack(side=RIGHT)
         ToolTip(btn_clear, text="Click the button to clear all the Notes Form data.")
 
+        # Add button to clear data
+        btn_refresh = ttk.Button(
+            search_frame,
+            text="Refresh",
+            command=self.load_data,
+            bootstyle=SECONDARY,
+        )
+        btn_refresh.pack(side=RIGHT, padx=10)
+        ToolTip(btn_refresh, text="Click the button to refresh the data table.")
 
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
-        tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=(5,0))
 
 
 
         # Now define self.tree
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded"),
+            columns=("Date Encoded",
+                    "Product Code",
+                     "Lot No.",
+                     "Product Kind",
+                     "Consumption Date",
+      ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY,  # Ensure Treeview follows theme
@@ -73,7 +87,12 @@ class NoteTable:
 
 
         # Define column headers
-        col_names = ["Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded"]
+        col_names = [ "Date Encoded",
+                      "Product Code",
+                      "Lot No.",
+                      "Product Kind",
+                      "Consumption Date",
+]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
@@ -100,11 +119,11 @@ class NoteTable:
             for item in data:
                 record = (
                     item["id"],  # Store ID
+                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["product_code"],
                     item["lot_number"],
                     item["product_kind_id"],
                     datetime.fromisoformat(item["stock_change_date"]).strftime("%m/%d/%Y"),
-                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 )
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])
@@ -142,6 +161,7 @@ class NoteTable:
             return
 
         record = self.tree.item(item, "values")
+        record = (record[1], record[2], record[3], record[4])
         if not record:
             return
 

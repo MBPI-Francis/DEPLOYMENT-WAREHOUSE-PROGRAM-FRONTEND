@@ -32,15 +32,15 @@ class TransferFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                    "Raw Material",
-                    "Reference No.",
-                    "Quantity(kg)",
-                    "Warehouse (FROM)",
-                    "Warehouse (TO)",
-                    "Status",
-                    "Transfer Date",
-                    "Date Encoded",
-                    "Date Computed"),
+                "Date Encoded",
+                "TF No.",
+                "Raw Material",
+                "Quantity(kg)",
+                "Status",
+                "Warehouse (FROM)",
+                "Warehouse (TO)",
+                "Transfer Date",
+                "Date Computed"),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
@@ -85,14 +85,14 @@ class TransferFormTable:
                 qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
                 record = (
                     item["id"],  # Store ID
-                    item["raw_material"],
+                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["ref_number"],
+                    item["raw_material"],
                     qty_kg_formatted,
+                    item["status"],
                     item["from_warehouse"],
                     item["to_warehouse"],
-                    item["status"],
                     datetime.fromisoformat(item["transfer_date"]).strftime("%m/%d/%Y"),
-                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
                 )
                 self.original_data.append(record)  # Save record

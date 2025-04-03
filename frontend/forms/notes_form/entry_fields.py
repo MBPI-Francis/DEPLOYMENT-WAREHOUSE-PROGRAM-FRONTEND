@@ -17,9 +17,12 @@ def entry_fields(note_form_tab):
     # Function to clear all entry fields
     def clear_fields():
 
-        product_code_entry.delete(0, ttk.END)
+        if not checkbox_product_code_var.get():
+            product_code_entry.delete(0, ttk.END)
+
+        if not checkbox_product_kind_var.get():
+            product_kind_combobox.set("")
         lot_number_entry.delete(0, ttk.END)
-        product_kind_combobox.set("")
 
     def submit_data():
 
@@ -30,7 +33,7 @@ def entry_fields(note_form_tab):
         consumption_date = date_entry.entry.get()
 
         # Set focus to the Entry field
-        product_code_entry.focus_set()
+        lot_number_entry.focus_set()
 
 
         # Convert date to YYYY-MM-DD
@@ -81,6 +84,15 @@ def entry_fields(note_form_tab):
     form_frame = ttk.Frame(note_form_tab)
     form_frame.pack(fill=X, pady=10, padx=20)
 
+    # Configure grid columns to make them behave correctly
+    form_frame.grid_columnconfigure(0, weight=1)  # Left (Warehouse) stays at the left
+    form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
+
+    first_field_frame = ttk.Frame(form_frame)
+    first_field_frame.grid(row=0, column=0, padx=5, pady=(0, 10), sticky=W)
+
+    second_field_frame = ttk.Frame(form_frame)
+    second_field_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # Function to convert typed input to uppercase
     def on_key_release(event):
@@ -97,46 +109,57 @@ def entry_fields(note_form_tab):
         lot_number_var.set(lot_num_current_text.upper())
 
 
-
-    # Date Entry field
-    date_label = ttk.Label(form_frame, text="Consumption Date", style="CustomLabel.TLabel")
-    date_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
-
-    # # Calculate yesterday's date
-    yesterday_date = datetime.now() - timedelta(days=1)
-
-    date_entry = ttk.DateEntry(
-        form_frame,
-        bootstyle=PRIMARY,
-        dateformat="%m/%d/%Y",
-        startdate=yesterday_date,  # Set yesterday's date
-        width=25,
+    # Checkbox for Warehouse lock
+    checkbox_product_code_var = ttk.IntVar()
+    lock_product_code = ttk.Checkbutton(
+        first_field_frame,
+        variable=checkbox_product_code_var,
+        bootstyle="round-toggle"
     )
-
-    date_entry.grid(row=1, column=0, padx=5, pady=(0, 10), sticky=W)
-    ToolTip(date_entry, text="This is the date when raw materials stock moved")
-
-    # Directly access the internal Entry widget of DateEntry and apply the font
-    date_entry.entry.config(font=shared_instance.custom_font_size)
-
+    lock_product_code.grid(row=0, column=0, pady=(0, 0), padx=(0,0), sticky=E)
+    ToolTip(lock_product_code, text="Lock the product code by clicking this")
 
     # Product Code Entry Field
-
     product_code_var = ttk.StringVar(value="")
-    product_code_label = ttk.Label(form_frame, text="Product Code", style="CustomLabel.TLabel")
-    product_code_label.grid(row=2, column=0, padx=5, pady=(0,0), sticky=W)
-    product_code_entry = ttk.Entry(form_frame, width=30, textvariable=product_code_var, font=shared_instance.custom_font_size)
-    product_code_entry.grid(row=3, column=0, padx=5, pady=(0,5), sticky=W)
+    product_code_label = ttk.Label(first_field_frame, text="Product Code", style="CustomLabel.TLabel")
+    product_code_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
+    product_code_entry = ttk.Entry(first_field_frame, width=30, textvariable=product_code_var, font=shared_instance.custom_font_size)
+    product_code_entry.grid(row=1, column=0, padx=5, pady=(0,5), sticky=W)
     ToolTip(product_code_entry, text="Enter the product code")
     # Bind the key release event to the combobox to trigger uppercase conversion
     product_code_entry.bind("<KeyRelease>", on_key_release)
 
+
+
+
+
+    # Date Entry field
+    date_label = ttk.Label(second_field_frame, text="Consumption Date", style="CustomLabel.TLabel")
+    date_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
+
+    # Calculate yesterday's date
+    yesterday_date = datetime.now() - timedelta(days=1)
+
+    date_entry = ttk.DateEntry(
+        second_field_frame,
+        bootstyle=PRIMARY,
+        dateformat="%m/%d/%Y",
+        startdate=yesterday_date,  # Set yesterday's date
+        width=26,
+    )
+
+    date_entry.grid(row=1, column=0, padx=5, pady=(0, 0), sticky=W)
+    ToolTip(date_entry, text="This is the date when raw materials stock moved")
+    # Directly access the internal Entry widget of DateEntry and apply the font
+    date_entry.entry.config(font=shared_instance.custom_font_size)
+
+
     # Lot Number Entry Field
     lot_number_var = ttk.StringVar(value="")
-    lot_number_label = ttk.Label(form_frame, text="Lot Number", style="CustomLabel.TLabel")
-    lot_number_label.grid(row=2, column=1, padx=5, pady=(0,0), sticky=W)
-    lot_number_entry = ttk.Entry(form_frame, width=30, textvariable=lot_number_var, font=shared_instance.custom_font_size)
-    lot_number_entry.grid(row=3, column=1, padx=5, pady=(0,5))
+    lot_number_label = ttk.Label(first_field_frame, text="Lot Number", style="CustomLabel.TLabel")
+    lot_number_label.grid(row=2, column=0, padx=5, pady=(0,0), sticky=W)
+    lot_number_entry = ttk.Entry(first_field_frame, width=30, textvariable=lot_number_var, font=shared_instance.custom_font_size)
+    lot_number_entry.grid(row=3, column=0, padx=5, pady=(0,5))
     ToolTip(lot_number_entry, text="Enter the lot number")
     lot_number_entry.bind("<KeyRelease>", on_key_release)
 
@@ -145,17 +168,29 @@ def entry_fields(note_form_tab):
     name_to_id = {item["name"]: item["id"] for item in product_kinds}
     product_kind_names = list(name_to_id.values())
 
+
+
+    # Checkbox for Warehouse lock
+    checkbox_product_kind_var = ttk.IntVar()
+    lock_product_kind = ttk.Checkbutton(
+        first_field_frame,
+        variable=checkbox_product_kind_var,
+        bootstyle="round-toggle"
+    )
+    lock_product_kind.grid(row=2, column=1, pady=(0, 0), padx=(0,0), sticky=E)
+    ToolTip(lock_product_kind, text="Lock the product kind by clicking this")
+
     # Combobox for Product Kind Drop Down
-    product_kind_label = ttk.Label(form_frame, text="Product Kind", style="CustomLabel.TLabel")
-    product_kind_label.grid(row=2, column=3, padx=5, pady=(0,0), sticky=W)
+    product_kind_label = ttk.Label(first_field_frame, text="Product Kind", style="CustomLabel.TLabel")
+    product_kind_label.grid(row=2, column=1, padx=5, pady=(0,0), sticky=W)
     product_kind_combobox = ttk.Combobox(
-        form_frame,
+        first_field_frame,
         values=product_kind_names,
         state="readonly",
-        width=15,
+        width=20,
         font=shared_instance.custom_font_size
     )
-    product_kind_combobox.grid(row=3, column=3, pady=(0,5), padx=5, sticky=W)
+    product_kind_combobox.grid(row=3, column=1, pady=(0,5), padx=5, sticky=W)
     ToolTip(product_kind_combobox, text="Choose a product kind")
 
 
@@ -166,12 +201,9 @@ def entry_fields(note_form_tab):
         command=submit_data,
         width=28,
     )
-    btn_add.grid(row=4, column=0, columnspan=2, padx=5, pady=(5,0), sticky=W)
+    btn_add.grid(row=4, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
     ToolTip(btn_add, text="Click this button to add your entry to the list")
-
-
     note_table = NoteTable(note_form_tab)
-
 
 
 

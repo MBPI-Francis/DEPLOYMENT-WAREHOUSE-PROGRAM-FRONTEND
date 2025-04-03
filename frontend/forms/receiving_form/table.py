@@ -24,7 +24,7 @@ class ReceivingFormTable:
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
-        search_frame.pack(fill=X, padx=10, pady=(10, 0))
+        search_frame.pack(fill=X, padx=10, pady=(0, 0))
         ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side=LEFT, padx=5)
         self.search_entry = ttk.Entry(search_frame, width=50)
         self.search_entry.pack(side=LEFT)
@@ -41,14 +41,31 @@ class ReceivingFormTable:
         btn_clear.pack(side=RIGHT)
         ToolTip(btn_clear, text="Click the button to clear all the Note Form data.")
 
+        # Add button to clear data
+        btn_refresh = ttk.Button(
+            search_frame,
+            text="Refresh",
+            command=self.refresh_table,
+            bootstyle=SECONDARY,
+        )
+        btn_refresh.pack(side=RIGHT, padx=10)
+        ToolTip(btn_refresh, text="Click the button to refresh the data table.")
+
+
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
-        tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=(5,0))
 
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "RR No.", "Quantity(kg)", "Receiving Date", "Date Encoded"),
+            columns=("Date Encoded",
+                     "RR No.",
+                     "Raw Material",
+                     "Quantity(kg)",
+                     "Warehouse",
+                     "Receiving Date",
+                    ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
@@ -73,17 +90,18 @@ class ReceivingFormTable:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=150)
 
-        self.tree.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        self.tree.pack(fill=BOTH, expand=YES)
         self.tree.bind("<Button-3>", self.show_context_menu)
         self.refresh_table()
 
         # Define column headers
-        col_names = ["Raw Material",
-                     "Warehouse",
-                     "RR No.",
-                     "Quantity(kg)",
-                     "Receiving Date",
-                     "Date Encoded"
+        col_names = [
+                        "Date Encoded",
+                        "RR No.",
+                        "Raw Material",
+                        "Quantity(kg)",
+                        "Warehouse",
+                        "Receiving Date",
                      ]
 
         for col in col_names:
@@ -110,12 +128,13 @@ class ReceivingFormTable:
 
             record = (
                 item["id"],  # Store ID
-                item["raw_material"],
-                item["wh_name"],
-                item["ref_number"],
-                qty_kg_formatted,  # Formatted qty_kg
-                datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
+                item["ref_number"],
+                item["raw_material"],
+                qty_kg_formatted,  # Formatted qty_kg
+                item["wh_name"],
+                datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
+
             )
             self.original_data.append(record)  # Save record
             self.tree.insert("", END, iid=record[0], values=record[1:])
@@ -151,6 +170,7 @@ class ReceivingFormTable:
             return
 
         record = self.tree.item(item, "values")
+        record = (record[1], record[2], record[3], record[4], record[5])
         if not record:
             return
 
@@ -177,7 +197,11 @@ class ReceivingFormTable:
         # Prevent opening multiple windows
         self.edit_window.protocol("WM_DELETE_WINDOW", self.on_edit_window_close)
 
-        fields = ["Raw Material", "Warehouse", "RR No.", "Quantity(kg)", "Receiving Date"]
+        fields = ["RR No.",
+                  "Raw Material",
+                  "Quantity(kg)",
+                  "Warehouse",
+                  "Receiving Date"]
         entries = {}
 
 

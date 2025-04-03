@@ -25,7 +25,7 @@ class PreparationFormTable:
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
-        search_frame.pack(fill=X, padx=10, pady=(10, 0))
+        search_frame.pack(fill=X, padx=10, pady=(0, 0))
         ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side=LEFT, padx=5)
         self.search_entry = ttk.Entry(search_frame, width=50)
         self.search_entry.pack(side=LEFT)
@@ -42,17 +42,35 @@ class PreparationFormTable:
         btn_clear.pack(side=RIGHT)
         ToolTip(btn_clear, text="Click the button to clear all the Note Form data.")
 
+        # Add button to clear data
+        btn_refresh = ttk.Button(
+            search_frame,
+            text="Refresh",
+            command=self.refresh_table,
+            bootstyle=SECONDARY,
+        )
+        btn_refresh.pack(side=RIGHT, padx=10)
+        ToolTip(btn_refresh, text="Click the button to refresh the data table.")
+
+
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
-        tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=(5,0))
 
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Status", "PF ID No.",
-                  "QTY (Prepared)", "QTY (Return)", "Consumption",
-                  "Preparation Date",
-                  "Date Encoded"),
+            columns=(
+                "Date Encoded",
+                "PF ID No.",
+                "Raw Material",
+                "QTY (Prepared)",
+                "QTY (Return)",
+                "Consumption",
+                "Status",
+                "Warehouse",
+                "Preparation Date",
+                ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
@@ -78,20 +96,22 @@ class PreparationFormTable:
             self.tree.heading(col, text=col)
             self.tree.column(col, width=150)
 
-        self.tree.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        self.tree.pack(fill=BOTH, expand=YES)
         self.tree.bind("<Button-3>", self.show_context_menu)
         self.refresh_table()
 
         # Define column headers
-        col_names = [   "Raw Material",
-                        "Warehouse",
-                        "Status",
-                        "PF ID No.",
-                        "QTY (Prepared)",
-                        "QTY (Return)",
-                        "Consumption",
-                        "Preparation Date",
-                        "Date Encoded"]
+        col_names = [
+                "Date Encoded",
+                "PF ID No.",
+                "Raw Material",
+                "QTY (Prepared)",
+                "QTY (Return)",
+                "Consumption",
+                "Status",
+                "Warehouse",
+                "Preparation Date",
+                        ]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
@@ -121,15 +141,16 @@ class PreparationFormTable:
 
             record = (
                 item["id"],  # Store ID
-                item["raw_material"],
-                item["wh_name"],
-                item["status"],
+                datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 item["ref_number"],
+                item["raw_material"],
                 qty_prepared_formatted,
                 qty_return_formatted,
                 consumption_formatted,
+                item["status"],
+                item["wh_name"],
                 datetime.fromisoformat(item["preparation_date"]).strftime("%m/%d/%Y"),
-                datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
+
             )
             self.original_data.append(record)  # Save record
             self.tree.insert("", END, iid=record[0], values=record[1:])
@@ -166,11 +187,12 @@ class PreparationFormTable:
 
         """Open edit form."""
         record = self.tree.item(item, 'values')
+        print(record)
         if not record:
             return
 
         # Remove "Beginning Balance" (index 4) and "Date Encoded" (index 6)
-        record = (record[0], record[1], record[2], record[3], record[4], record[5], record[7])
+        record = (record[1], record[2], record[3], record[4], record[6], record[7], record[8])
 
 
         # Get the main window position and size
@@ -196,13 +218,15 @@ class PreparationFormTable:
         # Prevent opening multiple windows
         self.edit_window.protocol("WM_DELETE_WINDOW", self.on_edit_window_close)
 
-        fields = [ "Raw Material",
-                    "Warehouse",
-                    "Status",
-                    "PF ID No.",
-                    "QTY (Prepared)",
-                    "QTY (Return)",
-                    "Preparation Date"]
+        fields = [
+                "PF ID No.",
+                "Raw Material",
+                "QTY (Prepared)",
+                "QTY (Return)",
+                "Status",
+                "Warehouse",
+                "Preparation Date",
+                   ]
         entries = {}
 
 

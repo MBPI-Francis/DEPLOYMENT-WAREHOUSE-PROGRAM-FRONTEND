@@ -14,32 +14,10 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.styles import numbers
+from frontend.forms.shared import SharedFunctions
 
 def entry_fields(note_form_tab):
-
-    # Function to clear all entry fields
-    def clear_fields():
-        if not checkbox_date_var.get():  # Clear only if checkbox_date_var is False
-            date_entry.entry.delete(0, tk.END)
-
-
-    def clear_all_data_from_forms():
-        """Fetch data from API and format for table rowdata."""
-        url = f"{server_ip}/api/clear-table-data"
-        params = {"tbl": "all"}  # Send tbl as a query parameter
-        try:
-            # Send another POST request to clear data
-            response = requests.post(url, params=params)
-            if response.status_code == 200:  # Check if the stock view was successfully created
-                Messagebox.show_info("Data is successfully cleared!", "Data Clearing")
-
-
-            else:
-                Messagebox.show_error(f"There must be a mistake, the status code is {response.status_code}", "Data Clearing Error")
-
-        except requests.exceptions.RequestException as e:
-            return False
-
+    shared_functions = SharedFunctions()
 
     def export_data_to_excel():
 
@@ -91,8 +69,6 @@ def entry_fields(note_form_tab):
                 except requests.exceptions.RequestException as e:
                     Messagebox.show_error(e, "Data Entry Error")
 
-                # Clear input fields after successful operation
-                clear_fields()
 
                 # Refresh the note table to display updated data
                 note_table.refresh_table()
@@ -205,147 +181,18 @@ def entry_fields(note_form_tab):
 
 
 
-        # Function to show confirmation panel
-    def confirmation_panel_clear():
-        # confirmation_window = ttk.Toplevel(form_frame)
-        # confirmation_window.title("Confirm Action")
-        # confirmation_window.geometry("450x410")
-        # confirmation_window.resizable(True, True)
-
-        confirmation_window = ttk.Toplevel(form_frame)
-        confirmation_window.title("Confirm Action")
-
-        # Get the screen width and height
-        screen_width = confirmation_window.winfo_screenwidth()
-        screen_height = confirmation_window.winfo_screenheight()
-
-        # Set a dynamic size (proportional to the screen size)
-        window_width = int(screen_width * 0.35)  # Adjust width as needed
-        window_height = int(screen_height * 0.51)  # Adjust height as needed
-
-        # Calculate position for centering
-        x_position = (screen_width - window_width) // 2
-        y_position = (screen_height - window_height) // 3  # Position slightly higher
-
-        # Apply geometry dynamically
-        confirmation_window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-
-        # Allow resizing but maintain proportions
-        confirmation_window.resizable(True, True)
-
-        # Expand and fill widgets inside the window
-        confirmation_window.grid_columnconfigure(0, weight=1)
-        confirmation_window.grid_rowconfigure(0, weight=1)
-
-        # Message Label
-        message_label = ttk.Label(
-            confirmation_window,
-            text="\n\nYou are about to clear ALL recently added data.",
-            justify="center",
-            font=("Helvetica", 12, "bold"),
-            bootstyle=WARNING
-
-        )
-        message_label.pack(pady=5)
-
-        # Message Label
-        message_label = ttk.Label(
-            confirmation_window,
-            text=(
-                "The recently added data from the following forms will be\ncleared or removed:\n"
-                    "   - Notes Form\n"
-                    "   - Receiving Form\n"
-                    "   - Outgoing Form\n"
-                    "   - Tranfer Form\n"
-                    "   - Preparation Form\n"
-                    "   - Change Status Form\n\n"
-                
-                "Please ensure that the data that will be cleared are unimportant\nbefore clearing all of it.\n"
-            ),
-            justify="left",
-            font=("Helvetica", 10),
-        )
-        message_label.pack(pady=5)
-
-        # Message Label
-        message_label = ttk.Label(
-            confirmation_window,
-            text=("To proceed, type 'YES' in the confirmation box."),
-            justify="center",
-            font=("Helvetica", 10),
-        )
-        message_label.pack(pady=5)
-
-
-        # Entry field
-        confirm_entry = ttk.Entry(confirmation_window, font=("Arial", 12),
-                                  justify="center")
-        confirm_entry.pack(padx=20, pady=5)
-
-        # Frame for buttons
-        button_frame = ttk.Frame(confirmation_window)
-        button_frame.pack(fill="x", padx=10, pady=10)  # Expand the frame horizontally
-
-        # Configure button frame columns
-        button_frame.columnconfigure(0, weight=1)  # Left side (Cancel)
-        button_frame.columnconfigure(1, weight=1)  # Right side (Submit)
-
-        # Cancel Button (Left)
-        cancel_button = ttk.Button(
-            button_frame,
-            text="Cancel",
-            bootstyle=DANGER,
-            command=confirmation_window.destroy
-        )
-        cancel_button.grid(row=0, column=0, padx=5, sticky="w")  # Align to left
-
-        # Submit Button (Right, Initially Disabled)
-        submit_button = ttk.Button(
-            button_frame,
-            text="Submit",
-            bootstyle=SUCCESS,
-            state=DISABLED,
-            command=lambda: [clear_all_data_from_forms(), confirmation_window.destroy()]
-        )
-        submit_button.grid(row=0, column=1, padx=5, sticky="e")  # Align to right
-
-
-        # Function to validate entry field
-        def validate_entry(event):
-            if confirm_entry.get().strip() == "YES":
-                submit_button.config(state=NORMAL)
-            else:
-                submit_button.config(state=DISABLED)
-
-        confirm_entry.bind("<KeyRelease>", validate_entry)
-
-
-
     # Create a frame for the form inputs
     form_frame = ttk.Frame(note_form_tab)
     form_frame.pack(fill=X, pady=10, padx=20)
 
-    # Add button to clear data
-    btn_clear = ttk.Button(
-        form_frame,
-        text="Clear All Data",
-        command=confirmation_panel_clear,
-        bootstyle=WARNING,
-    )
-    btn_clear.grid(row=0, column=0, pady=20, padx=5, sticky=W)
-    ToolTip(btn_clear, text="Click the button to clear all the data.")
 
-    # Checkbox for Warehouse lock
-    checkbox_date_var = ttk.BooleanVar(value=False)  # Integer variable to store checkbox state (0 or 1)
-    lock_warehouse = ttk.Checkbutton(
-        form_frame,
-        text="Lock Date",
-        variable=checkbox_date_var,
-        bootstyle="round-toggle"
-    )
-    lock_warehouse.grid(row=1, column=0, padx=5, pady=0, sticky=W)  # Position the checkbox next to the combobox
-    ToolTip(lock_warehouse, text="Lock the date")
 
+
+
+
+    # Quantity Entry Field
+    date_label = ttk.Label(form_frame, text="Ending Inventory Report Date", style="CustomLabel.TLabel")
+    date_label.grid(row=1, column=0, padx=2, pady=(0, 0), sticky=W)
 
     # Calculate yesterday's date
     yesterday_date = datetime.now() - timedelta(days=1)
@@ -358,8 +205,8 @@ def entry_fields(note_form_tab):
         startdate=yesterday_date,  # Set yesterday's date
         width=40
     )
-    date_entry.grid(row=2, column=0, padx=5, sticky=W)
-
+    date_entry.grid(row=2, column=0, padx=5, pady=(0,0), sticky=W)
+    date_entry.entry.config(font=shared_functions.custom_font_size)
     ToolTip(date_entry, text=f"This is the default consumption date. You can manually change it.")
 
 
@@ -370,7 +217,7 @@ def entry_fields(note_form_tab):
         command=export_data_to_excel,
         bootstyle=SUCCESS
     )
-    btn_export.grid(row=2, column=2, pady=10)
+    btn_export.grid(row=2, column=2, pady=(0,0))
     ToolTip(btn_export, text="Click the button to export the data into excel.")
 
 
@@ -381,7 +228,7 @@ def entry_fields(note_form_tab):
         command=show_confirmation_panel,
         bootstyle=INFO
     )
-    btn_submit.grid(row=3, column=0, pady=10,padx=5,)
+    btn_submit.grid(row=2, column=3, pady=(0,0),padx=5,)
     ToolTip(btn_submit, text="Click the button to make this data as the new beginning balance")
 
 

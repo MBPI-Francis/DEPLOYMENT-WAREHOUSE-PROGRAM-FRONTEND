@@ -27,7 +27,7 @@ class TransferFormTable:
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
-        search_frame.pack(fill=X, padx=10, pady=(10, 0))
+        search_frame.pack(fill=X, padx=10, pady=(0, 0))
         ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side=LEFT, padx=5)
         self.search_entry = ttk.Entry(search_frame, width=50)
         self.search_entry.pack(side=LEFT)
@@ -44,22 +44,35 @@ class TransferFormTable:
         btn_clear.pack(side=RIGHT)
         ToolTip(btn_clear, text="Click the button to clear all the Note Form data.")
 
+
+        # Add button to clear data
+        btn_refresh = ttk.Button(
+            search_frame,
+            text="Refresh",
+            command=self.refresh_table,
+            bootstyle=SECONDARY,
+        )
+        btn_refresh.pack(side=RIGHT, padx=10)
+        ToolTip(btn_refresh, text="Click the button to refresh the data table.")
+
+
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
-        tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=(5,0))
 
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                    "Raw Material",
+                    "Date Encoded",
                     "TF No.",
+                    "Raw Material",
                     "Quantity(kg)",
+                    "Status",
                     "Warehouse (FROM)",
                     "Warehouse (TO)",
-                    "Status",
                     "Transfer Date",
-                    "Date Encoded"),
+),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
@@ -85,7 +98,7 @@ class TransferFormTable:
             self.tree.heading(col, text=col, command=lambda c=col: self.sort_column(c, False), anchor=W)
             self.tree.column(col, width=150, anchor="w")
 
-        self.tree.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        self.tree.pack(fill=BOTH, expand=YES)
         self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click menu
 
         self.refresh_table()
@@ -106,14 +119,14 @@ class TransferFormTable:
 
                 record = (
                     item["id"],  # Store ID
-                    item["raw_material"],
+                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["ref_number"],
+                    item["raw_material"],
                     qty_kg_formatted,
+                    item["status"],
                     item["from_warehouse"],
                     item["to_warehouse"],
-                    item["status"],
                     datetime.fromisoformat(item["transfer_date"]).strftime("%m/%d/%Y"),
-                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
 
                 )
                 self.original_data.append(record)  # Save record
@@ -147,6 +160,7 @@ class TransferFormTable:
 
         """Open edit form."""
         record = self.tree.item(item, 'values')
+        record = (record[1], record[2], record[3], record[4], record[5], record[6], record[7])
         if not record:
             return
 
@@ -175,13 +189,14 @@ class TransferFormTable:
 
 
 
-        fields = ["Raw Material",
-                  "TF No.",
-                  "Quantity(kg)",
-                  "Warehouse (FROM)",
-                  "Warehouse (TO)",
-                  "Status",
-                  "Transfer Date"
+        fields = [
+            "TF No.",
+            "Raw Material",
+            "Quantity(kg)",
+            "Status",
+            "Warehouse (FROM)",
+            "Warehouse (TO)",
+            "Transfer Date",
                   ]
 
         entries = {}

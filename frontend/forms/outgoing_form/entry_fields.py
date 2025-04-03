@@ -360,7 +360,7 @@ def entry_fields(note_form_tab):
         bootstyle=PRIMARY,
         dateformat="%m/%d/%Y",
         startdate=yesterday_date,  # Set yesterday's date
-        width=25
+        width=26
     )
     outgoing_date_entry.grid(row=1, column=0, padx=5, pady=0, sticky=W)
 

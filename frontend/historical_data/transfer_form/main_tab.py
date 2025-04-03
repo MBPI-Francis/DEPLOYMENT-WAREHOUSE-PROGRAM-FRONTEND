@@ -19,7 +19,7 @@ def transfer_form_tab(notebook):
     transfer_label = ttk.Label(
         transfer_form_tab,
         text="The table contains the user's previous entries, showing historical data and past transfers of raw materials between warehouses.",
-        font=("Helvetica", 10)
+        font=("Helvetica", 11)
     )
     transfer_label.pack(pady=0, padx=20)
 

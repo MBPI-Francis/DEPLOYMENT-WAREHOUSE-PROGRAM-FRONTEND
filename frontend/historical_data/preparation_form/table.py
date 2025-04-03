@@ -29,16 +29,18 @@ class PreparationFormTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material",
-                    "Warehouse",
-                    "Status",
-                    "Reference No.",
+            columns=(
+                    "Date Encoded",
+                    "PF ID No.",
+                    "Raw Material",
                     "QTY (Prepared)",
                     "QTY (Return)",
                     "Consumption",
+                    "Status",
+                    "Warehouse",
                     "Date Reported",
-                    "Date Encoded",
                     "Date Computed"),
+
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
@@ -68,16 +70,18 @@ class PreparationFormTable:
         self.refresh_table()
 
         # Define column headers
-        col_names = [   "Raw Material",
-                        "Warehouse",
-                        "Status",
-                        "Reference No.",
-                        "QTY (Prepared)",
-                        "QTY (Return)",
-                        "Consumption",
-                        "Date Reported",
-                        "Date Encoded",
-                        "Date Computed"]
+        col_names = [
+            "Date Encoded",
+            "PF ID No.",
+            "Raw Material",
+            "QTY (Prepared)",
+            "QTY (Return)",
+            "Consumption",
+            "Status",
+            "Warehouse",
+            "Date Reported",
+            "Date Computed"
+        ]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
@@ -107,15 +111,15 @@ class PreparationFormTable:
 
             record = (
                 item["id"],  # Store ID
-                item["raw_material"],
-                item["wh_name"],
-                item["status"],
+                datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 item["ref_number"],
-                qty_prepared_formatted ,
+                item["raw_material"],
+                qty_prepared_formatted,
                 qty_return_formatted,
                 consumption_formatted,
+                item["status"],
+                item["wh_name"],
                 datetime.fromisoformat(item["preparation_date"]).strftime("%m/%d/%Y"),
-                datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                 datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
             )
             self.original_data.append(record)  # Save record

@@ -30,7 +30,15 @@ class NoteTable:
         # First, define self.tree before using it
         self.tree = ttk.Treeview(
             master=tree_frame,
-            columns=("Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Receiving Date", "Date Encoded", "Date Computed"),
+            columns=(
+                "Date Encoded",
+                "RR No.",
+                "Raw Material",
+                "Quantity(kg)",
+                "Warehouse",
+                "Receiving Date",
+                "Date Computed"
+                     ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
@@ -59,7 +67,15 @@ class NoteTable:
         self.refresh_table()
 
         # Define column headers
-        col_names = ["Raw Material", "Warehouse", "Ref No.", "Quantity(kg)", "Receiving Date", "Date Encoded", "Date Computed"]
+        col_names = [
+                "Date Encoded",
+                "RR No.",
+                "Raw Material",
+                "Quantity(kg)",
+                "Warehouse",
+                "Receiving Date",
+                "Date Computed"
+                     ]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
@@ -83,14 +99,13 @@ class NoteTable:
             qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
             record = (
                 item["id"],  # Store ID
-                item["raw_material"],
-                item["wh_name"],
-                item["ref_number"],
-                qty_kg_formatted,
-                datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
                 datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
+                item["ref_number"],
+                item["raw_material"],
+                qty_kg_formatted,
+                item["wh_name"],
+                datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
                 datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y")
-
             )
             self.original_data.append(record)  # Save record
             self.tree.insert("", END, iid=record[0], values=record[1:])

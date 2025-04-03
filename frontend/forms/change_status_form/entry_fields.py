@@ -381,7 +381,7 @@ def entry_fields(note_form_tab):
         bootstyle=PRIMARY,
         dateformat="%m/%d/%Y",
         startdate=yesterday_date,  # Set yesterday's date
-        width=25
+        width=26
     )
     change_status_date_entry.grid(row=1, column=0, padx=5, pady=0, sticky=W)
     change_status_date_entry.entry.config(font=shared_functions.custom_font_size)

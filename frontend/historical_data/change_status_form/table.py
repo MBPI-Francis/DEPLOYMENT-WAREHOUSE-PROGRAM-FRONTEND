@@ -30,14 +30,14 @@ class ChangeStatusFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                    "Raw Material",
-                    "Warehouse",
+                    "Date Encoded",
                     "CSF No.",
+                    "Raw Material",
                     "Quantity(kg)",
                     "Previous Status",
                     "Present Status",
+                    "Warehouse",
                     "Change Date",
-                    "Date Encoded",
                     "Date Computed"),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
@@ -83,14 +83,14 @@ class ChangeStatusFormTable:
                 qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
                 record = (
                     item["id"],  # Store ID
-                    item["raw_material"],
-                    item["wh_name"],
+                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["ref_number"],
+                    item["raw_material"],
                     qty_kg_formatted,
                     item["current_status"],
                     item["new_status"],
+                    item["wh_name"],
                     datetime.fromisoformat(item["change_status_date"]).strftime("%m/%d/%Y"),
-                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
                 )
                 self.original_data.append(record)  # Save record
