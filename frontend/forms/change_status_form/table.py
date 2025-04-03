@@ -151,7 +151,7 @@ class ChangeStatusFormTable:
 
         # Define edit window size
         window_width = 320
-        window_height = 250
+        window_height = 340
 
         # Calculate the position (center relative to main window)
         x = root_x + (root_width // 2) - (window_width // 2)
@@ -164,15 +164,21 @@ class ChangeStatusFormTable:
 
         # Prevent opening multiple windows
         self.edit_window.protocol("WM_DELETE_WINDOW", self.on_edit_window_close)
-        
 
-        fields = ["Raw Material", "Warehouse", "CSF No.", "Quantity(kg)",
-            "Previous Status", "Present Status", "Change Date",]
+
+        fields = ["Raw Material",
+                  "Warehouse",
+                  "CSF No.",
+                  "Quantity(kg)",
+                  "Previous Status",
+                  "Present Status",
+                  "Change Date",]
         entries = {}
 
 
         for idx, field in enumerate(fields):
-            ttk.Label(self.edit_window, text=field).grid(row=idx, column=0, padx=10, pady=5, sticky=W)
+            (ttk.Label(self.edit_window, text=field, font=self.shared_functions.custom_font_size)
+             .grid(row=idx, column=0, padx=10, pady=5, sticky=W))
 
             if field == "Raw Material":
                 # Fetch Raw Material Data from API
@@ -180,9 +186,14 @@ class ChangeStatusFormTable:
                 code_to_id = {item["rm_code"]: item["id"] for item in rm_codes}
                 rm_names = list(code_to_id.keys())
 
-                entry = ttk.Combobox(self.edit_window, values=rm_names, state="normal", width=30)
-                entry.set(record[idx])  # Set current value in the combobox
-                ToolTip(entry, text="Choose a raw material")  # Tooltip
+                rm_entry = ttk.Combobox(self.edit_window,
+                                        values=rm_names,
+                                        state="normal",
+                                        width=20,
+                                        font=self.shared_functions.custom_font_size)
+                rm_entry.set(record[idx])  # Set current value in the combobox
+                rm_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ToolTip(rm_entry, text="Choose a raw material")  # Tooltip
 
 
             elif field == "Warehouse":
@@ -191,15 +202,22 @@ class ChangeStatusFormTable:
                 warehouse_to_id = {item["wh_name"]: item["id"] for item in warehouses}
                 warehouse_names = list(warehouse_to_id.keys())
 
-                entry = ttk.Combobox(self.edit_window, values=warehouse_names, state="readonly", width=30)
-                entry.set(record[idx])  # Set current value in the combobox
-                ToolTip(entry, text="Select a warehouse")  # Tooltip
+                wh_entry = ttk.Combobox(self.edit_window,
+                                        values=warehouse_names,
+                                        state="readonly",
+                                        width=20,
+                                        font=self.shared_functions.custom_font_size)
+                wh_entry.set(record[idx])  # Set current value in the combobox
+                wh_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ToolTip(wh_entry, text="Select a warehouse")  # Tooltip
 
             elif field == "Change Date":
-                entry = DateEntry(self.edit_window, dateformat="%m/%d/%Y", width=30)
-                entry.entry.delete(0, "end")
+                date_entry = DateEntry(self.edit_window, dateformat="%m/%d/%Y", width=18)
+                date_entry.entry.delete(0, "end")
                 formatted_date = record[idx]
-                entry.entry.insert(0, formatted_date)
+                date_entry.entry.insert(0, formatted_date)
+                date_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                date_entry.entry.config(font=self.shared_functions.custom_font_size)
 
             elif field == "Previous Status":
                 # Warehouse JSON-format choices (coming from the API)
@@ -207,9 +225,14 @@ class ChangeStatusFormTable:
                 status_to_id = {item["name"]: item["id"] for item in status}
                 status_names = list(status_to_id.keys())
 
-                entry = ttk.Combobox(self.edit_window, values=status_names, state="disabled", width=30,)
-                entry.set(record[idx])  # Set current value in the combobox
-                ToolTip(entry, text="You shouldn't update the current status")  # Tooltip
+                prev_status_entry = ttk.Combobox(self.edit_window,
+                                            values=status_names,
+                                            state="disabled",
+                                            width=20,
+                                            font=self.shared_functions.custom_font_size)
+                prev_status_entry.set(record[idx])  # Set current value in the combobox
+                ToolTip(prev_status_entry, text="You shouldn't update the current status")  # Tooltip
+                prev_status_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
 
 
             elif field == "Present Status":
@@ -218,40 +241,96 @@ class ChangeStatusFormTable:
                 status_to_id = {item["name"]: item["id"] for item in status}
                 status_names = list(status_to_id.keys())
 
-                entry = ttk.Combobox(self.edit_window, values=status_names, state="disabled", width=30,)
-                entry.set(record[idx])  # Set current value in the combobox
-                ToolTip(entry, text="You shouldn't update the new status")  # Tooltip
+                present_status_entry = ttk.Combobox(self.edit_window,
+                                     values=status_names,
+                                     state="disabled",
+                                     width=20,
+                                     font=self.shared_functions.custom_font_size)
+                present_status_entry.set(record[idx])  # Set current value in the combobox
+                present_status_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ToolTip(present_status_entry, text="You shouldn't update the new status")  # Tooltip
+
+
 
             elif field == "Quantity(kg)":
+                # Function to format numeric input dynamically with cursor preservation
+                def format_numeric_input(event):
+                    """
+                    Formats the input dynamically while preserving the cursor position.
+                    """
+                    input_value = qty_var.get()
+
+                    # Get current cursor position
+                    cursor_position = qty_entry.index("insert")
+
+                    # Remove commas for processing
+                    raw_value = input_value.replace(",", "")
+
+                    if raw_value == "" or raw_value == ".":
+                        return  # Prevent formatting when only `.` is typed
+
+                    try:
+                        if "." in raw_value and raw_value[-1] == ".":
+                            return  # Allow user to manually enter decimal places
+
+                        # Convert input to float and format
+                        float_value = float(raw_value)
+
+                        if "." in raw_value:
+                            integer_part, decimal_part = raw_value.split(".")
+                            formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
+                            formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
+                        else:
+                            formatted_value = "{:,}".format(int(float_value))  # Format whole number
+
+                        # Adjust cursor position based on new commas added
+                        num_commas_before = input_value[:cursor_position].count(",")
+                        num_commas_after = formatted_value[:cursor_position].count(",")
+
+                        new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+
+                        # Prevent cursor jumping by resetting the value and restoring cursor position
+                        qty_entry.delete(0, "end")
+                        qty_entry.insert(0, formatted_value)
+                        qty_entry.icursor(new_cursor_position)  # Restore cursor position
+                    except ValueError:
+                        pass  # Ignore invalid input
+
+                # Tkinter StringVar for real-time updates
+                qty_var = StringVar()
 
                 validate_numeric_command = self.edit_window.register(EntryValidation.validate_numeric_input)
-                entry = ttk.Entry(self.edit_window,
-                                      width=30,
+                qty_entry = ttk.Entry(self.edit_window,
+                                      width=22,
+                                      textvariable=qty_var,
+                                      font=self.shared_functions.custom_font_size,
                                       validate="key",  # Trigger validation on keystrokes
                                       validatecommand=(validate_numeric_command, "%P")
                                       # Pass the current widget content ("%P")
                                       )
-                entry.insert(0, record[idx])
-                ToolTip(entry, text="Enter the Quantity(kg)")
+                qty_entry.insert(0, record[idx])
+                ToolTip(qty_entry, text="Enter the Quantity(kg)")
+                qty_entry.bind("<KeyRelease>", format_numeric_input)
+                qty_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
 
 
-            else:
-                entry = ttk.Entry(self.edit_window, width=30)
-                entry.insert(0, record[idx])
+            elif field == "CSF No.":
+                ref_entry = ttk.Entry(self.edit_window,
+                                      width=22,
+                                      font=self.shared_functions.custom_font_size)
+                ref_entry.insert(0, record[idx])
+                ref_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
 
-
-            entries[field] = entry
-            entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
 
 
         def get_selected_rm_code_id():
-            selected_name = entries["Raw Material"].get()
+            selected_name = rm_entry.get()
             selected_id = code_to_id.get(selected_name)
             return selected_id if selected_id else None
 
 
         def get_selected_warehouse_id():
-            selected_name = entries["Warehouse"].get()
+            selected_name = wh_entry.get()
             selected_id = warehouse_to_id.get(selected_name)  # Get the corresponding ID
             if selected_id:
                 return selected_id
@@ -259,7 +338,7 @@ class ChangeStatusFormTable:
                 return None
 
         def get_selected_current_status_id():
-            selected_name = entries["Previous Status"].get()
+            selected_name = prev_status_entry.get()
             selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
             if selected_id:
                 return selected_id
@@ -267,7 +346,7 @@ class ChangeStatusFormTable:
                 return None
 
         def get_selected_new_status_id():
-            selected_name = entries["Present Status"].get()
+            selected_name = present_status_entry.get()
             selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
             if selected_id:
                 return selected_id
@@ -277,18 +356,23 @@ class ChangeStatusFormTable:
         def update_record():
             # Convert date to YYYY-MM-DD
             try:
-                change_status_date = datetime.strptime(entries["Change Date"].entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
+                change_status_date = datetime.strptime(date_entry.entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
             except ValueError:
                 Messagebox.show_error("Error", "Invalid date format. Please use MM/DD/YYYY.")
                 return
+
+            qty = qty_entry.get()
+            # This code removes the commas in the qty value
+            cleaned_qty = float(qty.replace(",", ""))
+
             data = {
                 "rm_code_id": get_selected_rm_code_id(),
                 "warehouse_id": get_selected_warehouse_id(),
                 "current_status_id": get_selected_current_status_id(),
                 "new_status_id": get_selected_new_status_id(),
-                "ref_number": entries["CSF No."].get(),
+                "ref_number": ref_entry.get(),
                 "change_status_date":  change_status_date,
-                "qty_kg": entries["Quantity(kg)"].get(),
+                "qty_kg": cleaned_qty,
             }
 
             # Validate the data entries in front-end side
@@ -301,7 +385,7 @@ class ChangeStatusFormTable:
             validatation_result = self.shared_functions.validate_soh_value(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
-                float(entries["Quantity(kg)"].get()),
+                cleaned_qty,
                 get_selected_current_status_id()
 
             )

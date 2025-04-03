@@ -130,15 +130,15 @@ def entry_fields(note_form_tab):
                 response = requests.post(f"{server_ip}/api/change_status_form/v1/create/", json=data)
                 if response.status_code == 200:  # Successfully created
                     clear_fields()
-                    note_table.refresh_table()
+                    change_status_table.refresh_table()
 
                     # Get the last inserted row ID
-                    last_row_id = note_table.tree.get_children()[0]  # Get the last row's ID
+                    last_row_id = change_status_table.tree.get_children()[0]  # Get the last row's ID
 
                     # Highlight the last row
-                    note_table.tree.selection_set(last_row_id)  # Select the last row
-                    note_table.tree.focus(last_row_id)  # Focus on the last row
-                    note_table.tree.see(last_row_id)  # Scroll to make it visible
+                    change_status_table.tree.selection_set(last_row_id)  # Select the last row
+                    change_status_table.tree.focus(last_row_id)  # Focus on the last row
+                    change_status_table.tree.see(last_row_id)  # Scroll to make it visible
 
 
             except requests.exceptions.RequestException as e:
@@ -396,9 +396,6 @@ def entry_fields(note_form_tab):
     btn_add.grid(row=3, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
     ToolTip(btn_add, text="Click this add button to add the entry to the list")
 
-
-
-
     # Calling the table
-    note_table = ChangeStatusFormTable(note_form_tab)
+    change_status_table = ChangeStatusFormTable(note_form_tab)
 

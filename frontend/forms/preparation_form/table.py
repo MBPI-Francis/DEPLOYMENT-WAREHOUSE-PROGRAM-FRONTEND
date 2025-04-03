@@ -207,7 +207,7 @@ class PreparationFormTable:
 
 
         for idx, field in enumerate(fields):
-            ttk.Label(self.edit_window, text=field).grid(row=idx, column=0, padx=10, pady=5, sticky=W)
+            ttk.Label(self.edit_window, text=field, font=self.shared_functions.custom_font_size).grid(row=idx, column=0, padx=10, pady=5, sticky=W)
 
             if field == "Raw Material":
                 # Fetch Raw Material Data from API
@@ -411,9 +411,14 @@ class PreparationFormTable:
 
         def update_record():
             qty_return = qty_return_entry.get()
+            qty_prepared = qty_prepared_entry.get()
 
             if qty_return is None or qty_return == '':
                 qty_return = float(0.00)
+
+            # This code removes the commas in the qty value
+            cleaned_qty_prepared = float(qty_prepared.replace(",", ""))
+            cleaned_qty_return = float(qty_return.replace(",", ""))
 
 
             # Convert date to YYYY-MM-DD
@@ -428,8 +433,8 @@ class PreparationFormTable:
                 "ref_number": ref_entry.get(),
                 "status_id": get_selected_status_id(),
                 "preparation_date":  preparation_date,
-                "qty_prepared": qty_prepared_entry.get(),
-                "qty_return": qty_return,
+                "qty_prepared": cleaned_qty_prepared,
+                "qty_return": cleaned_qty_return,
             }
 
             # Validate the data entries in front-end side
@@ -438,14 +443,14 @@ class PreparationFormTable:
                 Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
                 return
 
-            validatation_result = self.shared_functions.validate_soh_value_for_update(
+            validation_result = self.shared_functions.validate_soh_value_for_update(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
-                float(qty_prepared_entry.get()),
+                cleaned_qty_prepared,
                 get_selected_status_id()
             )
 
-            if validatation_result:
+            if validation_result:
                 try:
                     url = server_ip + f"/api/preparation_forms/v1/update/{item}/"
                     response = requests.put(url, json=data)
