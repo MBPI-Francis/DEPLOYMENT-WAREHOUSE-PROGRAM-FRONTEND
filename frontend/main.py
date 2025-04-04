@@ -34,13 +34,13 @@ class App(ttk.Window):
         style = Style()
         def apply_custom_styles():
             """Function to reapply styles after theme change."""
-            style.configure("Custom.Treeview", rowheight=25, font=("Halvetica", 10))  # Set row height
+            style.configure("Custom.Treeview", rowheight=25, font=("Arial", 10))  # Set row height
             style.configure("Treeview.Heading", background=style.colors.primary, foreground="white",
-                            font=("Helvetica", 10, "bold"))  # Set header background to PRIMARY
+                            font=("Arial", 10, "bold"))  # Set header background to PRIMARY
 
             # Increase tab font size
-            style.configure("TNotebook.Tab", font=("Halvetica", 11, "bold"))  # Change font and size
-            style.configure("CustomLabel.TLabel", font=("Helvetica", 11, "bold"))
+            style.configure("TNotebook.Tab", font=("Arial", 11, "bold"))  # Change font and size
+            style.configure("CustomLabel.TLabel", font=("Arial", 11, "bold"))
 
         # Apply styles initially
         apply_custom_styles()

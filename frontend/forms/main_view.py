@@ -21,7 +21,7 @@ class ConsumptionEntryView:
         # Add widgets inside the consumption_entry_frame
         label = ttk.Label(consumption_entry_frame,
             text = "Raw Materials Stock Movements",
-            font = ("Helvetica", 14, "bold")
+            font = ("Arial", 14, "bold")
         )
         label.grid(row=0, column=0, sticky="nsew")
         

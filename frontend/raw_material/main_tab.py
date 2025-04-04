@@ -26,7 +26,7 @@ def rm_code_tab(notebook):
     raw_material_label = ttk.Label(
         raw_material_tab,
         text="Raw Materials",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
     raw_material_label.pack(pady=(20,0), padx=20)
@@ -35,7 +35,7 @@ def rm_code_tab(notebook):
         status_label = ttk.Label(
             raw_material_tab,
             text="The raw material codes listed below are essential for the system's functionality. Modifying them may lead to errors.",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
             bootstyle=SECONDARY
         )
         status_label.pack(pady=0, padx=20)
@@ -44,7 +44,7 @@ def rm_code_tab(notebook):
         status_label = ttk.Label(
             raw_material_tab,
             text="Click the 'Generate all the required raw material codes' button to generate raw material codes automatically.",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
             bootstyle=SECONDARY
         )
         status_label.pack(pady=0, padx=20)

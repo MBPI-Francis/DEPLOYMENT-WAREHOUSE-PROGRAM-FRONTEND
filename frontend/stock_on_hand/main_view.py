@@ -16,7 +16,7 @@ class StockOnHandView:
         # Add widgets inside the soh_frame
         label = ttk.Label(soh_frame,
             text = "Latest Stocks of Raw Materials",
-            font = ("Helvetica", 14, "bold")
+            font = ("Arial", 14, "bold")
         )
         label.grid(row=0, column=0, sticky="nsew")
 

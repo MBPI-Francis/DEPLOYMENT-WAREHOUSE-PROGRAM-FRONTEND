@@ -16,8 +16,7 @@ class HistoricalSOHTable:
             {"text": "Warehouse", "stretch": True},
             {"text": "Stocks", "stretch": True},
             {"text": "Status", "stretch": True},
-            {"text": "Date Created", "stretch": True},
-            {"text": "Date Computed", "stretch": True}
+            {"text": "Inventory Report Date", "stretch": True}
         ]
         self.rowdata = self.fetch_and_format_data()
 
@@ -51,7 +50,6 @@ class HistoricalSOHTable:
                     item["wh_name"],
                     "{:,.2f}".format(float(item["qty"])),  # Format with commas
                     item["status_name"],
-                    datetime.fromisoformat(item["stock_change_date"]).strftime("%m/%d/%Y %I:%M %p"),
                     datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
                 )
                 for item in data

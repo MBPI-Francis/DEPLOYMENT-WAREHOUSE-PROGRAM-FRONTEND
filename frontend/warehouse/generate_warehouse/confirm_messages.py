@@ -50,7 +50,7 @@ class ConfirmationMessage:
             confirmation_window,
             text="\n\nYou are about to generate warehouses for the initial setup",
             justify="center",
-            font=("Helvetica", 15, "bold"),
+            font=("Arial", 15, "bold"),
             bootstyle=PRIMARY
         )
         message_label.pack(pady=5)
@@ -66,7 +66,7 @@ class ConfirmationMessage:
                 "These warehouses are required for the initial run of the program.\n"
             ),
             justify="left",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
         )
         message_label.pack(pady=5)
 
@@ -75,7 +75,7 @@ class ConfirmationMessage:
             confirmation_window,
             text=("To proceed, type 'YES' in the confirmation box."),
             justify="center",
-            font=("Helvetica", 10, "bold"),
+            font=("Arial", 10, "bold"),
         )
         message_label.pack(pady=5)
 

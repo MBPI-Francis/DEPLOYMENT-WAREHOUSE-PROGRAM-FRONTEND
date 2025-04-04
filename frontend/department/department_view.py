@@ -11,7 +11,7 @@ class DepartmentView:
         label = ttk.Label(
             self.parent,
             text="Department Content",
-            font=("Helvetica", 18),
+            font=("Arial", 18),
             bootstyle=SUCCESS,
         )
         label.pack(pady=20)

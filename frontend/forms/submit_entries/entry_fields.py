@@ -5,7 +5,7 @@ from backend.settings.database import server_ip
 from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
-from .table import NoteTable
+from .table import SubmitEntriesTable
 import tkinter as tk
 import os
 from ttkbootstrap import Style
@@ -118,7 +118,7 @@ def entry_fields(note_form_tab):
             confirmation_window,
             text="\n\nYou are about to set the new beginning balance",
             justify="center",
-            font=("Helvetica", 14, "bold"),
+            font=("Arial", 14, "bold"),
             bootstyle=WARNING
 
         )
@@ -128,15 +128,38 @@ def entry_fields(note_form_tab):
         message_label = ttk.Label(
             confirmation_window,
             text=(
-                "Please review all the data you have entered before proceeding.\n\n"
+                "Please review all the data you have entered before proceeding\n\n"
                 "Setting a new beginning balance is a permanent action and cannot be undone.\n"
-                "Ensure that all values are correct before confirming.\n\n"
+                "Ensure that all values are correct before confirming.\n"
+            ),
+            justify="center",
+            font=("Arial", 11),
+        )
+        message_label.pack(pady=0)
+
+        # Message Label
+        message_label = ttk.Label(
+            confirmation_window,
+            text=(
+                f"Note: This action will also record the Inventory Report Date as {date_entry.entry.get()}.\n"
+            ),
+            justify="center",
+            font=("Arial", 11, "bold"),
+        )
+        message_label.pack(pady=0)
+
+
+        # Message Label
+        message_label = ttk.Label(
+            confirmation_window,
+            text=(
                 "To proceed, type 'YES' in the confirmation box."
             ),
             justify="center",
-            font=("Helvetica", 10),
+            font=("Arial", 11),
         )
-        message_label.pack(pady=5)
+        message_label.pack(pady=0)
+
 
         # Entry field
         confirm_entry = ttk.Entry(confirmation_window, font=("Arial", 12),
@@ -187,9 +210,6 @@ def entry_fields(note_form_tab):
 
 
 
-
-
-
     # Quantity Entry Field
     date_label = ttk.Label(form_frame, text="Ending Inventory Report Date", style="CustomLabel.TLabel")
     date_label.grid(row=1, column=0, padx=2, pady=(0, 0), sticky=W)
@@ -203,7 +223,7 @@ def entry_fields(note_form_tab):
         bootstyle=PRIMARY,
         dateformat="%m/%d/%Y",
         startdate=yesterday_date,  # Set yesterday's date
-        width=40
+        width=30
     )
     date_entry.grid(row=2, column=0, padx=5, pady=(0,0), sticky=W)
     date_entry.entry.config(font=shared_functions.custom_font_size)
@@ -233,7 +253,7 @@ def entry_fields(note_form_tab):
 
 
     # Calling the table
-    note_table = NoteTable(note_form_tab)
+    note_table = SubmitEntriesTable(note_form_tab)
 
 def create_soh_whse_excel(date_entry_value, data):
     # Convert the string into a datetime object

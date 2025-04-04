@@ -2,15 +2,12 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import requests
 from backend.settings.database import server_ip
-from tkinter import Toplevel, messagebox, StringVar
-from ttkbootstrap.dialogs import Querybox, Messagebox
-from ttkbootstrap.widgets import DateEntry
-from uuid import UUID
+from tkinter import Toplevel, messagebox
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
 
 
-class NoteTable:
+class ReceivingFormTable:
     def __init__(self, root):
         self.root = root
 

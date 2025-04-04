@@ -11,7 +11,7 @@ def historical_data_tab(notebook):
     raw_material_label = ttk.Label(
         soh_tab,
         text="Previous RM Stock on Hand",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
     raw_material_label.pack(pady=(20, 0), padx=20)
@@ -19,7 +19,8 @@ def historical_data_tab(notebook):
     table_label = ttk.Label(
         soh_tab,
         text="The table below displays the previous stock information for each raw material per warehouse",
-        font=("Helvetica", 10)
+        font=("Arial", 11, "bold"),
+        bootstyle=SECONDARY,
     )
     table_label.pack(pady=0, padx=20)
 

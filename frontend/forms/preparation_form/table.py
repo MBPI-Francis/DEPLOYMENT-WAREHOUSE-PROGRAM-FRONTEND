@@ -69,7 +69,7 @@ class PreparationFormTable:
                 "Consumption",
                 "Status",
                 "Warehouse",
-                "Preparation Date",
+                "Report Date",
                 ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
@@ -110,7 +110,7 @@ class PreparationFormTable:
                 "Consumption",
                 "Status",
                 "Warehouse",
-                "Preparation Date",
+                "Report Date",
                         ]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
@@ -225,7 +225,7 @@ class PreparationFormTable:
                 "QTY (Return)",
                 "Status",
                 "Warehouse",
-                "Preparation Date",
+                "Report Date",
                    ]
         entries = {}
 
@@ -272,7 +272,7 @@ class PreparationFormTable:
                 ToolTip(status_entry, text="Choose a status")  # Tooltip
 
 
-            elif field == "Preparation Date":
+            elif field == "Report Date":
                 date_entry = DateEntry(self.edit_window, dateformat="%m/%d/%Y", width=18)
                 date_entry.entry.delete(0, "end")
                 formatted_date = record[idx]
@@ -575,7 +575,7 @@ class PreparationFormTable:
             confirmation_window,
             text="\n\nARE YOU SURE?",
             justify="center",
-            font=("Helvetica", 12, "bold"),
+            font=("Arial", 12, "bold"),
             bootstyle=WARNING
 
         )
@@ -589,7 +589,7 @@ class PreparationFormTable:
                 "Make sure the data you're clearing is unimportant before proceeding.\n"
             ),
             justify="left",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
         )
         message_label.pack(pady=5)
 
@@ -598,7 +598,7 @@ class PreparationFormTable:
             confirmation_window,
             text=("To proceed, type 'YES' in the confirmation box."),
             justify="center",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
         )
         message_label.pack(pady=5)
 

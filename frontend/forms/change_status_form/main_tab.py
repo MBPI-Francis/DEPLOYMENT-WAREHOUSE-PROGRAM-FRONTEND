@@ -11,7 +11,7 @@ def held_form_tab(notebook):
     held_form_label = ttk.Label(
         held_form_tab,
         text="Change Status Form",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
     held_form_label.pack(pady=(10,0), padx=20)

@@ -20,7 +20,7 @@ def warehouse_tab(notebook):
     warehouse_label = ttk.Label(
         warehouse_tab,
         text="Warehouses",
-        font=("Helvetica", 14, 'bold'),
+        font=("Arial", 14, 'bold'),
         bootstyle=PRIMARY,
     )
     warehouse_label.pack(pady=(20,0), padx=20)
@@ -29,7 +29,7 @@ def warehouse_tab(notebook):
         status_label = ttk.Label(
             warehouse_tab,
             text="The warehouses listed below are essential for the system's functionality. Modifying them may lead to errors.",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
             bootstyle=SECONDARY
         )
         status_label.pack(pady=0, padx=20)
@@ -38,7 +38,7 @@ def warehouse_tab(notebook):
         status_label = ttk.Label(
             warehouse_tab,
             text="Click the 'Generate all the required Warehouses' button to generate warehouses automatically.",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
             bootstyle=SECONDARY
         )
         status_label.pack(pady=0, padx=20)

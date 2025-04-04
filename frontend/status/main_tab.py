@@ -15,7 +15,7 @@ def status_tab(notebook):
     status_label = ttk.Label(
         status_tab,
         text="List of Status",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
     status_label.pack(pady=(20,0), padx=20)
@@ -25,7 +25,7 @@ def status_tab(notebook):
         status_label = ttk.Label(
             status_tab,
             text="The statuses listed below are essential for the system's functionality. Modifying them may lead to errors.",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
             bootstyle=SECONDARY
         )
         status_label.pack(pady=0, padx=20)
@@ -34,7 +34,7 @@ def status_tab(notebook):
         status_label = ttk.Label(
             status_tab,
             text="Click the 'Generate all the required Statuses' button to generate statuses automatically.",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
             bootstyle=SECONDARY
         )
         status_label.pack(pady=0, padx=20)

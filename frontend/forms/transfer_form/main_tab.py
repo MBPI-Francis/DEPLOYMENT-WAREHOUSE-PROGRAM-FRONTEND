@@ -11,7 +11,7 @@ def transfer_form_tab(notebook):
     transfer_form_label = ttk.Label(
         transfer_form_tab,
         text="Transfer Form",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
     transfer_form_label.pack(pady=(10, 0), padx=20)

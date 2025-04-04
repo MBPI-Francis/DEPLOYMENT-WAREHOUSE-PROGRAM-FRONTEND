@@ -19,7 +19,7 @@ class HistoricalDataView:
         # Add widgets inside the historical_data_frame
         label = ttk.Label(historical_data_frame,
                           text="Historical Data",
-                          font=("Helvetica", 14, "bold")
+                          font=("Arial", 14, "bold")
                           )
         label.grid(row=0, column=0, sticky="nsew")
         

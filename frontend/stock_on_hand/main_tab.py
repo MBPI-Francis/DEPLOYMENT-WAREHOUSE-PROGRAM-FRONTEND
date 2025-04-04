@@ -19,31 +19,18 @@ def beginning_balance_tab(notebook):
     raw_material_label = ttk.Label(
         soh_tab,
         text=f"Beginning Balance as of {today_date}",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
     raw_material_label.pack(pady=(20, 0), padx=20)
 
     table_label = ttk.Label(
         soh_tab,
-        text="The table below shows the latest stock on hand for each raw material per warehouse.",
-        font=("Helvetica", 10)
+        text="The table below shows the latest stock on hand for each raw material per warehouse",
+        font=("Arial", 11, "bold"),
+        bootstyle=SECONDARY,
     )
     table_label.pack(pady=0, padx=20)
-
-    # Button to trigger the import process
-    import_button = ttk.Button(
-        soh_tab,
-        text="Generate New Beginning Balance",
-        bootstyle=WARNING,
-        command= lambda: ConfirmationMessage(soh_tab).show_confirmation_message()
-    )
-
-    import_button.pack(pady=(20,0), padx=20, anchor="w")
-
-    # Add Tooltip
-    ToolTip(import_button, text="Import or generate a new beginning balance for raw materials.")
-
 
     # Call out the table to show in the panel
     table = BeginningBalanceTable(soh_tab)

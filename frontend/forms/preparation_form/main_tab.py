@@ -11,7 +11,7 @@ def preparation_form_tab(notebook):
     preparation_form_label = ttk.Label(
         preparation_form_tab,
         text="Preparation Form",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
     preparation_form_label.pack(pady=(10, 0), padx=20)

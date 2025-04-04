@@ -78,7 +78,7 @@ class SharedFunctions:
 
     def __init__(self):
         """Initialize the SharedFunctions instance."""
-        self.custom_font_size = Font(family="Halvetica", size=10)
+        self.custom_font_size = Font(family="Arial", size=10)
 
     def __new__(cls):
         """Ensure only one instance exists (Singleton)."""

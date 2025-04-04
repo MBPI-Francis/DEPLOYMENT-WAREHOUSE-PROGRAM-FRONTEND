@@ -1,13 +1,9 @@
-import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog, Toplevel
 from ttkbootstrap import ttk
 import requests
 import threading
-from ttkbootstrap.dialogs import Messagebox
 from backend.settings.database import server_ip
-from frontend.stock_on_hand.table import BeginningBalanceTable
-import os
 
 
 class ImportData:

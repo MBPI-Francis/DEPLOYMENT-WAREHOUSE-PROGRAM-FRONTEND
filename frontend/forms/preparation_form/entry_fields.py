@@ -421,7 +421,7 @@ def entry_fields(note_form_tab):
     date_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # Date Entry field
-    date_label = ttk.Label(date_frame, text="Preparation Date", style="CustomLabel.TLabel")
+    date_label = ttk.Label(date_frame, text="Report Date", style="CustomLabel.TLabel")
     date_label.grid(row=0, column=0, padx=5, pady=0, sticky=W)
 
     # Calculate yesterday's date

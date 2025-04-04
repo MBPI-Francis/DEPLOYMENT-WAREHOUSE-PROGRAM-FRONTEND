@@ -449,7 +449,7 @@ class ReceivingFormTable:
             confirmation_window,
             text="\n\nARE YOU SURE?",
             justify="center",
-            font=("Helvetica", 12, "bold"),
+            font=("Arial", 12, "bold"),
             bootstyle=WARNING
 
         )
@@ -463,7 +463,7 @@ class ReceivingFormTable:
                 "Make sure the data you're clearing is unimportant before proceeding.\n"
             ),
             justify="left",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
         )
         message_label.pack(pady=5)
 
@@ -472,7 +472,7 @@ class ReceivingFormTable:
             confirmation_window,
             text=("To proceed, type 'YES' in the confirmation box."),
             justify="center",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
         )
         message_label.pack(pady=5)
 

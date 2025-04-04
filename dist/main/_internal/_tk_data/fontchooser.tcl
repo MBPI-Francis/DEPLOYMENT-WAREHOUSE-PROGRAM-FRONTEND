@@ -229,7 +229,7 @@ proc ::tk::fontchooser::Create {} {
         set minsize(gap) 10
         set minsize(bbox) [winfo reqwidth $S(W).ok]
         set minsize(fonts) \
-                [expr {[font measure TkDefaultFont "Helvetica"] + $scroll_width}]
+                [expr {[font measure TkDefaultFont "Arial"] + $scroll_width}]
         set minsize(styles) \
                 [expr {[font measure TkDefaultFont "Bold Italic"] + $scroll_width}]
         set minsize(sizes) \

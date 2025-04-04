@@ -11,7 +11,7 @@ class UserView:
         label = ttk.Label(
             self.parent,
             text="User Content",
-            font=("Helvetica", 18),
+            font=("Arial", 18),
             bootstyle=INFO,
         )
         label.pack(pady=20)

@@ -15,7 +15,7 @@ def notes_form_tab(notebook):
     note_form_label = ttk.Label(
         note_form_tab,
         text="Note Form",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
     note_form_label.pack(pady=(10, 0), padx=20)

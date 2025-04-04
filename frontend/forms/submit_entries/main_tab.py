@@ -12,22 +12,24 @@ def submit_entries_tab(notebook):
     submit_entries_label = ttk.Label(
         submit_entries_tab,
         text="This table shows the New Beginning Balance based on the Entered Data",
-        font=("Helvetica", 14, "bold"),
+        font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
-    submit_entries_label.pack(pady=(20,0), padx=20)
+    submit_entries_label.pack(pady=(10,0), padx=20)
 
     submit_entries_label = ttk.Label(
         submit_entries_tab,
         text="Click the 'Export' button to export the New Beginning Balance into EXCEL",
-        font=("Helvetica", 11)
+        font=("Arial", 11, "bold"),
+        bootstyle=SECONDARY,
     )
     submit_entries_label.pack(pady=0, padx=20)
 
     submit_entries_label = ttk.Label(
         submit_entries_tab,
         text="Click the 'MAKE THIS DATA AS NEW BEGINNING BALANCE' button to save the new beginning balance into the system",
-        font=("Helvetica", 11)
+        font=("Arial", 11, "bold"),
+        bootstyle=SECONDARY,
     )
     submit_entries_label.pack(pady=0, padx=20)
 

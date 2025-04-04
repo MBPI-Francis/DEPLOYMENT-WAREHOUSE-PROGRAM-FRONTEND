@@ -1,17 +1,10 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-import requests
-from ttkbootstrap.tooltip import ToolTip
-from tkinter import Toplevel, messagebox, StringVar
-from backend.settings.database import server_ip
-from tkinter import simpledialog
-from ttkbootstrap.dialogs import Messagebox
 from frontend.stock_on_hand.import_feature.core_function import ImportData
 
 class ConfirmationMessage:
     def __init__(self, root):
         self.root = root
-
 
     def show_confirmation_message(self):
         # confirmation_window = ttk.Toplevel(form_frame)
@@ -49,7 +42,7 @@ class ConfirmationMessage:
             confirmation_window,
             text="\n\n⚠ WARNING",
             justify="center",
-            font=("Helvetica", 15, "bold"),
+            font=("Arial", 15, "bold"),
             bootstyle=WARNING
         )
         message_label.pack(pady=5)
@@ -59,7 +52,7 @@ class ConfirmationMessage:
             confirmation_window,
             text="This change is irreversible—altering the Beginning Balance will recalculate all future balances",
             justify="center",
-            font=("Helvetica", 10, "bold"),
+            font=("Arial", 10, "bold"),
             bootstyle=WARNING
         )
         message_label.pack(pady=5)
@@ -77,7 +70,7 @@ class ConfirmationMessage:
                 "Once changed, previous calculations cannot be restored automatically."
             ),
             justify="left",
-            font=("Helvetica", 10),
+            font=("Arial", 10),
         )
         message_label.pack(pady=5)
 
@@ -86,7 +79,7 @@ class ConfirmationMessage:
             confirmation_window,
             text=("To proceed, type 'YES' in the confirmation box."),
             justify="center",
-            font=("Helvetica", 10, "bold"),
+            font=("Arial", 10, "bold"),
         )
         message_label.pack(pady=5)
 
