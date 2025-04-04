@@ -19,7 +19,8 @@ def held_form_tab(notebook):
     change_status_label = ttk.Label(
         held_form_tab,
         text="The table contains the user's previous entries, showing historical data and past status changes of raw materials.",
-        font=("Arial", 11)
+        font=("Arial", 11, "bold"),
+bootstyle=SECONDARY,
     )
     change_status_label.pack(pady=0, padx=20)
 

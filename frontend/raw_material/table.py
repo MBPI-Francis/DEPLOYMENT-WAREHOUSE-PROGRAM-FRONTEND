@@ -31,7 +31,7 @@ class RawMaterialTable:
             autofit=True,  # Auto-size columns
             autoalign=False,  # Auto-align columns based on data
         )
-        self.table.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        self.table.pack(fill=BOTH, expand=YES, padx=10, pady=0)
 
     def fetch_and_format_data(self):
         """Fetch data from API and format for table rowdata."""

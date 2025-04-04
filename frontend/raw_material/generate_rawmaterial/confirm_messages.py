@@ -1,11 +1,5 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-import requests
-from ttkbootstrap.tooltip import ToolTip
-from tkinter import Toplevel, messagebox, StringVar
-from backend.settings.database import server_ip
-from tkinter import simpledialog
-from ttkbootstrap.dialogs import Messagebox
 from frontend.raw_material.generate_rawmaterial.core_function import GenerateRawMaterial
 
 
@@ -15,8 +9,6 @@ class ConfirmationMessage:
 
 
     def show_confirmation_message(self):
-
-
         confirmation_window = ttk.Toplevel(self.root)
         confirmation_window.title("Confirm Action")
 
