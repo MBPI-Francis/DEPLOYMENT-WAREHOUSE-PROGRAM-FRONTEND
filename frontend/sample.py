@@ -1,106 +1,133 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-import tkinter as tk
+from datetime import datetime, timedelta
+
+def format_date_while_typing(event):
+    """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
+    text = date_entry.entry.get().replace("/", "")  # Remove slashes to get raw number input
+    formatted_date = ""
+
+    if len(text) > 8:  # Prevent overflow of more than 8 characters (MMDDYYYY)
+        text = text[:8]
 
 
-class PaginatedTreeviewApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Paginated Treeview with Search")
 
-        self.entries_per_page = 10  # Number of entries per page
-        self.current_page = 1
-
-        # Sample data
-        self.data = [
-            (f"Item {i}", f"Description {i}") for i in range(1, 101)
-        ]
-
-        # Frame for Search Bar and Buttons
-        search_frame = ttk.Frame(self.root)
-        search_frame.pack(fill="x", padx=10, pady=(5, 0))
-
-        # Search Entry
-        ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side="left", padx=5)
-        self.search_entry = ttk.Entry(search_frame, width=50, bootstyle=INFO)
-        self.search_entry.pack(side="left", padx=5)
-        self.search_entry.bind("<KeyRelease>", self.filter_table)
-
-        # Search Button
-        search_button = ttk.Button(search_frame, text="Search", command=self.filter_table, bootstyle=PRIMARY)
-        search_button.pack(side="left", padx=10)
-
-        # Treeview for displaying data
-        self.treeview = ttk.Treeview(self.root, columns=("Item", "Description"), show="headings")
-        self.treeview.heading("Item", text="Item")
-        self.treeview.heading("Description", text="Description")
-        self.treeview.pack(fill="both", expand=True, padx=10, pady=(5, 0))
-
-        # Pagination Frame
-        pagination_frame = ttk.Frame(self.root)
-        pagination_frame.pack(fill="x", padx=10, pady=(5, 10))
-
-        # Previous and Next Buttons
-        self.prev_button = ttk.Button(pagination_frame, text="<< Previous", command=self.prev_page, bootstyle=DANGER)
-        self.prev_button.pack(side="left", padx=5)
-
-        self.page_label = ttk.Label(pagination_frame, text="Page 1", style="CustomLabel.TLabel")
-        self.page_label.pack(side="left", padx=5)
-
-        self.next_button = ttk.Button(pagination_frame, text="Next >>", command=self.next_page, bootstyle=SUCCESS)
-        self.next_button.pack(side="left", padx=5)
-
-        # Load the initial data
-        self.load_page_data()
-
-    def load_page_data(self):
-        # Clear current treeview data
-        for item in self.treeview.get_children():
-            self.treeview.delete(item)
-
-        # Get the data to display based on pagination
-        start_index = (self.current_page - 1) * self.entries_per_page
-        end_index = start_index + self.entries_per_page
-        page_data = self.data[start_index:end_index]
-
-        # Insert the data into the treeview
-        for row in page_data:
-            self.treeview.insert("", "end", values=row)
-
-        # Update the page label
-        self.page_label.config(text=f"Page {self.current_page}")
-
-    def filter_table(self, event=None):
-        # Get the search text
-        search_text = self.search_entry.get().lower()
-
-        # Filter the data based on search
-        if search_text:
-            filtered_data = [
-                (item, description) for item, description in self.data if
-                search_text in item.lower() or search_text in description.lower()
-            ]
-        else:
-            filtered_data = self.data
-
-        self.data = filtered_data
-        self.current_page = 1  # Reset to the first page
-        self.load_page_data()
-
-    def prev_page(self):
-        # Go to the previous page
-        if self.current_page > 1:
-            self.current_page -= 1
-            self.load_page_data()
-
-    def next_page(self):
-        # Go to the next page
-        if self.current_page * self.entries_per_page < len(self.data):
-            self.current_page += 1
-            self.load_page_data()
+    # Handle the case where the length is 2 (MD)
+    if len(text) == 2:
+        month = text[:1]
+        day = text[1:]
+        # Ensure the month is valid (01-12)
+        if int(month) < 1 or int(month) > 12:
+            month = str(datetime.now().month)  # Default to January if invalid month
+        # Ensure the day is valid (01-31)
+        if int(day) < 1 or int(day) > 31:
+            day = str(datetime.now().day)  # Default to 1st if invalid day
+        year = str(datetime.now().year)  # Assume the current year
+        formatted_date = f"0{month}/0{day}/{year}"
 
 
-if __name__ == "__main__":
-    root = ttk.Window(themename="darkly")  # Using darkly theme for better aesthetics
-    app = PaginatedTreeviewApp(root)
-    root.mainloop()
+    # Handle the case where the length is 3 (MDD)
+    elif len(text) == 3:
+        month = text[:1]
+        day = text[1:]
+        # Ensure the month is valid (01-12)
+        if int(month) < 1 or int(month) > 12:
+            month = str(datetime.now().month)  # Default to January if invalid month
+        # Ensure the day is valid (01-31)
+        if int(day) < 1 or int(day) > 31:
+            day = str(datetime.now().day)  # Default to 1st if invalid day
+            if len(str(day)) == 1:
+                day = f"0{day}"
+
+        year = str(datetime.now().year)  # Assume the current year
+        formatted_date = f"0{month}/{day}/{year}"
+
+
+    # Handle the case where the length is 4 (MMDD)
+    elif len(text) == 4:
+        month = text[:2]
+        day = text[2:]
+        # Ensure the month is valid (01-12)
+        if int(month) < 1 or int(month) > 12:
+            month = str(datetime.now().month)  # Default to January if invalid month
+        # Ensure the day is valid (01-31)
+        if int(day) < 1 or int(day) > 31:
+            day = str(datetime.now().day)  # Default to 1st if invalid day
+        year = str(datetime.now().year)  # Assume the current year
+        formatted_date = f"{month}/{day}/{year}"
+
+        # Handle the case where the length is 5 (MDDYY)
+    elif len(text) == 5:
+        month = text[:1]
+        day = text[1:3]
+        year = text[3:]
+
+        # Ensure the month is valid (01-12)
+        if int(month) < 1 or int(month) > 12:
+            month = str(datetime.now().month)  # Default to January if invalid month
+        # Ensure the day is valid (01-31)
+        if int(day) < 1 or int(day) > 31:
+            day = str(datetime.now().day)  # Default to 1st if invalid day
+        formatted_date = f"0{month}/{day}/20{year}"
+
+    # Handle the case where the length is 6 (MMDDYY)
+    elif len(text) == 6:
+        month = text[:2]
+        day = text[2:4]
+        year = text[4:]
+        # Ensure the month is valid (01-12)
+        if int(month) < 1 or int(month) > 12:
+            month = str(datetime.now().month)  # Default to January if invalid month
+        # Ensure the day is valid (01-31)
+        if int(day) < 1 or int(day) > 31:
+            day = str(datetime.now().day)  # Default to 1st if invalid day
+        formatted_date = f"{month}/{day}/20{year}"  # Assume 20XX for 2-digit year
+
+    # Handle the case where the length is 8 (MMDDYYYY)
+    elif len(text) == 8:
+        month = text[:2]
+        day = text[2:4]
+        year = text[4:]
+        # Ensure the month is valid (01-12)
+        if int(month) < 1 or int(month) > 12:
+            month = str(datetime.now().month)  # Default to January if invalid month
+        # Ensure the day is valid (01-31)
+        if int(day) < 1 or int(day) > 31:
+            day = str(datetime.now().day)  # Default to 1st if invalid day
+        formatted_date = f"{month}/{day}/{year}"
+
+    # Update entry field with formatted value
+    date_entry.entry.delete(0, "end")
+    date_entry.entry.insert(0, formatted_date)
+
+# Create the ttkbootstrap window
+root = ttk.Window(themename="cosmo")
+
+# Frame for layout
+form_frame = ttk.Frame(root, padding=10)
+form_frame.pack()
+
+# Date Label
+date_label = ttk.Label(form_frame, text="Consumption Date", font=("Helvetica", 10, "bold"))
+date_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky="w")
+
+# Calculate yesterday's date
+yesterday_date = datetime.now() - timedelta(days=1)
+
+# ttkbootstrap DateEntry (with manual typing enabled)
+date_entry = ttk.DateEntry(
+    form_frame,
+    bootstyle=PRIMARY,
+    dateformat="%m/%d/%Y",
+    startdate=yesterday_date,
+    width=15
+)
+
+date_entry.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="w")
+
+# Bind keypress event to format dynamically
+date_entry.entry.bind("<Return>", format_date_while_typing)
+date_entry.entry.bind("<FocusOut>", format_date_while_typing)
+
+# Run application
+root.mainloop()

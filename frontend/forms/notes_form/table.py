@@ -254,7 +254,7 @@ class NoteTable:
             try:
                 consumption_date = datetime.strptime(entries["Consumption Date"].entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
             except ValueError:
-                Messagebox.show_error("Error", "Invalid date format. Please use MM/DD/YYYY.")
+                Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
                 return
 
             data = {

@@ -449,7 +449,7 @@ class PreparationFormTable:
             try:
                 preparation_date = datetime.strptime(date_entry.entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
             except ValueError:
-                Messagebox.show_error("Error", "Invalid date format. Please use MM/DD/YYYY.")
+                Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
                 return
             data = {
                 "rm_code_id": get_selected_rm_code_id(),

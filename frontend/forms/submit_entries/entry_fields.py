@@ -27,7 +27,7 @@ def entry_fields(note_form_tab):
         try:
             date_entry_value = datetime.strptime(date_entry_value, "%m/%d/%Y").strftime("%Y-%m-%d")
         except ValueError:
-            Messagebox.show_error("Error", "Invalid date format. Please use MM/DD/YYYY.")
+            Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
             return
 
         try:
@@ -51,7 +51,7 @@ def entry_fields(note_form_tab):
         try:
             date_entry_value = datetime.strptime(date_entry_value, "%m/%d/%Y").strftime("%Y-%m-%d")
         except ValueError:
-            Messagebox.show_error("Error", "Invalid date format. Please use MM/DD/YYYY.")
+            Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
             return
 
         try:
@@ -204,10 +204,131 @@ def entry_fields(note_form_tab):
 
 
 
+    def format_date_while_typing(event):
+        """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
+        text = date_entry.entry.get().replace("/", "")  # Remove slashes to get raw number input
+        formatted_date = ""
+
+        if len(text) > 8:  # Prevent overflow of more than 8 characters (MMDDYYYY)
+            text = text[:8]
+
+        # Handle the case where the length is 2 (MD)
+        if len(text) == 2:
+            month = text[:1]
+            day = text[1:]
+            # Ensure the month is valid (01-12)
+            if int(month) < 1 or int(month) > 12:
+                month = str(datetime.now().month)  # Default to January if invalid month
+            # Ensure the day is valid (01-31)
+            if int(day) < 1 or int(day) > 31:
+                day = str(datetime.now().day)  # Default to 1st if invalid day
+            year = str(datetime.now().year)  # Assume the current year
+            formatted_date = f"0{month}/0{day}/{year}"
+
+
+        # Handle the case where the length is 3 (MDD)
+        elif len(text) == 3:
+            month = text[:1]
+            day = text[1:]
+            # Ensure the month is valid (01-12)
+            if int(month) < 1 or int(month) > 12:
+                month = str(datetime.now().month)  # Default to January if invalid month
+            # Ensure the day is valid (01-31)
+            if int(day) < 1 or int(day) > 31:
+                day = str(datetime.now().day)  # Default to 1st if invalid day
+                if len(str(day)) == 1:
+                    day = f"0{day}"
+
+            year = str(datetime.now().year)  # Assume the current year
+            formatted_date = f"0{month}/{day}/{year}"
+
+
+        # Handle the case where the length is 4 (MMDD)
+        elif len(text) == 4:
+            month = text[:2]
+            day = text[2:]
+            # Ensure the month is valid (01-12)
+            if int(month) < 1 or int(month) > 12:
+                month = str(datetime.now().month)  # Default to January if invalid month
+                if len(str(month)) == 1:
+                    month = f"0{month}"
+
+            # Ensure the day is valid (01-31)
+            if int(day) < 1 or int(day) > 31:
+                day = str(datetime.now().day)  # Default to 1st if invalid day
+                if len(str(day)) == 1:
+                    day = f"0{day}"
+
+            year = str(datetime.now().year)  # Assume the current year
+            formatted_date = f"{month}/{day}/{year}"
+
+            # Handle the case where the length is 5 (MDDYY)
+        elif len(text) == 5:
+            month = text[:1]
+            day = text[1:3]
+            year = text[3:]
+
+            # Ensure the month is valid (01-12)
+            if int(month) < 1 or int(month) > 12:
+                month = str(datetime.now().month)  # Default to January if invalid month
+            # Ensure the day is valid (01-31)
+            if int(day) < 1 or int(day) > 31:
+                day = str(datetime.now().day)  # Default to 1st if invalid day
+                if len(str(day)) == 1:
+                    day = f"0{day}"
+            formatted_date = f"0{month}/{day}/20{year}"
+
+        # Handle the case where the length is 6 (MMDDYY)
+        elif len(text) == 6:
+            month = text[:2]
+            day = text[2:4]
+            year = text[4:]
+            # Ensure the month is valid (01-12)
+            if int(month) < 1 or int(month) > 12:
+                month = str(datetime.now().month)  # Default to January if invalid month
+                if len(str(month)) == 1:
+                    month = f"0{month}"
+
+            # Ensure the day is valid (01-31)
+            if int(day) < 1 or int(day) > 31:
+                day = str(datetime.now().day)  # Default to 1st if invalid day
+                if len(str(day)) == 1:
+                    day = f"0{day}"
+
+            formatted_date = f"{month}/{day}/20{year}"  # Assume 20XX for 2-digit year
+
+
+            # Handle the case where the length is 6 (MMDDYY)
+        elif len(text) == 7:
+            Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
+
+
+        # Handle the case where the length is 8 (MMDDYYYY)
+        elif len(text) == 8:
+            month = text[:2]
+            day = text[2:4]
+            year = text[4:]
+            # Ensure the month is valid (01-12)
+            if int(month) < 1 or int(month) > 12:
+                month = str(datetime.now().month)  # Default to January if invalid month
+                if len(str(month)) == 1:
+                    month = f"0{month}"
+
+            # Ensure the day is valid (01-31)
+            if int(day) < 1 or int(day) > 31:
+                day = str(datetime.now().day)  # Default to 1st if invalid day
+                if len(str(day)) == 1:
+                    day = f"0{day}"
+
+            formatted_date = f"{month}/{day}/{year}"
+
+        # Update entry field with formatted value
+        date_entry.entry.delete(0, "end")
+        date_entry.entry.insert(0, formatted_date)
+
     # Create a frame for the form inputs
     form_frame = ttk.Frame(note_form_tab)
     form_frame.pack(fill=X, pady=10, padx=20)
-
 
 
     # Quantity Entry Field
@@ -228,6 +349,10 @@ def entry_fields(note_form_tab):
     date_entry.grid(row=2, column=0, padx=5, pady=(0,0), sticky=W)
     date_entry.entry.config(font=shared_functions.custom_font_size)
     ToolTip(date_entry, text=f"This is the default consumption date. You can manually change it.")
+    date_entry.entry.bind("<FocusOut>", format_date_while_typing)
+    date_entry.entry.bind("<Return>", format_date_while_typing)
+
+
 
 
     # Add button to export data into excel

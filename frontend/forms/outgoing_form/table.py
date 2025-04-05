@@ -352,7 +352,7 @@ class OutgoingFormTable:
             try:
                 outgoing_date = datetime.strptime(date_entry.entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
             except ValueError:
-                Messagebox.show_error("Error", "Invalid date format. Please use MM/DD/YYYY.")
+                Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
                 return
 
             # This code removes the commas in the qty value

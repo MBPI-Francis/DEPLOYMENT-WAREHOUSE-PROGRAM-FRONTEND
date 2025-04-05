@@ -382,7 +382,7 @@ class ChangeStatusFormTable:
             try:
                 change_status_date = datetime.strptime(date_entry.entry.get(), "%m/%d/%Y").strftime("%Y-%m-%d")
             except ValueError:
-                Messagebox.show_error("Error", "Invalid date format. Please use MM/DD/YYYY.")
+                Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
                 return
 
             qty = qty_entry.get()
