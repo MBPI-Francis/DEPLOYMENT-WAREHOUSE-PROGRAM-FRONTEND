@@ -316,6 +316,8 @@ class OutgoingFormTable:
 
                 qty_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
 
+                old_qty = float(record[idx].replace(",", ""))
+
 
             elif field == "OGR No.":
                 ref_entry = ttk.Entry(self.edit_window, width=22, font=self.shared_functions.custom_font_size)
@@ -374,19 +376,14 @@ class OutgoingFormTable:
                 Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
                 return
 
-            # Check if the new quantity is different from the old one
-            if cleaned_qty != previous_qty:
-                # Validate if the new entry exceeds stock
-                validation_result = self.shared_functions.validate_soh_value(
-                    get_selected_rm_code_id(),
-                    get_selected_warehouse_id(),
-                    cleaned_qty,
-                    get_selected_status_id()
 
-                )
-
-            else:
-                validation_result = True
+            validation_result = self.shared_functions.validate_soh_value_for_update(
+                get_selected_rm_code_id(),
+                get_selected_warehouse_id(),
+                old_qty,
+                cleaned_qty,
+                get_selected_status_id()
+            )
 
 
             if validation_result:

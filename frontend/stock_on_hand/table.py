@@ -11,7 +11,7 @@ from frontend.stock_on_hand.import_feature.confirm_messages import ConfirmationM
 class BeginningBalanceTable:
     def __init__(self, root):
         self.root = root
-        self.confirmation_message = ConfirmationMessage(self.root)
+        self.confirmation_message = ConfirmationMessage(self)
 
 
         # Frame for search
@@ -25,7 +25,7 @@ class BeginningBalanceTable:
         # Button to trigger the import process
         import_button = ttk.Button(
             search_frame,
-            text="Generate New Beginning Balance",
+            text="Import New Beginning Balance",
             bootstyle=WARNING,
             command=self.confirmation_message.show_confirmation_message
         )
@@ -34,6 +34,17 @@ class BeginningBalanceTable:
 
         # Add Tooltip
         ToolTip(import_button, text="Import or generate a new beginning balance for raw materials.")
+
+
+        # Add button to clear data
+        btn_refresh = ttk.Button(
+            search_frame,
+            text="Refresh",
+            command=self.refresh_table,
+            bootstyle=SECONDARY,
+        )
+        btn_refresh.pack(side=RIGHT, padx=10)
+        ToolTip(btn_refresh, text="Click the button to refresh the data table.")
 
 
         # Create a frame to hold the Treeview and Scrollbars

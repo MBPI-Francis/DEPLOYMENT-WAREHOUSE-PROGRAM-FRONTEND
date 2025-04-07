@@ -24,6 +24,17 @@ class TransferFormTable:
         self.search_entry.bind("<Return>", self.search_data)
 
 
+        # Add button to clear data
+        btn_refresh = ttk.Button(
+            search_frame,
+            text="Refresh",
+            command=self.refresh_table,
+            bootstyle=SECONDARY,
+        )
+        btn_refresh.pack(side=RIGHT, padx=10)
+        ToolTip(btn_refresh, text="Click the button to refresh the data table.")
+
+
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
@@ -66,7 +77,7 @@ class TransferFormTable:
             self.tree.heading(col, text=col, command=lambda c=col: self.sort_column(c, False), anchor=W)
             self.tree.column(col, width=150, anchor="w")
 
-        self.tree.pack(fill=BOTH, expand=YES, padx=10, pady=10)
+        self.tree.pack(fill=BOTH, expand=YES)
         self.refresh_table()
 
 

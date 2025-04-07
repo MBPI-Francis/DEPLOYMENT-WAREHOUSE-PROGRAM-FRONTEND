@@ -328,6 +328,7 @@ class TransferFormTable:
                 ToolTip(qty_entry, text="Enter the Quantity(kg)")
 
                 qty_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                old_qty = float(record[idx].replace(",", ""))
 
 
             elif field == "TF No.":
@@ -399,9 +400,10 @@ class TransferFormTable:
             if result:
 
                 # Validate if the entry value exceeds the stock
-                validatation_result = self.shared_functions.validate_soh_value(
+                validatation_result = self.shared_functions.validate_soh_value_for_update(
                     get_selected_rm_code_id(),
                     get_selected_warehouse_from_id(),
+                    old_qty,
                     float(qty_entry.get()),
                     get_selected_status_id()
 

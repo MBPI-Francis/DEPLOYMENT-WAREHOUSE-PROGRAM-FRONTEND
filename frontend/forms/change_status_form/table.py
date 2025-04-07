@@ -337,6 +337,9 @@ class ChangeStatusFormTable:
                 qty_entry.bind("<KeyRelease>", format_numeric_input)
                 qty_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
 
+                old_qty = float(record[idx].replace(",", ""))
+
+
 
             elif field == "CSF No.":
                 ref_entry = ttk.Entry(self.edit_window,
@@ -406,12 +409,12 @@ class ChangeStatusFormTable:
                 return
 
             # Validate if the entry value exceeds the stock
-            validatation_result = self.shared_functions.validate_soh_value(
+            validatation_result = self.shared_functions.validate_soh_value_for_update(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
+                old_qty,
                 cleaned_qty,
-                get_selected_current_status_id()
-
+                get_selected_current_status_id(),
             )
 
             if validatation_result:

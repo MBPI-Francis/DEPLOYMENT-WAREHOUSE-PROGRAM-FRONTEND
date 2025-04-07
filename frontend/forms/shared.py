@@ -154,13 +154,15 @@ class SharedFunctions:
 
 
     @staticmethod
-    def validate_soh_value_for_update(rm_id, warehouse_id, entered_qty: float, status_id=None):
+    def validate_soh_value_for_update(rm_id, warehouse_id, old_qty: float, entered_qty: float, status_id=None):
         # Prepare parameters
         params = {
             "rm_id": rm_id,
             "warehouse_id": warehouse_id,
-            "entered_qty": float(entered_qty),
+            "prev_entered_qty": old_qty,
+            "new_entered_qty": float(entered_qty)
         }
+
 
         # Include status_id only if it's not None
         if status_id:

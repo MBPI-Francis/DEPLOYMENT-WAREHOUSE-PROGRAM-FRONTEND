@@ -68,13 +68,12 @@ class ImportData:
             self.root.after(0, self.hide_loader)
 
             if response.status_code == 200:
-                self.root.after(0, lambda: messagebox.showinfo("Success", "File uploaded successfully!"))
+                self.root.after(0, lambda: messagebox.showinfo("Success", "File imported successfully!"))
 
             else:
                 error_message = response.json().get("detail", "Unknown error")
                 self.root.after(0, lambda: messagebox.showerror("Error",
                     f"Failed to import data. {error_message}"))
-
 
         except Exception as e:
             self.root.after(0, self.hide_loader)

@@ -340,6 +340,8 @@ class PreparationFormTable:
                 ToolTip(qty_prepared_entry, text="Enter the QTY (Prepared)")
                 qty_prepared_entry.bind("<KeyRelease>", format_numeric_input_prepared)
 
+                old_qty_prepared = float(record[idx].replace(",", ""))
+
 
             elif field == "QTY (Return)":
 
@@ -470,6 +472,7 @@ class PreparationFormTable:
             validation_result = self.shared_functions.validate_soh_value_for_update(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
+                old_qty_prepared,
                 cleaned_qty_prepared,
                 get_selected_status_id()
             )
