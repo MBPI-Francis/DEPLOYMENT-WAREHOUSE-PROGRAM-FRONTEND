@@ -128,7 +128,7 @@ switch -- [tk windowingsystem] {
 	    set F(family) "sans-serif"
 	    set F(fixed)  "monospace"
 	} else {
-	    set F(family) "Arial"
+	    set F(family) "Helvetica"
 	    set F(fixed)  "courier"
 	}
 	set F(size) -12

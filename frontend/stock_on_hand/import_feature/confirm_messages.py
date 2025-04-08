@@ -7,10 +7,6 @@ class ConfirmationMessage:
         self.root = root
 
     def show_confirmation_message(self):
-        # confirmation_window = ttk.Toplevel(form_frame)
-        # confirmation_window.title("Confirm Action")
-        # confirmation_window.geometry("450x410")
-        # confirmation_window.resizable(True, True)
 
         confirmation_window = ttk.Toplevel(self.root)
         confirmation_window.title("Confirm Action")

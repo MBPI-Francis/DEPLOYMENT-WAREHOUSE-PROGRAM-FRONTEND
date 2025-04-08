@@ -11,7 +11,7 @@ from frontend.stock_on_hand.import_feature.confirm_messages import ConfirmationM
 class BeginningBalanceTable:
     def __init__(self, root):
         self.root = root
-        self.confirmation_message = ConfirmationMessage(self)
+        self.confirmation_message = ConfirmationMessage(self.root)
 
 
         # Frame for search

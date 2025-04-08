@@ -76,7 +76,7 @@
  [],
  False,
  False,
- 1743401457,
+ 1744090915,
  [('runw.exe',
    'C:\\Users\\Administrator\\Desktop\\MBPI-Projects\\DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND\\venv\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\runw.exe',
    'EXECUTABLE')],
