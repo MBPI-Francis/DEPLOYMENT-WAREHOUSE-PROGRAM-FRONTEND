@@ -20,8 +20,8 @@ class ConfirmationMessage:
         screen_height = confirmation_window.winfo_screenheight()
 
         # Set a dynamic size (proportional to the screen size)
-        window_width = int(screen_width * 0.38)  # Adjust width as needed
-        window_height = int(screen_height * 0.36)  # Adjust height as needed
+        window_width = int(screen_width * 0.48)  # Adjust width as needed
+        window_height = int(screen_height * 0.51)  # Adjust height as needed
 
         # Calculate position for centering
         x_position = (screen_width - window_width) // 2

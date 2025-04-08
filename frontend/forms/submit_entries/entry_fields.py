@@ -95,8 +95,8 @@ def entry_fields(note_form_tab):
         screen_height = confirmation_window.winfo_screenheight()
 
         # Set a dynamic size (proportional to the screen size)
-        window_width = int(screen_width * 0.38)  # Adjust width as needed
-        window_height = int(screen_height * 0.37)  # Adjust height as needed
+        window_width = int(screen_width * 0.42)  # Adjust width as needed
+        window_height = int(screen_height * 0.43)  # Adjust height as needed
 
         # Calculate position for centering
         x_position = (screen_width - window_width) // 2
@@ -141,7 +141,7 @@ def entry_fields(note_form_tab):
         message_label = ttk.Label(
             confirmation_window,
             text=(
-                f"Note: This action will also record the Inventory Report Date as {date_entry.entry.get()}.\n"
+                f"Note: This action will also record the Inventory Report Date as {date_entry.entry.get()}\n"
             ),
             justify="center",
             font=("Arial", 11, "bold"),
@@ -156,7 +156,7 @@ def entry_fields(note_form_tab):
                 "To proceed, type 'YES' in the confirmation box."
             ),
             justify="center",
-            font=("Arial", 11),
+            font=("Arial", 11, 'bold'),
         )
         message_label.pack(pady=0)
 
@@ -351,8 +351,6 @@ def entry_fields(note_form_tab):
     ToolTip(date_entry, text=f"This is the default consumption date. You can manually change it.")
     date_entry.entry.bind("<FocusOut>", format_date_while_typing)
     date_entry.entry.bind("<Return>", format_date_while_typing)
-
-
 
 
     # Add button to export data into excel

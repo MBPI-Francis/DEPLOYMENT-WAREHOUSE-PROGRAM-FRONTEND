@@ -461,91 +461,83 @@ class OutgoingFormTable:
             self.tree.insert("", END, iid=record[0], values=record[1:])
 
     def confirmation_panel_clear(self):
-        # confirmation_window = ttk.Toplevel(form_frame)
-        # confirmation_window.title("Confirm Action")
-        # confirmation_window.geometry("450x410")
-        # confirmation_window.resizable(True, True)
-
         confirmation_window = ttk.Toplevel(self.root)
         confirmation_window.title("Confirm Action")
 
-        # Get the screen width and height
+        # **Fixed Size** (Recommended for consistency)
+        window_width = 500  # Fixed width
+        window_height = 260  # Fixed height
+
+        # **Center the window**
         screen_width = confirmation_window.winfo_screenwidth()
         screen_height = confirmation_window.winfo_screenheight()
-
-        # Set a dynamic size (proportional to the screen size)
-        window_width = int(screen_width * 0.38)  # Adjust width as needed
-        window_height = int(screen_height * 0.32)  # Adjust height as needed
-
-        # Calculate position for centering
         x_position = (screen_width - window_width) // 2
-        y_position = (screen_height - window_height) // 3  # Position slightly higher
+        y_position = (screen_height - window_height) // 3  # Slightly higher than center
 
-        # Apply geometry dynamically
         confirmation_window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+        confirmation_window.resizable(False, False)  # Disable resizing for consistency
 
-        # Allow resizing but maintain proportions
-        confirmation_window.resizable(True, True)
-
-        # Expand and fill widgets inside the window
+        # **Make widgets expand properly**
         confirmation_window.grid_columnconfigure(0, weight=1)
         confirmation_window.grid_rowconfigure(0, weight=1)
 
-        # Message Label
+        # **Message Label (Warning)**
         message_label = ttk.Label(
             confirmation_window,
             text="\n\nARE YOU SURE?",
             justify="center",
-            font=("Arial", 12, "bold"),
+            font=("Arial", 13, "bold"),
             bootstyle=WARNING
-
         )
         message_label.pack(pady=5)
 
-        # Message Label
-        message_label = ttk.Label(
+        # **Description Label**
+        desc_label = ttk.Label(
             confirmation_window,
             text=(
                 "This form's data will be cleared, but it won't be deleted from the database.\n"
                 "Make sure the data you're clearing is unimportant before proceeding.\n"
             ),
-            justify="left",
-            font=("Arial", 10),
+            justify="center",  # Changed to center for better appearance
+            font=("Arial", 11),
         )
-        message_label.pack(pady=5)
+        desc_label.pack(pady=5)
 
-        # Message Label
-        message_label = ttk.Label(
+        # **Confirmation Instruction Label**
+        confirm_label = ttk.Label(
             confirmation_window,
-            text=("To proceed, type 'YES' in the confirmation box."),
+            text="To proceed, type 'YES' in the confirmation box.",
             justify="center",
-            font=("Arial", 10),
+            font=("Arial", 11, "bold"),
         )
-        message_label.pack(pady=5)
+        confirm_label.pack(pady=5)
 
-        # Entry field
-        confirm_entry = ttk.Entry(confirmation_window, font=("Arial", 12),
-                                  justify="center")
+        # **Entry Field (Validation)**
+        confirm_entry = ttk.Entry(
+            confirmation_window,
+            font=("Arial", 12),
+            justify="center"
+        )
         confirm_entry.pack(padx=20, pady=5)
 
-        # Frame for buttons
+        # **Button Frame (Properly Aligned)**
         button_frame = ttk.Frame(confirmation_window)
-        button_frame.pack(fill="x", padx=10, pady=10)  # Expand the frame horizontally
+        button_frame.pack(fill="x", padx=10, pady=10)
 
-        # Configure button frame columns
-        button_frame.columnconfigure(0, weight=1)  # Left side (Cancel)
-        button_frame.columnconfigure(1, weight=1)  # Right side (Submit)
+        # **Button Grid Configuration**
+        button_frame.columnconfigure(0, weight=1)  # Cancel (Left)
+        button_frame.columnconfigure(1, weight=1)  # Submit (Right)
 
-        # Cancel Button (Left)
+        # **Cancel Button**
         cancel_button = ttk.Button(
             button_frame,
             text="Cancel",
             bootstyle=DANGER,
             command=confirmation_window.destroy
         )
-        cancel_button.grid(row=0, column=0, padx=5, sticky="w")  # Align to left
+        cancel_button.grid(row=0, column=0, padx=5, sticky="w")
 
-        # Submit Button (Right, Initially Disabled)
+        # **Submit Button (Initially Disabled)**
         submit_button = ttk.Button(
             button_frame,
             text="Submit",
@@ -553,7 +545,7 @@ class OutgoingFormTable:
             state=DISABLED,
             command=lambda: [clear_all_notes_form_data(), confirmation_window.destroy()]
         )
-        submit_button.grid(row=0, column=1, padx=5, sticky="e")  # Align to right
+        submit_button.grid(row=0, column=1, padx=5, sticky="e")
 
         # Function to validate entry field
         def validate_entry(event):

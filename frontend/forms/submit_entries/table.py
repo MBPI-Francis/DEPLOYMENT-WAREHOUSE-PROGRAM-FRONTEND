@@ -247,7 +247,6 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import requests
 from ttkbootstrap.dialogs import Messagebox
-
 from backend.settings.database import server_ip
 from tkinter import Toplevel, messagebox
 from datetime import datetime
@@ -306,6 +305,7 @@ class SubmitEntriesTable:
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
         )
+
 
         # Create a vertical scrollbar and attach it to the treeview
         tree_scroll_y = ttk.Scrollbar(tree_frame, orient=VERTICAL, command=self.tree.yview)
@@ -370,6 +370,7 @@ class SubmitEntriesTable:
             self.original_data.append(record)  # Save record
             self.tree.insert("", END, values=record[0:])
 
+
     def sort_treeview(self, col, reverse):
         """Sort treeview column data."""
         items = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
@@ -377,6 +378,7 @@ class SubmitEntriesTable:
         for index, (val, k) in enumerate(items):
             self.tree.move(k, "", index)
         self.tree.heading(col, command=lambda: self.sort_treeview(col, not reverse))
+
 
     def search_data(self, event=None):
         """Filter and display only matching records in the Treeview."""
@@ -421,7 +423,7 @@ class SubmitEntriesTable:
 
         # Set a dynamic size (proportional to the screen size)
         window_width = int(screen_width * 0.35)  # Adjust width as needed
-        window_height = int(screen_height * 0.51)  # Adjust height as needed
+        window_height = int(screen_height * 0.55)  # Adjust height as needed
 
         # Calculate position for centering
         x_position = (screen_width - window_width) // 2
@@ -472,7 +474,7 @@ class SubmitEntriesTable:
             confirmation_window,
             text=("To proceed, type 'YES' in the confirmation box."),
             justify="center",
-            font=("Arial", 11),
+            font=("Arial", 11, "bold"),
         )
         message_label.pack(pady=5)
 
