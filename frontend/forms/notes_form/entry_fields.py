@@ -33,7 +33,7 @@ def entry_fields(note_form_tab):
         consumption_date = date_entry.entry.get()
 
         # Set focus to the Entry field
-        lot_number_entry.focus_set()
+        product_code_entry.focus_set()
 
 
         # Convert date to YYYY-MM-DD

@@ -36,10 +36,10 @@ class ConsumptionEntryView:
         # Create the frames for each tab
         notes_form_tab(notebook)
         receiving_report_tab(notebook)
-        outgoing_form_tab(notebook)
         transfer_form_tab(notebook)
-        preparation_form_tab(notebook)
         held_form_tab(notebook)
+        outgoing_form_tab(notebook)
+        preparation_form_tab(notebook)
         submit_entries_tab(notebook)
 
 
