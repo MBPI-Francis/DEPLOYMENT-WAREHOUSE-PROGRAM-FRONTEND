@@ -14,6 +14,7 @@ from frontend.forms.shared import SharedFunctions
 
 def entry_fields(note_form_tab):
 
+    preparation_validation = EntryValidation()
     shared_functions = SharedFunctions()
 
     get_status_api = shared_functions.get_status_api()
@@ -127,10 +128,11 @@ def entry_fields(note_form_tab):
             Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
             return
 
-        validatation_result = shared_functions.validate_soh_value(
+        validatation_result = preparation_validation.validate(
             rm_code_id,
             warehouse_id,
             cleaned_qty_prepared,
+            cleaned_qty_return,
             status_id
         )
         if validatation_result:
@@ -155,7 +157,7 @@ def entry_fields(note_form_tab):
 
         else:
             Messagebox.show_error(
-                "The entered quantity in 'Quantity (Prepared)' exceeds the available stock in the database.",
+                "The consumption of the raw material exceeds the available stock in the database.",
                 "Data Entry Error")
             return
 

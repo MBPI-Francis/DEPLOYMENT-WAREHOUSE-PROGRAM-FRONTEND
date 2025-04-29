@@ -16,6 +16,7 @@ class PreparationFormTable:
     def __init__(self, root):
         self.root = root
         self.shared_functions = SharedFunctions()
+        self.preparation_validation = EntryValidation()
 
         self.edit_window = None
         self.get_status_api = self.shared_functions.get_status_api()
@@ -403,6 +404,8 @@ class PreparationFormTable:
                 qty_return_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
                 ToolTip(qty_return_entry, text="Enter the value for the Quantity (Return) in KG")
 
+                old_qty_return = float(record[idx].replace(",", ""))
+
 
             elif field == "PF ID No.":
                 ref_entry = ttk.Entry(self.edit_window, width=22,
@@ -446,6 +449,10 @@ class PreparationFormTable:
             cleaned_qty_prepared = float(qty_prepared.replace(",", ""))
             cleaned_qty_return = float(qty_return.replace(",", ""))
 
+            new_consumption = cleaned_qty_prepared - cleaned_qty_return
+            prev_consumption =  old_qty_prepared - old_qty_return
+
+
 
             # Convert date to YYYY-MM-DD
             try:
@@ -469,11 +476,11 @@ class PreparationFormTable:
                 Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
                 return
 
-            validation_result = self.shared_functions.validate_soh_value_for_update(
+            validation_result = self.preparation_validation.validate_for_update(
                 get_selected_rm_code_id(),
                 get_selected_warehouse_id(),
-                old_qty_prepared,
-                cleaned_qty_prepared,
+                prev_consumption,
+                new_consumption,
                 get_selected_status_id()
             )
 
@@ -494,7 +501,7 @@ class PreparationFormTable:
 
             else:
                 Messagebox.show_error(
-                    "The entered value in 'QTY (Prepared)' exceeds the available stock in the database.",
+                    "The consumption of the raw material exceeds the available stock in the database.",
                     "Data Entry Error")
                 return
 
