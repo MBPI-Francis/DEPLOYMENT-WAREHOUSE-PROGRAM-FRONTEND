@@ -19,7 +19,7 @@ class Sidebar(ttk.Frame):
         #     bootstyle="primary",
         #     width=18,
         # ).pack(pady=10)
-
+        #
         # # Navigation Buttons
         # ttk.Button(
         #     self,
