@@ -11,6 +11,8 @@ from ttkbootstrap.widgets import DateEntry
 from .validation import EntryValidation
 from ttkbootstrap.dialogs import Messagebox
 from ..shared import SharedFunctions
+from .form import Forms
+
 
 
 class AdjustmentFormTable:
@@ -23,6 +25,8 @@ class AdjustmentFormTable:
         self.get_status_api = self.shared_functions.get_status_api()
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
         self.get_rm_code_api = self.shared_functions.get_rm_code_api()
+        self.form = Forms(self)
+
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -41,7 +45,7 @@ class AdjustmentFormTable:
             bootstyle=WARNING,
         )
         btn_clear.pack(side=RIGHT)
-        ToolTip(btn_clear, text="Click the button to clear all the Outgoing Form data.")
+        ToolTip(btn_clear, text="Click the button to clear all the Adjustment Form data.")
 
         # Add button to refresh table
         btn_refresh = ttk.Button(
@@ -53,6 +57,16 @@ class AdjustmentFormTable:
         btn_refresh.pack(side=RIGHT, padx=10)
         ToolTip(btn_refresh, text="Click the button to refresh the data table.")
 
+        # Add button to clear data
+        btn_add = ttk.Button(
+            search_frame,
+            text="+ Add Record",
+            command=lambda: self.form.add_records(),
+            bootstyle=PRIMARY,
+        )
+        btn_add.pack(side=RIGHT)
+        ToolTip(btn_add, text="Click the button to add the Adjustment Form data.")
+
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=(5,0))
@@ -61,12 +75,15 @@ class AdjustmentFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(   "Date Encoded",
-                        "OGR No.",
+                        "Ref#",
                         "Raw Material",
                         "Quantity(kg)",
                         "Status",
                         "Warehouse",
-                        "Outgoing Date",
+                        "Referenced Doc.",
+                        "Doc. Reference #",
+                        "Adjustment Date",
+                        "Referenced Date"
          ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
@@ -100,7 +117,7 @@ class AdjustmentFormTable:
 
     def refresh_table(self):
         """Fetch data from API and populate Treeview."""
-        url = server_ip + "/api/outgoing_reports/v1/list/"
+        url = server_ip + "/api/adjustment_form/v1/list/"
         self.original_data = []  # Store all records
         try:
             response = requests.get(url)
@@ -118,7 +135,11 @@ class AdjustmentFormTable:
                     qty_kg_formatted,
                     item["status"],
                     item["wh_name"],
-                    datetime.fromisoformat(item["outgoing_date"]).strftime("%m/%d/%Y"),
+                    item["ref_form"],
+                    item["ref_form_number"],
+                    item["ref_form_number"],
+                    datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
+                    datetime.fromisoformat(item["reference_date"]).strftime("%m/%d/%Y"),
 
                 )
 

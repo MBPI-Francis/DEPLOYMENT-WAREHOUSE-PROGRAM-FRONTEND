@@ -23,8 +23,19 @@ class EntryValidation:
             elif key == "status_id" and not value:
                 text_list.append("Status")
 
-            elif key == "outgoing_date" and not value:
-                text_list.append("Outgoing Date")
+            elif key == "adjustment_date" and not value:
+                text_list.append("Date of Adjustment")
+
+            elif key == "reference_date" and not value:
+                text_list.append("Referenced Date")
+
+            elif key == "reason" and not value:
+                text_list.append("Reason/Remarks")
+
+            # elif key == "ref_form" and not value:
+            #     text_list.append("Referenced Doc.")
+
+
         return text_list
 
     # Validation function for numeric input
@@ -51,22 +62,34 @@ class EntryValidation:
         # Function to validate numeric input (only numbers, commas, and one decimal point)
     @staticmethod
     def validate_numeric_input(input_value):
-        if input_value == "":
+        if input_value.strip() == "":
             return True  # Allow empty input
 
-        raw_value = input_value.replace(",", "")  # Remove commas for validation
+        raw_value = input_value.replace(",", "").strip()  # Remove commas and whitespace
 
-        if raw_value.count(".") > 1:  # Ensure only one decimal point
+        # Allow just '+' or '-' as partial valid input while typing
+        if raw_value in ("-", "+"):
+            return True
+
+        # Only one leading + or - sign is allowed
+        if raw_value.startswith(("+", "-")):
+            numeric_part = raw_value[1:]
+        else:
+            numeric_part = raw_value
+
+        # Must be digits or one optional decimal point
+        if numeric_part.count(".") > 1:
             return False
 
         try:
-            float_value = float(raw_value)  # Check if it's a valid float
+            float(raw_value)  # Check if fully convertible to float
 
-            # Ensure only two decimal places
-            parts = raw_value.split(".")
+            # Ensure max of two decimal places
+            parts = numeric_part.split(".")
             if len(parts) == 2 and len(parts[1]) > 2:
                 return False
 
             return True
         except ValueError:
-            return False  # Reject invalid inputs
+            return False
+
