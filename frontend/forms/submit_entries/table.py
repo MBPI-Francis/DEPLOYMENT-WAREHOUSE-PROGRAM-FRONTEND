@@ -457,10 +457,11 @@ class SubmitEntriesTable:
                 "The recently added data from the following forms will be\ncleared or removed:\n"
                 "   - Notes Form\n"
                 "   - Receiving Form\n"
-                "   - Outgoing Form\n"
                 "   - Transfer Form\n"
+                "   - Change Status Form\n"
+                "   - Outgoing Form\n"
                 "   - Preparation Form\n"
-                "   - Change Status Form\n\n"
+                "   - Adjustment Form\n\n"
 
                 "Please ensure that the data that will be cleared are unimportant\nbefore clearing all of it.\n"
             ),

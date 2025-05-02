@@ -7,12 +7,26 @@ from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
 from .validation import EntryValidation
 from ..shared import SharedFunctions
-from tkinter import StringVar
+from tkinter import StringVar, messagebox
 
 
 
-class Forms:
+class EditForm:
     def __init__(self, root):
+        self.item = None
+        self.old_qty = None
+        self.ref_date_value = None
+        self.adj_date_value = None
+        self.reason_value = None
+        self.ref_doc_number_value = None
+        self.ref_doc_value = None
+        self.warehouse_value = None
+        self.status_value = None
+        self.qty_value = None
+        self.rm_code_value = None
+        self.ref_number_value = None
+        self.record = None
+        self.status_to_id = None
         self.ref_number_entry = None
         self.adj_date_entry = None
         self.ref_date_entry = None
@@ -30,11 +44,16 @@ class Forms:
         self.ref_doc_combobox = None
         self.root = root
         self.shared_functions = SharedFunctions()
+        self.edit_window = None
 
         self.get_status_api = self.shared_functions.get_status_api()
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
         self.get_rm_code_api = self.shared_functions.get_rm_code_api()
-        
+
+
+
+
+
 
     def get_selected_warehouse_id(self):
         selected_name = self.warehouse_combobox.get()
@@ -59,6 +78,11 @@ class Forms:
             return selected_id
         else:
             return None
+
+    def on_edit_window_close(self):
+        """Reset the edit_window reference when it is closed."""
+        self.edit_window.destroy()
+        self.edit_window = None
 
 
     def submit_data(self):
@@ -110,52 +134,41 @@ class Forms:
 
         }
 
-        print(data)
-
-
-
         # Validate the data entries in front-end side
         if EntryValidation.entry_validation(data):
             error_text = EntryValidation.entry_validation(data)
             Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
             return
 
-        # # Validate if the entry value exceeds the stock
-        # validatation_result = self.shared_functions.validate_soh_value(
-        #     rm_code_id,
-        #     warehouse_id,
-        #     cleaned_qty,
-        #     status_id
-        # )
-        #
-        # if validatation_result:
+        # Validate if the entry value exceeds the stock
 
-        # Send a POST request to the API
-        try:
-            response = requests.post(f"{server_ip}/api/adjustment_form/v1/create/", json=data)
-            if response.status_code == 200:  # Successfully created
-                self.clear_fields()
+        validation_result = self.shared_functions.validate_soh_value_for_update(
+            rm_code_id,
+            warehouse_id,
+            self.old_qty,
+            cleaned_qty,
+            status_id,
+        )
 
-                self.root.refresh_table()
+        if validation_result:
 
-                # Get the last inserted row ID
-                last_row_id = self.root.tree.get_children()[0]  # Get the last row's ID
+            # Send a POST request to the API
+            try:
+                response = requests.put(f"{server_ip}/api/adjustment_form/v1/update/{self.item}/", json=data)
+                if response.status_code == 200:  # Successfully created
+                    self.root.refresh_table()
+                    messagebox.showinfo("Success", "Record updated successfully")
+                    self.edit_window.destroy()
 
-                # Highlight the last row
-                self.root.tree.selection_set(last_row_id)  # Select the last row
-                self.root.tree.focus(last_row_id)  # Focus on the last row
-                self.root.tree.see(last_row_id)  # Scroll to make it visible
+            except requests.exceptions.RequestException as e:
+                Messagebox.show_error(e, "Data Entry Error")
+                return
 
-
-        except requests.exceptions.RequestException as e:
-            Messagebox.show_error(e, "Data Entry Error")
+        else:
+            Messagebox.show_error(
+                "The entered quantity in 'Quantity' exceeds the available stock in the database.",
+                "Data Entry Error")
             return
-
-        # else:
-        #     Messagebox.show_error(
-        #         "The entered quantity in 'Quantity' exceeds the available stock in the database.",
-        #         "Data Entry Error")
-        #     return
 
         # Function to clear all entry fields
     def clear_fields(self):
@@ -173,32 +186,50 @@ class Forms:
         self.qty_entry.delete(0, ttk.END)
 
 
-    def add_records(self):
-        confirmation_window = ttk.Toplevel(self.root)
-        confirmation_window.title("Inventory Adjustment Form Modal")
+    def edit_records(self,item):
+        # If the window already exists, bring it to the front and return
+        if self.edit_window and self.edit_window.winfo_exists():
+            self.edit_window.lift()
+            return
+
+        self.item = item
+        self.record = self.root.tree.item(item, 'values')
+        self.ref_number_value = self.record[1]
+        self.rm_code_value = self.record[2]
+        self.qty_value = self.record[3]
+        self.status_value = self.record[4]
+        self.warehouse_value = self.record[5]
+        self.ref_doc_value = self.record[6]
+        self.ref_doc_number_value = self.record[7]
+        self.reason_value = self.record[8]
+        self.adj_date_value = self.record[9]
+        self.ref_date_value = self.record[10]
+        
+        self.edit_window = ttk.Toplevel(self.root)
+        self.edit_window.title("Inventory Adjustment Form Edit Modal")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 780  # Fixed width
         window_height = 420  # Fixed height
 
         # **Center the window**
-        screen_width = confirmation_window.winfo_screenwidth()
-        screen_height = confirmation_window.winfo_screenheight()
+        screen_width = self.edit_window.winfo_screenwidth()
+        screen_height = self.edit_window.winfo_screenheight()
         x_position = (screen_width - window_width) // 2
         y_position = (screen_height - window_height) // 3  # Slightly higher than center
 
-        confirmation_window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-        confirmation_window.resizable(True, True)  # Enable resizing for consistency
+        self.edit_window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+        self.edit_window.resizable(True, True)  # Enable resizing for consistency
 
         # **Make widgets expand properly**
-        confirmation_window.grid_columnconfigure(0, weight=1)
-        confirmation_window.grid_rowconfigure(0, weight=1)
+        self.edit_window.grid_columnconfigure(0, weight=1)
+        self.edit_window.grid_rowconfigure(0, weight=1)
 
 
         # **Message Label (Warning)**
         message_label = ttk.Label(
-            confirmation_window,
-            text="Inventory Adjustment Form",
+            self.edit_window,
+            text="Inventory Adjustment Edit Form",
             justify="center",
             font=("Arial", 14, "bold"),
             bootstyle=SECONDARY
@@ -207,7 +238,7 @@ class Forms:
 
 
         # Create a frame for the form inputs
-        form_frame = ttk.Frame(confirmation_window)
+        form_frame = ttk.Frame(self.edit_window)
         form_frame.pack(fill=X, pady=10, padx=20)
 
         # Configure grid columns to make them behave correctly
@@ -217,7 +248,7 @@ class Forms:
 
 
 
-
+        # ----------------------------------[ADJUSTMENT DATE FIELD]----------------------------------#
         def format_adj_date_while_typing(event):
             """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
             text = self.adj_date_entry.entry.get().replace("/", "")  # Remove slashes to get raw number input
@@ -467,10 +498,9 @@ class Forms:
 
         # Get the Current Date
         current_date = datetime.now()
-        # ----------------------------------[ADJUSTMENT DATE FIELD]----------------------------------#
+
         date_label = ttk.Label(date_frame, text="Date of Adjustment", style="CustomLabel.TLabel")
         date_label.grid(row=1, column=0, padx=(3,0), pady=0, sticky=W)
-
 
 
         # Create the DateEntry widget with yesterday's date as the default value
@@ -478,10 +508,11 @@ class Forms:
             date_frame,
             bootstyle=PRIMARY,
             dateformat="%m/%d/%Y",
-            startdate=current_date,  # Set yesterday's date
             width=26
         )
         self.adj_date_entry.grid(row=2, column=0, padx=(5,0), pady=0, sticky=W)
+        self.adj_date_entry.entry.delete(0, "end")
+        self.adj_date_entry.entry.insert(0, self.adj_date_value)
         self.adj_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.adj_date_entry.entry.bind("<FocusOut>", format_adj_date_while_typing)
         self.adj_date_entry.entry.bind("<Return>", format_adj_date_while_typing)
@@ -498,15 +529,15 @@ class Forms:
             date_frame,
             bootstyle=PRIMARY,
             dateformat="%m/%d/%Y",
-            startdate=current_date,  # Set yesterday's date
             width=26
         )
         self.ref_date_entry.grid(row=2, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
+        self.ref_date_entry.entry.delete(0, "end")
+        self.ref_date_entry.entry.insert(0, self.ref_date_value)
         self.ref_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.ref_date_entry.entry.bind("<FocusOut>", format_ref_date_while_typing)
         self.ref_date_entry.entry.bind("<Return>", format_ref_date_while_typing)
         ToolTip(self.ref_date_entry, text="Please enter the date when the discrepancy happened")
-
 
 
         # ----------------------------------[REFERENCED NUMBER FIELD]----------------------------------#
@@ -516,8 +547,10 @@ class Forms:
 
         # REF Number Entry Field
         ref_number_label = ttk.Label(refno_frame, text="Ref#.", style="CustomLabel.TLabel")
+
         ref_number_label.grid(row=1, column=0, padx=(3,0), pady=(0, 0), sticky=W)
         self.ref_number_entry = ttk.Entry(refno_frame, width=24, font=self.shared_functions.custom_font_size)
+        self.ref_number_entry.insert(0, self.ref_number_value)
         self.ref_number_entry.grid(row=2, column=0, padx=(5,0), pady=(0, 0), sticky=W)
         ToolTip(self.ref_number_entry, text="Enter the Reference Number")
 
@@ -532,6 +565,9 @@ class Forms:
         lock_reference.grid(row=1, pady=(0, 0), padx=(10, 6), sticky=E)  # Position the checkbox next to the combobox
         ToolTip(lock_reference, text="Lock the reference number by clicking this")
 
+
+
+        # ----------------------------------[RAW MATERIAL CODE FIELD]----------------------------------#
         # RM CODE FRAME
         rmcode_frame = ttk.Frame(form_frame)
         rmcode_frame.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="w")
@@ -560,13 +596,18 @@ class Forms:
             font=self.shared_functions.custom_font_size
         )
 
+        self.rm_codes_combobox.set(self.rm_code_value)  # Set current value in the combobox
         # Bind the key release event to the combobox to trigger uppercase conversion
         self.rm_codes_combobox.bind("<KeyRelease>", on_combobox_key_release)
 
         self.rm_codes_combobox.grid(row=2, column=0, pady=(0, 0), padx=(5, 0))
         ToolTip(self.rm_codes_combobox, text="Choose a raw material")
 
+
+        # ----------------------------------[QUANTITY FIELD]----------------------------------#
         # Function to format numeric input dynamically with cursor preservation
+        self.old_qty = self.qty_value
+
         def format_numeric_input(event):
             """
             Formats the input dynamically while preserving the cursor position.
@@ -625,6 +666,7 @@ class Forms:
                               textvariable=qty_var,
                               validate="key",
                               validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
+        self.qty_entry.insert(0, self.qty_value)
         self.qty_entry.grid(row=2, column=2, padx=(5,0), pady=(0, 0), sticky=W)
 
         # Bind the event to format input dynamically while preserving cursor position
@@ -634,7 +676,6 @@ class Forms:
 
 
         # ----------------------------------[STATUS FIELD]----------------------------------#
-
         # Status JSON-format choices (coming from the API)
         status = self.get_status_api
         self.status_to_id = {item["name"]: item["id"] for item in status}
@@ -650,6 +691,7 @@ class Forms:
             width=19,
             font=self.shared_functions.custom_font_size
         )
+        self.status_combobox.set(self.status_value)
         self.status_combobox.grid(row=2, column=3, padx=(5, 0), pady=(0, 0), sticky=W)
         # Checkbox for Warehouse lock
         self.checkbox_status_var = ttk.IntVar()
@@ -667,6 +709,8 @@ class Forms:
         self.status_combobox.set("good")
 
 
+
+        # ----------------------------------[WAREHOUSE FIELD]----------------------------------#
         warehouse_frame = ttk.Frame(form_frame)
         warehouse_frame.grid(row=2, column=1, padx=5, pady=(0, 10), sticky="e")
 
@@ -697,21 +741,17 @@ class Forms:
                                           font=self.shared_functions.custom_font_size
                                           )
         self.warehouse_combobox.grid(row=2, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
-
+        self.warehouse_combobox.set(self.warehouse_value)
 
         ToolTip(self.warehouse_combobox, text="Choose a warehouse")
         ToolTip(lock_warehouse, text="Lock the warehouse by clicking this")
         self.warehouse_combobox.set("Warehouse #1")
 
 
-
-
+        # ----------------------------------[REFERENCED DOC FIELD]----------------------------------#
         # REFERENCED DOCUMENT FRAME (Left-aligned)
         referenced_doc_frame = ttk.Frame(form_frame)
         referenced_doc_frame.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="w")
-
-
-        # ----------------------------------[REFERENCED DOC FIELD]----------------------------------#
 
         label = ttk.Label(referenced_doc_frame, text="Referenced Doc.", style="CustomLabel.TLabel")
         label.grid(row=1, column=0, padx=(3,0), pady=0, sticky=W)
@@ -731,6 +771,7 @@ class Forms:
                                           width=29,
                                           font=self.shared_functions.custom_font_size
                                           )
+        self.ref_doc_combobox.set(self.ref_doc_value)
         self.ref_doc_combobox.grid(row=2, column=0, padx=(5, 0), pady=0, sticky=W)
         ToolTip(self.ref_doc_combobox, text="Select the form where the adjustment occurred.")
 
@@ -744,6 +785,7 @@ class Forms:
         label.grid(row=1, column=1, padx=(3,0), pady=0, sticky=E)
         self.ref_doc_number_entry = ttk.Entry(referenced_doc_frame, width=29, font=self.shared_functions.custom_font_size)
         self.ref_doc_number_entry.grid(row=2, column=1, padx=(5, 0), pady=0, sticky=W)
+        self.ref_doc_number_entry.insert(0, self.ref_doc_number_value)
         ToolTip(self.ref_doc_number_entry, text="Type the reference number associated with the referenced document.")
 
 
@@ -753,6 +795,7 @@ class Forms:
         label = ttk.Label(form_frame, text="Reason/Remarks", style="CustomLabel.TLabel")
         label.grid(row=4, column=0, padx=(8,0), pady=0, sticky=W)
         self.reason_entry = ttk.Text(form_frame, height=4, font=self.shared_functions.custom_font_size)
+        self.reason_entry.insert("1.0", self.reason_value)
         self.reason_entry.grid(row=5, column=0,columnspan=2 , padx=(10, 0), pady=0, sticky=NSEW)
         ToolTip(self.reason_entry, text="Enter the reason of the adjustment")
 
@@ -768,10 +811,16 @@ class Forms:
             form_frame,
             text="Close",
             bootstyle=DANGER,
-            command=confirmation_window.destroy
+            command=self.edit_window.destroy
         )
         cancel_button.grid(row=6, column=0, padx=5, sticky="w")
 
-        submit_btn = ttk.Button(form_frame, text="+ Add", bootstyle=SUCCESS,
+        submit_btn = ttk.Button(form_frame, text="Update", bootstyle=SUCCESS,
                                 command=self.submit_data,)
         submit_btn.grid(row=6, column=1, pady=20, sticky="e")
+
+
+
+
+
+
