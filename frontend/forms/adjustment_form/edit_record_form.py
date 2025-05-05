@@ -703,7 +703,7 @@ class EditForm:
 
         ToolTip(lock_status, text="Lock the status by clicking this")
         ToolTip(self.status_combobox, text="Please choose the raw material status")
-        self.status_combobox.set("good")
+        self.status_combobox.set(self.status_value)
 
 
 
@@ -742,7 +742,6 @@ class EditForm:
 
         ToolTip(self.warehouse_combobox, text="Choose a warehouse")
         ToolTip(lock_warehouse, text="Lock the warehouse by clicking this")
-        self.warehouse_combobox.set("Warehouse #1")
 
 
         # ----------------------------------[REFERENCED DOC FIELD]----------------------------------#
