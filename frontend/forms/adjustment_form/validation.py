@@ -1,3 +1,5 @@
+import requests
+from backend.settings.database import server_ip
 
 
 
@@ -93,3 +95,67 @@ class EntryValidation:
         except ValueError:
             return False
 
+
+    @staticmethod
+    def validate_soh_value(rm_id, warehouse_id, entered_qty: float, status_id=None):
+        # Prepare parameters
+        params = {
+            "rm_id": rm_id,
+            "warehouse_id": warehouse_id,
+            "entered_qty": float(entered_qty),
+        }
+
+        # Include status_id only if it's not None
+        if status_id:
+            params["status_id"] = status_id
+        # Handle response
+
+        try:
+            # Make the GET request
+
+            response = requests.get(f"{server_ip}/api/check/rm-stock-value/adjustment_form/", params=params)
+
+            if response.status_code == 200:
+
+                is_valid = response.json()
+
+                if is_valid:
+                    return is_valid
+
+                else:
+                    return False
+        except requests.exceptions.RequestException as e:
+            return None
+
+
+
+    @staticmethod
+    def validate_soh_value_for_update(rm_id, warehouse_id, old_qty: float, entered_qty: float, status_id=None):
+        # Prepare parameters
+        params = {
+            "rm_id": rm_id,
+            "warehouse_id": warehouse_id,
+            "prev_entered_qty": old_qty,
+            "new_entered_qty": float(entered_qty)
+        }
+
+
+        # Include status_id only if it's not None
+        if status_id:
+            params["status_id"] = status_id
+        # Handle response
+        try:
+            # Make the GET request
+            response = requests.get(f"{server_ip}/api/check/rm-stock-value/for-update/adjustment_form/", params=params)
+
+            if response.status_code == 200:
+
+                is_valid = response.json()
+
+                if is_valid:
+                    return is_valid
+
+                else:
+                    return False
+        except requests.exceptions.RequestException as e:
+            return None

@@ -142,7 +142,7 @@ class EditForm:
 
         # Validate if the entry value exceeds the stock
 
-        validation_result = self.shared_functions.validate_soh_value_for_update(
+        validation_result = EntryValidation.validate_soh_value_for_update(
             rm_code_id,
             warehouse_id,
             self.old_qty,
@@ -540,6 +540,7 @@ class EditForm:
         ToolTip(self.ref_date_entry, text="Please enter the date when the discrepancy happened")
 
 
+
         # ----------------------------------[REFERENCED NUMBER FIELD]----------------------------------#
         # Reference Number FRAME (Right-aligned)
         refno_frame = ttk.Frame(form_frame)
@@ -609,46 +610,42 @@ class EditForm:
         self.old_qty = self.qty_value
 
         def format_numeric_input(event):
-            """
-            Formats the input dynamically while preserving the cursor position.
-            """
+            entry_widget = event.widget
             input_value = qty_var.get()
-
-            # Get current cursor position
             cursor_position = self.qty_entry.index("insert")
 
-            # Remove commas for processing
+            # Strip commas for processing
             raw_value = input_value.replace(",", "")
 
-            if raw_value == "" or raw_value == ".":
-                return  # Prevent formatting when only `.` is typed
+            # Allow incomplete but valid numeric input
+            if raw_value in {"-", ".", "-."} or raw_value.endswith(".") or raw_value == "":
+                return
 
             try:
-                if "." in raw_value and raw_value[-1] == ".":
-                    return  # Allow user to manually enter decimal places
+                # Extract sign
+                sign = "-" if raw_value.startswith("-") else ""
+                value = raw_value.lstrip("-")
 
-                # Convert input to float and format
-                float_value = float(raw_value)
-
-                if "." in raw_value:
-                    integer_part, decimal_part = raw_value.split(".")
-                    formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
-                    formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
+                # If there's a decimal point, format integer part only
+                if "." in value:
+                    integer_part, decimal_part = value.split(".", 1)
+                    formatted_integer = "{:,}".format(int(integer_part)) if integer_part else "0"
+                    formatted_value = f"{sign}{formatted_integer}.{decimal_part}"
                 else:
-                    formatted_value = "{:,}".format(int(float_value))  # Format whole number
+                    formatted_value = f"{sign}{int(value):,}"
 
-                # Adjust cursor position based on new commas added
+                # Compute cursor shift from added/removed commas
                 num_commas_before = input_value[:cursor_position].count(",")
                 num_commas_after = formatted_value[:cursor_position].count(",")
-
                 new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
 
-                # Prevent cursor jumping by resetting the value and restoring cursor position
-                self.qty_entry.delete(0, "end")
-                self.qty_entry.insert(0, formatted_value)
-                self.qty_entry.icursor(new_cursor_position)  # Restore cursor position
+                # Update entry field
+                entry_widget.delete(0, "end")
+                entry_widget.insert(0, formatted_value)
+                entry_widget.icursor(new_cursor_position)
+
             except ValueError:
-                pass  # Ignore invalid input
+                pass  # Ignore formatting if still invalid input (e.g. just a dash)
 
         # Tkinter StringVar for real-time updates
         qty_var = StringVar()
