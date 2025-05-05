@@ -373,7 +373,8 @@ class TransferFormTable:
             except ValueError:
                 Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
                 return
-
+            # This code removes the commas in the qty value
+            cleaned_qty = float(qty_entry.get().replace(",", ""))
             # Create a dictionary with the data
             data = {
                 "rm_code_id": get_selected_rm_code_id(),
@@ -382,7 +383,7 @@ class TransferFormTable:
                 "ref_number": ref_entry.get(),
                 "status_id": get_selected_status_id(),
                 "transfer_date": transfer_date,
-                "qty_kg": qty_entry.get(),
+                "qty_kg": cleaned_qty,
             }
 
             # Validate the data entries in front-end side
@@ -404,7 +405,7 @@ class TransferFormTable:
                     get_selected_rm_code_id(),
                     get_selected_warehouse_from_id(),
                     old_qty,
-                    float(qty_entry.get()),
+                    cleaned_qty,
                     get_selected_status_id()
 
                 )
