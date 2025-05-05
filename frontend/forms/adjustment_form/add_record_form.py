@@ -30,6 +30,7 @@ class Forms:
         self.ref_doc_combobox = None
         self.root = root
         self.shared_functions = SharedFunctions()
+        self.add_record_window = None
 
         self.get_status_api = self.shared_functions.get_status_api()
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
@@ -59,6 +60,12 @@ class Forms:
             return selected_id
         else:
             return None
+
+
+    def on_add_window_close(self):
+        """Reset the edit_window reference when it is closed."""
+        self.add_record_window.destroy()
+        self.add_record_window = None
 
 
     def submit_data(self):
@@ -173,30 +180,36 @@ class Forms:
 
 
     def add_records(self):
-        confirmation_window = ttk.Toplevel(self.root)
-        confirmation_window.title("Inventory Adjustment Form Modal")
+        # If the window already exists, bring it to the front and return
+        if self.add_record_window and self.add_record_window.winfo_exists():
+            self.add_record_window.lift()
+            return
+
+
+        self.add_record_window = ttk.Toplevel(self.root)
+        self.add_record_window.title("Inventory Adjustment Form Modal")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 780  # Fixed width
         window_height = 420  # Fixed height
 
         # **Center the window**
-        screen_width = confirmation_window.winfo_screenwidth()
-        screen_height = confirmation_window.winfo_screenheight()
+        screen_width = self.add_record_window.winfo_screenwidth()
+        screen_height = self.add_record_window.winfo_screenheight()
         x_position = (screen_width - window_width) // 2
         y_position = (screen_height - window_height) // 3  # Slightly higher than center
 
-        confirmation_window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
-        confirmation_window.resizable(True, True)  # Enable resizing for consistency
+        self.add_record_window.geometry(f"{window_width}x{window_height}+{x_position}+{y_position}")
+        self.add_record_window.resizable(True, True)  # Enable resizing for consistency
 
         # **Make widgets expand properly**
-        confirmation_window.grid_columnconfigure(0, weight=1)
-        confirmation_window.grid_rowconfigure(0, weight=1)
+        self.add_record_window.grid_columnconfigure(0, weight=1)
+        self.add_record_window.grid_rowconfigure(0, weight=1)
 
 
         # **Message Label (Warning)**
         message_label = ttk.Label(
-            confirmation_window,
+            self.add_record_window,
             text="Inventory Adjustment Form",
             justify="center",
             font=("Arial", 14, "bold"),
@@ -206,7 +219,7 @@ class Forms:
 
 
         # Create a frame for the form inputs
-        form_frame = ttk.Frame(confirmation_window)
+        form_frame = ttk.Frame(self.add_record_window)
         form_frame.pack(fill=X, pady=10, padx=20)
 
         # Configure grid columns to make them behave correctly
@@ -762,7 +775,7 @@ class Forms:
             form_frame,
             text="Close",
             bootstyle=DANGER,
-            command=confirmation_window.destroy
+            command=self.add_record_window.destroy
         )
         cancel_button.grid(row=6, column=0, padx=5, sticky="w")
 
