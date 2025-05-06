@@ -761,6 +761,7 @@ class EditForm:
                                               "Change Status Form",
                                               "Transfer Form",
                                               "Adjustment Form",
+                                              "Incident Report",
                                               "Data Entry"
                                           ],
                                           state="readonly",

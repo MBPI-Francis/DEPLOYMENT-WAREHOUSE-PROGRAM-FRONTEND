@@ -732,6 +732,7 @@ class Forms:
                                               "Change Status Form",
                                               "Transfer Form",
                                               "Adjustment Form",
+                                              "Incident Report",
                                               "Data Entry"
                                           ],
                                           state="readonly",
