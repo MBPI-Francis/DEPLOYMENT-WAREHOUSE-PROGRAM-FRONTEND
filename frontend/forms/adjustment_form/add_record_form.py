@@ -722,8 +722,6 @@ class Forms:
 
         label = ttk.Label(referenced_doc_frame, text="Referenced Doc.", style="CustomLabel.TLabel")
         label.grid(row=1, column=0, padx=(3,0), pady=0, sticky=W)
-        label = ttk.Label(referenced_doc_frame, text="(Optional)", font=("Arial",9,"italic"))
-        label.grid(row=1, column=0, padx=(3,0), pady=0, sticky=E)
         self.ref_doc_combobox = ttk.Combobox(referenced_doc_frame,
                                           values=[
                                               "Receiving Form",
@@ -748,8 +746,7 @@ class Forms:
         # ----------------------------------[REFERENCED DOCUMENT NO FIELD]----------------------------------#
         label = ttk.Label(referenced_doc_frame, text="Doc. Reference #", style="CustomLabel.TLabel")
         label.grid(row=1, column=1, padx=5, pady=(3,0), sticky=W)
-        label = ttk.Label(referenced_doc_frame, text="(Optional)", font=("Arial",9,"italic"))
-        label.grid(row=1, column=1, padx=(3,0), pady=0, sticky=E)
+
         self.ref_doc_number_entry = ttk.Entry(referenced_doc_frame, width=29, font=self.shared_functions.custom_font_size)
         self.ref_doc_number_entry.grid(row=2, column=1, padx=(5, 0), pady=0, sticky=W)
         ToolTip(self.ref_doc_number_entry, text="Type the reference number associated with the referenced document.")

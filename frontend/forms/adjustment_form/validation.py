@@ -34,9 +34,11 @@ class EntryValidation:
             elif key == "reason" and not value:
                 text_list.append("Reason/Remarks")
 
-            # elif key == "ref_form" and not value:
-            #     text_list.append("Referenced Doc.")
+            elif key == "ref_form" and not value:
+                text_list.append("Referenced Doc.")
 
+            elif key == "ref_form_number" and not value:
+                text_list.append("Doc. Reference #")
 
         return text_list
 
