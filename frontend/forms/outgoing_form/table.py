@@ -22,7 +22,7 @@ class OutgoingFormTable:
 
         self.get_status_api = self.shared_functions.get_status_api()
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
-        self.get_rm_code_api = self.shared_functions.get_rm_code_api()
+        self.get_rm_code_api = self.shared_functions.get_rm_code_api(force_refresh=True)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)

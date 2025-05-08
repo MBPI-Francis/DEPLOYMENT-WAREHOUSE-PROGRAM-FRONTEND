@@ -20,7 +20,7 @@ class ReceivingFormTable:
         self.edit_window = None  # Track the edit window
 
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
-        self.get_rm_code_api = self.shared_functions.get_rm_code_api()
+        self.get_rm_code_api = self.shared_functions.get_rm_code_api(force_refresh=True)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)

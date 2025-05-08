@@ -17,7 +17,8 @@ def entry_fields(note_form_tab):
     shared_functions = SharedFunctions()
 
     get_warehouse_api = shared_functions.get_warehouse_api()
-    get_rm_code_api = shared_functions.get_rm_code_api()
+    get_rm_code_api = shared_functions.get_rm_code_api(force_refresh=True)
+
 
 
     def get_selected_warehouse_id():

@@ -112,13 +112,19 @@ class SharedFunctions:
         """Return cached warehouse data."""
         return self._cache["warehouses"]["data"] or []
 
-    def get_rm_code_api(self):
-        """Return cached raw materials data."""
+    # def get_rm_code_api(self):
+    #     """Return cached raw materials data."""
+    #     return self._cache["raw_materials"]["data"] or []
+    def get_rm_code_api(self, force_refresh=False):
+        """Return raw materials data, with optional forced refresh."""
+        if force_refresh or self._cache["raw_materials"]["data"] is None:
+            self._cache["raw_materials"]["data"] = self._fetch_data("/api/raw_materials/v1/list/")
         return self._cache["raw_materials"]["data"] or []
 
     def get_status_api(self):
         """Return cached status data."""
         return self._cache["status"]["data"] or []
+
 
 
     @staticmethod
