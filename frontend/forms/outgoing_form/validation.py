@@ -12,7 +12,7 @@ class EntryValidation:
                 text_list.append("Warehouse")
 
             elif key == "ref_number" and not value:
-                text_list.append("Reference Number")
+                text_list.append("OGR No.")
 
             elif key == "rm_code_id" and not value:
                 text_list.append("Raw Material")

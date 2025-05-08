@@ -5,6 +5,7 @@ from backend.settings.database import server_ip
 from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
+import tkinter as tk
 from .table import NoteTable
 from .validation import EntryValidation
 from frontend.forms.shared import SharedFunctions
@@ -81,17 +82,17 @@ def entry_fields(note_form_tab):
     # Function to send POST request
 
     # Create a frame for the form inputs
-    form_frame = ttk.Frame(note_form_tab)
-    form_frame.pack(fill=X, pady=10, padx=20)
+    notes_form_frame = ttk.Frame(note_form_tab)
+    notes_form_frame.pack(fill=X, pady=10, padx=20)
 
     # Configure grid columns to make them behave correctly
-    form_frame.grid_columnconfigure(0, weight=1)  # Left (Warehouse) stays at the left
-    form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
+    notes_form_frame.grid_columnconfigure(0, weight=1)  # Left (Warehouse) stays at the left
+    notes_form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
 
-    first_field_frame = ttk.Frame(form_frame)
+    first_field_frame = ttk.Frame(notes_form_frame)
     first_field_frame.grid(row=0, column=0, padx=5, pady=(0, 10), sticky=W)
 
-    second_field_frame = ttk.Frame(form_frame)
+    second_field_frame = ttk.Frame(notes_form_frame)
     second_field_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # Function to convert typed input to uppercase
@@ -340,15 +341,58 @@ def entry_fields(note_form_tab):
 
 
     # Add button to submit data
-    btn_add = ttk.Button(
-        form_frame,
+    btn_add_note = ttk.Button(
+        notes_form_frame,
         text="+ Add",
         command=submit_data,
         width=28,
     )
-    btn_add.grid(row=4, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
-    ToolTip(btn_add, text="Click this button to add your entry to the list")
+    btn_add_note.grid(row=4, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
+    ToolTip(btn_add_note, text="Click this button to add your entry to the list")
+    
+    def bind_shift_enter_to_all_children(parent, callback):
+        for child in parent.winfo_children():
+            try:
+                child.bind("<Shift-Return>", callback)
+            except:
+                pass
+            # Recursively bind if the child is a container
+            if isinstance(child, (ttk.Frame, tk.Frame)):
+                bind_shift_enter_to_all_children(child, callback)
+
+    # Bind Shift+Enter to all child widgets in this tab
+    bind_shift_enter_to_all_children(notes_form_frame, lambda e: btn_add_note.invoke())
+
+
+    def bind_shift_a_to_toggle_checkbox(parent, toggle_func):
+        for child in parent.winfo_children():
+            try:
+                child.bind("<Control-Shift-A>", toggle_func)
+                child.bind("<Control-Shift-a>", toggle_func)
+            except:
+                pass
+            if isinstance(child, (ttk.Frame, tk.Frame)):
+                bind_shift_a_to_toggle_checkbox(child, toggle_func)
+
+    def toggle_warehouse_lock(event=None):
+        current_state_kind = checkbox_product_kind_var.get()
+        current_state_code = checkbox_product_code_var.get()
+
+        # If any checkbox is unchecked, set all to True (1)
+        if not all([current_state_kind, current_state_code]):
+            checkbox_product_kind_var.set(1)
+            checkbox_product_code_var.set(1)
+
+        else:
+            checkbox_product_kind_var.set(0)
+            checkbox_product_code_var.set(0)
+
+
+    bind_shift_a_to_toggle_checkbox(notes_form_frame, toggle_warehouse_lock)
+    
+    
     note_table = NoteTable(note_form_tab)
+    
 
 
 

@@ -14,7 +14,7 @@ class EntryValidation:
                 text_list.append("Warehouse")
 
             elif key == "ref_number" and not value:
-                text_list.append("Reference Number")
+                text_list.append("PF ID No.")
 
             elif key == "rm_code_id" and not value:
                 text_list.append("Raw Material")
@@ -23,13 +23,13 @@ class EntryValidation:
                 text_list.append("Status")
 
             elif key == "qty_prepared" and not value:
-                text_list.append("Quantity (Prepared)")
+                text_list.append("QTY (Prepared)")
 
             # elif key == "qty_return" and not value:
             #     text_list.append("Quantity (Return")
 
-            elif key == "outgoing_date" and not value:
-                text_list.append("Outgoing Date")
+            elif key == "preparation_date" and not value:
+                text_list.append("Report Date")
         return text_list
 
 

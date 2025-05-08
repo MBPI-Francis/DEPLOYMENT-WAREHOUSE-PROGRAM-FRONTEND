@@ -12,7 +12,7 @@ class EntryValidation:
                 text_list.append("Warehouse")
 
             elif key == "ref_number" and not value:
-                text_list.append("Reference Number")
+                text_list.append("CSF No.")
 
             elif key == "rm_code_id" and not value:
                 text_list.append("Raw Material")
@@ -20,8 +20,14 @@ class EntryValidation:
             elif key == "qty_kg" and not value:
                 text_list.append("Quantity")
 
-            elif key == "outgoing_date" and not value:
-                text_list.append("Outgoing Date")
+            elif key == "current_status_id" and not value:
+                text_list.append("Previous Status")
+
+            elif key == "new_status_id" and not value:
+                text_list.append("Present Status")
+
+            elif key == "change_status_date" and not value:
+                text_list.append("Change Status Date")
         return text_list
 
     # # Validation function for numeric input

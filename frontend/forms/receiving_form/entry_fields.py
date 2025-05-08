@@ -1,4 +1,5 @@
 import ttkbootstrap as ttk
+import tkinter as tk
 from ttkbootstrap.constants import *
 import requests
 from backend.settings.database import server_ip
@@ -17,6 +18,7 @@ def entry_fields(note_form_tab):
     shared_functions = SharedFunctions()
 
     get_warehouse_api = shared_functions.get_warehouse_api()
+    get_rm_code_api = shared_functions.get_rm_code_api(force_refresh=True)
     get_rm_code_api = shared_functions.get_rm_code_api(force_refresh=True)
 
 
@@ -114,15 +116,15 @@ def entry_fields(note_form_tab):
             Messagebox.show_info(e, "Data Entry Error")
 
     # Create a frame for the form inputs
-    form_frame = ttk.Frame(note_form_tab)
-    form_frame.pack(fill=X, pady=10, padx=20)
+    receiving_form_frame = ttk.Frame(note_form_tab)
+    receiving_form_frame.pack(fill=X, pady=10, padx=20)
 
     # Configure grid columns to make them behave correctly
-    form_frame.grid_columnconfigure(0, weight=1)  # Left (Warehouse) stays at the left
-    form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
+    receiving_form_frame.grid_columnconfigure(0, weight=1)  # Left (Warehouse) stays at the left
+    receiving_form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
 
     # Warehouse FRAME (Left-aligned)
-    warehouse_frame = ttk.Frame(form_frame)
+    warehouse_frame = ttk.Frame(receiving_form_frame)
     warehouse_frame.grid(row=0, column=0, padx=5, pady=(0, 10), sticky="w")
 
     # Warehouse JSON-format choices (coming from the API)
@@ -156,134 +158,7 @@ def entry_fields(note_form_tab):
     ToolTip(warehouse_combobox, text="Choose a warehouse")
 
 
-
-    # Reference Number FRAME (Right-aligned)
-    refno_frame = ttk.Frame(form_frame)
-    refno_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
-
-    # REF Number Entry Field
-    ref_number_label = ttk.Label(refno_frame, text="RR No.", style="CustomLabel.TLabel")
-    ref_number_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
-    ref_number_entry = ttk.Entry(refno_frame, width=30, font=shared_functions.custom_font_size)
-    ref_number_entry.grid(row=1, column=0, padx=5, pady=(0,0), sticky=W)
-    ToolTip(ref_number_entry, text="Enter the Reference Number")
-
-    checkbox_reference_var = ttk.IntVar()  # Integer variable to store checkbox state (0 or 1)
-
-    # Checkbox beside the combobox
-    lock_reference = ttk.Checkbutton(
-        refno_frame,
-        variable=checkbox_reference_var,
-        bootstyle="round-toggle"
-    )
-    lock_reference.grid(row=0, pady=(0,0), padx=(0,6), sticky=E)  # Position the checkbox next to the combobox
-    ToolTip(lock_reference, text="Lock the reference number by clicking this")
-
-
-
-    # RM CODE FRAME
-    rmcode_frame = ttk.Frame(form_frame)
-    rmcode_frame.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="w")
-
-    #RM CODE JSON-format choices (coming from the API)
-    rm_codes = get_rm_code_api
-    code_to_id = {item["rm_code"]: item["id"] for item in rm_codes}
-    rm_names = list(code_to_id.keys())
-
-    # Function to convert typed input to uppercase
-    def on_combobox_key_release(event):
-        # Get the current text in the combobox
-        current_text = rm_codes_combobox.get()
-        # Convert the text to uppercase and set it back
-        rm_codes_combobox.set(current_text.upper())
-
-    # Combobox for RM CODE Drop Down
-    rm_codes_label = ttk.Label(rmcode_frame, text="Raw Material", style="CustomLabel.TLabel")
-    rm_codes_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
-
-    rm_codes_combobox = ttk.Combobox(
-        rmcode_frame,
-        values=rm_names,
-        state="normal",
-        width=25,
-        font=shared_functions.custom_font_size
-    )
-
-    # Bind the key release event to the combobox to trigger uppercase conversion
-    rm_codes_combobox.bind("<KeyRelease>", on_combobox_key_release)
-
-    rm_codes_combobox.grid(row=1, column=0, columnspan=2, pady=(0,0), padx=(10,0))
-    ToolTip(rm_codes_combobox, text="Choose a raw material")
-
-
-    # Function to format numeric input dynamically with cursor preservation
-    def format_numeric_input(event):
-        """
-        Formats the input dynamically while preserving the cursor position.
-        """
-        input_value = qty_var.get()
-
-        # Get current cursor position
-        cursor_position = qty_entry.index("insert")
-
-        # Remove commas for processing
-        raw_value = input_value.replace(",", "")
-
-        if raw_value == "" or raw_value == ".":
-            return  # Prevent formatting when only `.` is typed
-
-        try:
-            if "." in raw_value and raw_value[-1] == ".":
-                return  # Allow user to manually enter decimal places
-
-            # Convert input to float and format
-            float_value = float(raw_value)
-
-            if "." in raw_value:
-                integer_part, decimal_part = raw_value.split(".")
-                formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
-                formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
-            else:
-                formatted_value = "{:,}".format(int(float_value))  # Format whole number
-
-            # Adjust cursor position based on new commas added
-            num_commas_before = input_value[:cursor_position].count(",")
-            num_commas_after = formatted_value[:cursor_position].count(",")
-
-            new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
-
-            # Prevent cursor jumping by resetting the value and restoring cursor position
-            qty_entry.delete(0, "end")
-            qty_entry.insert(0, formatted_value)
-            qty_entry.icursor(new_cursor_position)  # Restore cursor position
-        except ValueError:
-            pass  # Ignore invalid input
-
-    # Tkinter StringVar for real-time updates
-    qty_var = StringVar()
-
-    # Validation Command for Entry Widget
-    validate_numeric_command = rmcode_frame.register(EntryValidation.validate_numeric_input)
-
-    # Quantity Entry Field
-    qty_label = ttk.Label(rmcode_frame, text="Quantity(kg)", style="CustomLabel.TLabel")
-    qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
-
-    qty_entry = ttk.Entry(rmcode_frame,
-                          width=15,
-                          font=shared_functions.custom_font_size,
-                          textvariable=qty_var,
-                          validate="key",
-                          validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
-    qty_entry.grid(row=1, column=2, padx=2, pady=(0, 0), sticky=W)
-
-    # Bind the event to format input dynamically while preserving cursor position
-    qty_entry.bind("<KeyRelease>", format_numeric_input)
-
-    ToolTip(qty_entry, text="Enter the Quantity(kg)")
-
-
-
+    # ----------------------------------[Receiving Date Field]----------------------------------#
 
     def format_date_while_typing(event):
         """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
@@ -411,12 +286,12 @@ def entry_fields(note_form_tab):
         received_date_entry.entry.insert(0, formatted_date)
 
 
-    date_frame = ttk.Frame(form_frame)
-    date_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")
+    date_frame = ttk.Frame(receiving_form_frame)
+    date_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # Date Entry field
     date_label = ttk.Label(date_frame, text="Receiving Date", style="CustomLabel.TLabel")
-    date_label.grid(row=0, column=0, padx=5, pady=0, sticky=W)
+    date_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
 
     # Calculate yesterday's date
     yesterday_date = datetime.now() - timedelta(days=1)
@@ -429,20 +304,192 @@ def entry_fields(note_form_tab):
         startdate=yesterday_date,  # Set yesterday's date
         width=26
     )
-    received_date_entry.grid(row=1, column=0, padx=5, pady=0, sticky=W)
+    received_date_entry.grid(row=1, column=0, padx=5, pady=(0,0), sticky=W)
     ToolTip(received_date_entry, text="Please enter the receiving date.")
     received_date_entry.entry.config(font=shared_functions.custom_font_size)
     received_date_entry.entry.bind("<Return>", format_date_while_typing)
     received_date_entry.entry.bind("<FocusOut>", format_date_while_typing)
 
+
+
+
+
+    # RM CODE FRAME
+    rmcode_frame = ttk.Frame(receiving_form_frame)
+    rmcode_frame.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="w")
+
+    #RM CODE JSON-format choices (coming from the API)
+    rm_codes = get_rm_code_api
+    code_to_id = {item["rm_code"]: item["id"] for item in rm_codes}
+    rm_names = list(code_to_id.keys())
+
+    # Function to convert typed input to uppercase
+    def on_combobox_key_release(event):
+        # Get the current text in the combobox
+        current_text = rm_codes_combobox.get()
+        # Convert the text to uppercase and set it back
+        rm_codes_combobox.set(current_text.upper())
+
+    # Combobox for RM CODE Drop Down
+    rm_codes_label = ttk.Label(rmcode_frame, text="Raw Material", style="CustomLabel.TLabel")
+    rm_codes_label.grid(row=0, column=0, padx=5, pady=(0,0), sticky=W)
+
+    rm_codes_combobox = ttk.Combobox(
+        rmcode_frame,
+        values=rm_names,
+        state="normal",
+        width=25,
+        font=shared_functions.custom_font_size
+    )
+
+    # Bind the key release event to the combobox to trigger uppercase conversion
+    rm_codes_combobox.bind("<KeyRelease>", on_combobox_key_release)
+
+    rm_codes_combobox.grid(row=1, column=0, columnspan=2, pady=(0,0), padx=(10,0))
+    ToolTip(rm_codes_combobox, text="Choose a raw material")
+
+
+    # Function to format numeric input dynamically with cursor preservation
+    def format_numeric_input(event):
+        """
+        Formats the input dynamically while preserving the cursor position.
+        """
+        input_value = qty_var.get()
+
+        # Get current cursor position
+        cursor_position = qty_entry.index("insert")
+
+        # Remove commas for processing
+        raw_value = input_value.replace(",", "")
+
+        if raw_value == "" or raw_value == ".":
+            return  # Prevent formatting when only `.` is typed
+
+        try:
+            if "." in raw_value and raw_value[-1] == ".":
+                return  # Allow user to manually enter decimal places
+
+            # Convert input to float and format
+            float_value = float(raw_value)
+
+            if "." in raw_value:
+                integer_part, decimal_part = raw_value.split(".")
+                formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
+                formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
+            else:
+                formatted_value = "{:,}".format(int(float_value))  # Format whole number
+
+            # Adjust cursor position based on new commas added
+            num_commas_before = input_value[:cursor_position].count(",")
+            num_commas_after = formatted_value[:cursor_position].count(",")
+
+            new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+
+            # Prevent cursor jumping by resetting the value and restoring cursor position
+            qty_entry.delete(0, "end")
+            qty_entry.insert(0, formatted_value)
+            qty_entry.icursor(new_cursor_position)  # Restore cursor position
+        except ValueError:
+            pass  # Ignore invalid input
+
+    # Tkinter StringVar for real-time updates
+    qty_var = StringVar()
+
+    # Validation Command for Entry Widget
+    validate_numeric_command = rmcode_frame.register(EntryValidation.validate_numeric_input)
+
+    # Quantity Entry Field
+    qty_label = ttk.Label(rmcode_frame, text="Quantity(kg)", style="CustomLabel.TLabel")
+    qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
+
+    qty_entry = ttk.Entry(rmcode_frame,
+                          width=15,
+                          font=shared_functions.custom_font_size,
+                          textvariable=qty_var,
+                          validate="key",
+                          validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
+    qty_entry.grid(row=1, column=2, padx=2, pady=(0, 0), sticky=W)
+
+    # Bind the event to format input dynamically while preserving cursor position
+    qty_entry.bind("<KeyRelease>", format_numeric_input)
+
+    ToolTip(qty_entry, text="Enter the Quantity(kg)")
+
+
+    # Reference Number FRAME (Right-aligned)
+    refno_frame = ttk.Frame(receiving_form_frame)
+    refno_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")
+
+    # REF Number Entry Field
+    ref_number_label = ttk.Label(refno_frame, text="RR No.", style="CustomLabel.TLabel")
+    ref_number_label.grid(row=0, column=0, padx=5, pady=0, sticky=W)
+    ref_number_entry = ttk.Entry(refno_frame, width=30, font=shared_functions.custom_font_size)
+    ref_number_entry.grid(row=1, column=0, padx=5, pady=0, sticky=W)
+    ToolTip(ref_number_entry, text="Enter the Reference Number")
+
+    checkbox_reference_var = ttk.IntVar()  # Integer variable to store checkbox state (0 or 1)
+
+    # Checkbox beside the combobox
+    lock_reference = ttk.Checkbutton(
+        refno_frame,
+        variable=checkbox_reference_var,
+        bootstyle="round-toggle"
+    )
+    lock_reference.grid(row=0, pady=(0,0), padx=(0,6), sticky=E)  # Position the checkbox next to the combobox
+    ToolTip(lock_reference, text="Lock the reference number by clicking this")
+
+
+
+
+
     # Add button to submit data
-    btn_add = ttk.Button(
-        form_frame,
+    btn_add_receiving = ttk.Button(
+        receiving_form_frame,
         text="+ Add",
         command=submit_data,
     )
-    btn_add.grid(row=2, column=0, columnspan=2, pady=0, padx=400, sticky=NSEW)
-    ToolTip(btn_add, text="Click this add button to add the entry to the list")
+    btn_add_receiving.grid(row=2, column=0, columnspan=2, pady=0, padx=400, sticky=NSEW)
+    ToolTip(btn_add_receiving, text="Click this add button to add the entry to the list")
+
+    def bind_shift_enter_to_all_children(parent, callback):
+        for child in parent.winfo_children():
+            try:
+                child.bind("<Shift-Return>", callback)
+            except:
+                pass
+            # Recursively bind if the child is a container
+            if isinstance(child, (ttk.Frame, tk.Frame)):
+                bind_shift_enter_to_all_children(child, callback)
+
+    # Bind Shift+Enter to all child widgets in this tab
+    bind_shift_enter_to_all_children(receiving_form_frame, lambda e: btn_add_receiving.invoke())
+
+    def bind_shift_a_to_toggle_checkbox(parent, toggle_func):
+        for child in parent.winfo_children():
+            try:
+                child.bind("<Control-Shift-A>", toggle_func)
+                child.bind("<Control-Shift-a>", toggle_func)
+            except:
+                pass
+            if isinstance(child, (ttk.Frame, tk.Frame)):
+                bind_shift_a_to_toggle_checkbox(child, toggle_func)
+
+    def toggle_warehouse_lock(event=None):
+        current_state_warehouse = checkbox_warehouse_var.get()
+        current_state_reference = checkbox_reference_var.get()
+
+
+        # If any checkbox is unchecked, set all to True (1)
+        if not all([current_state_warehouse, current_state_reference]):
+            checkbox_warehouse_var.set(1)
+            checkbox_reference_var.set(1)
+
+        else:
+            checkbox_warehouse_var.set(0)
+            checkbox_reference_var.set(0)
+
+
+    bind_shift_a_to_toggle_checkbox(receiving_form_frame, toggle_warehouse_lock)
 
     # Calling the table
     table = ReceivingFormTable(note_form_tab)

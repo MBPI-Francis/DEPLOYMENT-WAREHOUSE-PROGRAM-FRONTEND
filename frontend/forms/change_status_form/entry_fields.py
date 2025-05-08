@@ -1,6 +1,7 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import requests
+import tkinter as tk
 from backend.settings.database import server_ip
 from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.dialogs.dialogs import Messagebox
@@ -153,15 +154,15 @@ def entry_fields(note_form_tab):
 
 
     # Create a frame for the form inputs
-    form_frame = ttk.Frame(note_form_tab)
-    form_frame.pack(fill=X, pady=10, padx=20)
+    change_status_form_frame = ttk.Frame(note_form_tab)
+    change_status_form_frame.pack(fill=X, pady=10, padx=20)
 
     # Configure grid columns to make them behave correctly
-    form_frame.grid_columnconfigure(0, weight=1)  # Left (Warehouse) stays at the left
-    form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
+    change_status_form_frame.grid_columnconfigure(0, weight=1)  # Left (Warehouse) stays at the left
+    change_status_form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
 
     # Warehouse FRAME (Left-aligned)
-    warehouse_frame = ttk.Frame(form_frame)
+    warehouse_frame = ttk.Frame(change_status_form_frame)
     warehouse_frame.grid(row=0, column=0, padx=5, pady=(0, 10), sticky="w")
 
     # Warehouse JSON-format choices (coming from the API)
@@ -193,8 +194,9 @@ def entry_fields(note_form_tab):
 
 
     # Reference Number FRAME (Right-aligned)
-    refno_frame = ttk.Frame(form_frame)
-    refno_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
+    refno_frame = ttk.Frame(change_status_form_frame)
+    refno_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")
+
 
     # REF Number Entry Field
     ref_number_label = ttk.Label(refno_frame, text="CSF No.", style="CustomLabel.TLabel")
@@ -216,7 +218,7 @@ def entry_fields(note_form_tab):
     ToolTip(lock_reference, text="Lock the CSF No. by clicking this")
 
     # RM CODE FRAME
-    rmcode_frame = ttk.Frame(form_frame)
+    rmcode_frame = ttk.Frame(change_status_form_frame)
     rmcode_frame.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="w")
 
     # RM CODE JSON-format choices (coming from the API)
@@ -317,7 +319,7 @@ def entry_fields(note_form_tab):
 
 
     # STATUS FRAME
-    status_frame = ttk.Frame(form_frame)
+    status_frame = ttk.Frame(change_status_form_frame)
     status_frame.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="w")
 
     # Warehouse JSON-format choices (coming from the API)
@@ -490,8 +492,8 @@ def entry_fields(note_form_tab):
 
 
     # DATE FRAME
-    date_frame = ttk.Frame(form_frame)
-    date_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")
+    date_frame = ttk.Frame(change_status_form_frame)
+    date_frame.grid(row=0, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # Date Entry field
     date_label = ttk.Label(date_frame, text="Change Status Date", style="CustomLabel.TLabel")
@@ -514,13 +516,57 @@ def entry_fields(note_form_tab):
     change_status_date_entry.entry.bind("<Return>", format_date_while_typing)
 
     # Add button to submit data
-    btn_add = ttk.Button(
-        form_frame,
+    btn_add_change_status = ttk.Button(
+        change_status_form_frame,
         text="+ Add",
         command=submit_data,
     )
-    btn_add.grid(row=3, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
-    ToolTip(btn_add, text="Click this add button to add the entry to the list")
+    btn_add_change_status.grid(row=3, column=0, columnspan=3, pady=0, padx=400, sticky=NSEW)
+    ToolTip(btn_add_change_status, text="Click this add button to add the entry to the list")
+    
+    
+    def bind_shift_enter_to_all_children(parent, callback):
+        for child in parent.winfo_children():
+            try:
+                child.bind("<Shift-Return>", callback)
+            except:
+                pass
+            # Recursively bind if the child is a container
+            if isinstance(child, (ttk.Frame, tk.Frame)):
+                bind_shift_enter_to_all_children(child, callback)
+
+    # Bind Shift+Enter to all child widgets in this tab
+    bind_shift_enter_to_all_children(change_status_form_frame, lambda e: btn_add_change_status.invoke())
+
+
+
+    def bind_shift_a_to_toggle_checkbox(parent, toggle_func):
+        for child in parent.winfo_children():
+            try:
+                child.bind("<Control-Shift-A>", toggle_func)
+                child.bind("<Control-Shift-a>", toggle_func)
+            except:
+                pass
+            if isinstance(child, (ttk.Frame, tk.Frame)):
+                bind_shift_a_to_toggle_checkbox(child, toggle_func)
+
+    def toggle_warehouse_lock(event=None):
+        current_state_warehouse = checkbox_warehouse_var.get()
+        current_state_reference = checkbox_reference_var.get()
+        current_state_status = checkbox_status_var.get()
+
+
+        # If any checkbox is unchecked, set all to True (1)
+        if not all([current_state_warehouse, current_state_reference, current_state_status]):
+            checkbox_warehouse_var.set(1)
+            checkbox_reference_var.set(1)
+            checkbox_status_var.set(1)
+        else:
+            checkbox_warehouse_var.set(0)
+            checkbox_reference_var.set(0)
+            checkbox_status_var.set(0)
+
+    bind_shift_a_to_toggle_checkbox(change_status_form_frame, toggle_warehouse_lock)
 
     # Calling the table
     change_status_table = ChangeStatusFormTable(note_form_tab)
