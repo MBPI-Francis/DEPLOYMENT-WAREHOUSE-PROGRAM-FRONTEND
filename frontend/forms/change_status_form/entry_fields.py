@@ -568,6 +568,16 @@ def entry_fields(note_form_tab):
 
     bind_shift_a_to_toggle_checkbox(change_status_form_frame, toggle_warehouse_lock)
 
+
+    # This is for the tab button for the tab sequence when the user hits tab to move to the next field
+    warehouse_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, change_status_date_entry.entry))
+    change_status_date_entry.entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, rm_codes_combobox))
+    rm_codes_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, qty_entry))
+    qty_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, ref_number_entry))
+    ref_number_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, current_status_combobox))
+    current_status_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, new_status_combobox))
+    new_status_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, btn_add_change_status))
+
     # Calling the table
     change_status_table = ChangeStatusFormTable(note_form_tab)
 

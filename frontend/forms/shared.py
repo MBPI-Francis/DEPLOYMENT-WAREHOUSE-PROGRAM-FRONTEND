@@ -190,3 +190,7 @@ class SharedFunctions:
         except requests.exceptions.RequestException as e:
             return None
 
+    @staticmethod
+    def focus_next_widget(event, next_widget):
+        next_widget.focus_set()
+        return "break"  # Prevent default Tab behavior

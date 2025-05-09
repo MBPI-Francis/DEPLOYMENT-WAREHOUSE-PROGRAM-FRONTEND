@@ -636,6 +636,16 @@ def entry_fields(note_form_tab):
 
     bind_shift_a_to_toggle_checkbox(transfer_form_frame, toggle_warehouse_lock)
 
+
+    # This is for the tab button for the tab sequence when the user hits tab to move to the next field
+    warehouse_from_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, warehouse_to_combobox))
+    warehouse_to_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, transfer_date_entry.entry))
+    transfer_date_entry.entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, rm_codes_combobox))
+    rm_codes_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, qty_entry))
+    qty_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, status_combobox))
+    status_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, ref_number_entry))
+    ref_number_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, btn_add_transfer))
+
     # Calling the table
     transfer_form_table = TransferFormTable(note_form_tab)
 

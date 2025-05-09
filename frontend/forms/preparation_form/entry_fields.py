@@ -626,5 +626,15 @@ def entry_fields(note_form_tab):
 
     bind_shift_a_to_toggle_checkbox(preparation_form_frame, toggle_warehouse_lock)
 
+
+    # This is for the tab button for the tab sequence when the user hits tab to move to the next field
+    warehouse_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, status_combobox))
+    status_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, preparation_date_entry.entry))
+    preparation_date_entry.entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, rm_codes_combobox))
+    rm_codes_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, qty_prepared_entry))
+    qty_prepared_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, qty_return_entry))
+    qty_return_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, ref_number_entry))
+    ref_number_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, btn_add_preparation))
+
     prepration_form_table = PreparationFormTable(note_form_tab)
 

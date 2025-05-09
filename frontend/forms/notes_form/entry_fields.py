@@ -389,7 +389,13 @@ def entry_fields(note_form_tab):
 
 
     bind_shift_a_to_toggle_checkbox(notes_form_frame, toggle_warehouse_lock)
-    
+
+
+    # This is for the tab button for the tab sequence when the user hits tab to move to the next field
+    product_code_entry.bind("<Tab>", lambda e: shared_instance.focus_next_widget(e, lot_number_entry))
+    lot_number_entry.bind("<Tab>", lambda e: shared_instance.focus_next_widget(e, product_kind_combobox))
+    product_kind_combobox.bind("<Tab>", lambda e: shared_instance.focus_next_widget(e, btn_add_note))
+
     
     note_table = NoteTable(note_form_tab)
     

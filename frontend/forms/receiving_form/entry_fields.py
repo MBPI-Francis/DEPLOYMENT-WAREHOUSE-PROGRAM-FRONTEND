@@ -440,8 +440,6 @@ def entry_fields(note_form_tab):
 
 
 
-
-
     # Add button to submit data
     btn_add_receiving = ttk.Button(
         receiving_form_frame,
@@ -490,6 +488,12 @@ def entry_fields(note_form_tab):
 
 
     bind_shift_a_to_toggle_checkbox(receiving_form_frame, toggle_warehouse_lock)
+
+    warehouse_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, received_date_entry.entry))
+    received_date_entry.entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, rm_codes_combobox))
+    rm_codes_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, qty_entry))
+    qty_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, ref_number_entry))
+    ref_number_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, btn_add_receiving))
 
     # Calling the table
     table = ReceivingFormTable(note_form_tab)
