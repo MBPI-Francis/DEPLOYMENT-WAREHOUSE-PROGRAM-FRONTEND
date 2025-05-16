@@ -19,6 +19,7 @@ class ReceivingFormTable:
         self.shared_functions = SharedFunctions()
         self.edit_window = None  # Track the edit window
 
+        self.get_status_api = self.shared_functions.get_status_api()
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
         self.get_rm_code_api = self.shared_functions.get_rm_code_api(force_refresh=True)
 
@@ -63,6 +64,7 @@ class ReceivingFormTable:
                      "RR No.",
                      "Raw Material",
                      "Quantity(kg)",
+                     "Status",
                      "Warehouse",
                      "Receiving Date",
                     ),
@@ -100,6 +102,7 @@ class ReceivingFormTable:
                         "RR No.",
                         "Raw Material",
                         "Quantity(kg)",
+                        "Status",
                         "Warehouse",
                         "Receiving Date",
                      ]
@@ -132,6 +135,7 @@ class ReceivingFormTable:
                 item["ref_number"],
                 item["raw_material"],
                 qty_kg_formatted,  # Formatted qty_kg
+                item["status"],
                 item["wh_name"],
                 datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
 
@@ -170,7 +174,7 @@ class ReceivingFormTable:
             return
 
         record = self.tree.item(item, "values")
-        record = (record[1], record[2], record[3], record[4], record[5])
+        record = (record[1], record[2], record[3], record[4], record[5], record[6])
         if not record:
             return
 
@@ -183,7 +187,7 @@ class ReceivingFormTable:
 
         # Define edit window size
         window_width = 320
-        window_height = 250
+        window_height = 300
 
         # Calculate the position (center relative to main window)
         x = root_x + (root_width // 2) - (window_width // 2)
@@ -200,6 +204,7 @@ class ReceivingFormTable:
         fields = ["RR No.",
                   "Raw Material",
                   "Quantity(kg)",
+                  "Status",
                   "Warehouse",
                   "Receiving Date"]
         entries = {}
@@ -234,6 +239,18 @@ class ReceivingFormTable:
                 whse_entry.set(record[idx])  # Set current value in the combobox
                 ToolTip(whse_entry, text="Select a warehouse")  # Tooltip
                 whse_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+
+            elif field == "Status":
+                # Warehouse JSON-format choices (coming from the API)
+                status = self.get_status_api
+                status_to_id = {item["name"]: item["id"] for item in status}
+                status_names = list(status_to_id.keys())
+
+                status_entry = ttk.Combobox(self.edit_window, values=status_names, state="readonly", width=20,
+                                            font=self.shared_functions.custom_font_size)
+                status_entry.set(record[idx])  # Set current value in the combobox
+                status_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
+                ToolTip(status_entry, text="Choose a status")  # Tooltip
 
             elif field == "Receiving Date":
                 date_entry = DateEntry(self.edit_window, dateformat="%m/%d/%Y", width=18)
@@ -328,6 +345,15 @@ class ReceivingFormTable:
             else:
                 return None
 
+
+        def get_selected_status_id():
+            selected_name = status_entry.get()
+            selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
+            if selected_id:
+                return selected_id
+            else:
+                return None
+
         def update_record():
             # Convert date to YYYY-MM-DD
             try:
@@ -344,6 +370,7 @@ class ReceivingFormTable:
                 "rm_code_id": get_selected_rm_code_id(),
                 "warehouse_id": get_selected_warehouse_id(),
                 "ref_number": ref_entry.get(),
+                "status_id": get_selected_status_id(),
                 "receiving_date":  receiving_date,
                 "qty_kg": cleaned_qty,
             }

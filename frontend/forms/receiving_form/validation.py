@@ -11,6 +11,9 @@ class EntryValidation:
             if key == "warehouse_id" and not value:
                 text_list.append("Warehouse")
 
+            elif key == "status_id" and not value:
+                text_list.append("Status")
+
             elif key == "ref_number" and not value:
                 text_list.append("Reference Number")
 

@@ -19,7 +19,7 @@ def entry_fields(note_form_tab):
 
     get_warehouse_api = shared_functions.get_warehouse_api()
     get_rm_code_api = shared_functions.get_rm_code_api(force_refresh=True)
-    get_rm_code_api = shared_functions.get_rm_code_api(force_refresh=True)
+    get_status_api = shared_functions.get_status_api()
 
 
 
@@ -39,6 +39,14 @@ def entry_fields(note_form_tab):
         else:
             return None
 
+    def get_selected_status_id():
+        selected_name = status_combobox.get()
+        selected_id = status_to_id.get(selected_name)  # Get the corresponding ID
+        if selected_id:
+            return selected_id
+        else:
+            return None
+
         # Function to clear all entry fields
     def clear_fields():
 
@@ -47,6 +55,10 @@ def entry_fields(note_form_tab):
 
         if not checkbox_warehouse_var.get():
             warehouse_combobox.set("")
+
+        if not checkbox_status_var.get():
+            status_combobox.set("")
+
         rm_codes_combobox.set("")
         qty_entry.delete(0, ttk.END)
 
@@ -67,6 +79,8 @@ def entry_fields(note_form_tab):
 
         received_date = received_date_entry.entry.get()
 
+        status_id = get_selected_status_id()
+
         # Set focus to the Entry field
         rm_codes_combobox.focus_set()
 
@@ -85,6 +99,7 @@ def entry_fields(note_form_tab):
             "ref_number": ref_number,
             "receiving_date": received_date,
             "qty_kg": cleaned_qty,
+            "status_id": status_id
         }
 
 
@@ -134,28 +149,56 @@ def entry_fields(note_form_tab):
 
     # Combobox for Warehouse Drop Down
     warehouse_label = ttk.Label(warehouse_frame, text="Warehouse", style="CustomLabel.TLabel")
-    warehouse_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
+    warehouse_label.grid(row=0, column=0, padx=(5,0), pady=(0, 0), sticky=W)
 
     # Checkbox for Warehouse lock
-    checkbox_warehouse_var = ttk.IntVar()
+    checkbox_warehouse_var = ttk.IntVar(value=1)
     lock_warehouse = ttk.Checkbutton(
         warehouse_frame,
 
         variable=checkbox_warehouse_var,
         bootstyle="round-toggle"
     )
-    lock_warehouse.grid(row=0, column=0, pady=(0, 0), padx=10, sticky=E)
-    ToolTip(lock_warehouse, text="Lock the warehouse by clicking this")
+    lock_warehouse.grid(row=0, column=0, pady=(0, 0), padx=(0,0), sticky=E)
+
 
     # Warehouse Combobox field
     warehouse_combobox = ttk.Combobox(warehouse_frame,
                                       values=warehouse_names,
                                       state="readonly",
-                                      width=43,
+                                      width=22,
                                       font=shared_functions.custom_font_size
                                       )
-    warehouse_combobox.grid(row=1, column=0, padx=10, pady=(0, 0), sticky=W)
-    ToolTip(warehouse_combobox, text="Choose a warehouse")
+    warehouse_combobox.grid(row=1, column=0, padx=(10,0), pady=(0, 0), sticky=W)
+    warehouse_combobox.set("Warehouse #1")
+
+    # Status JSON-format choices (coming from the API)
+    status = get_status_api
+    status_to_id = {item["name"]: item["id"] for item in status}
+    status_names = list(status_to_id.keys())
+
+    status_label = ttk.Label(warehouse_frame, text="Status", style="CustomLabel.TLabel")
+    status_label.grid(row=0, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+
+    status_combobox = ttk.Combobox(
+        warehouse_frame,
+        values=status_names,
+        state="readonly",
+        width=21,
+        font=shared_functions.custom_font_size
+    )
+    status_combobox.grid(row=1, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+
+
+    # Checkbox for Warehouse lock
+    checkbox_status_var = ttk.IntVar(value=1)
+    lock_status = ttk.Checkbutton(
+        warehouse_frame,
+
+        variable=checkbox_status_var,
+        bootstyle="round-toggle"
+    )
+    lock_status.grid(row=0, column=1, pady=(0, 0), padx=(0,0), sticky=E)
 
 
     # ----------------------------------[Receiving Date Field]----------------------------------#
@@ -403,7 +446,7 @@ def entry_fields(note_form_tab):
     qty_label.grid(row=0, column=2, padx=2, pady=(0, 0), sticky=W)
 
     qty_entry = ttk.Entry(rmcode_frame,
-                          width=15,
+                          width=21,
                           font=shared_functions.custom_font_size,
                           textvariable=qty_var,
                           validate="key",
@@ -475,21 +518,23 @@ def entry_fields(note_form_tab):
     def toggle_warehouse_lock(event=None):
         current_state_warehouse = checkbox_warehouse_var.get()
         current_state_reference = checkbox_reference_var.get()
+        current_state_status = checkbox_status_var.get()
 
 
         # If any checkbox is unchecked, set all to True (1)
-        if not all([current_state_warehouse, current_state_reference]):
+        if not all([current_state_warehouse, current_state_reference, current_state_status]):
             checkbox_warehouse_var.set(1)
             checkbox_reference_var.set(1)
-
+            checkbox_status_var.set(1)
         else:
             checkbox_warehouse_var.set(0)
             checkbox_reference_var.set(0)
-
+            checkbox_status_var.set(0)
 
     bind_shift_a_to_toggle_checkbox(receiving_form_frame, toggle_warehouse_lock)
 
-    warehouse_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, received_date_entry.entry))
+    warehouse_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, status_combobox))
+    status_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, received_date_entry.entry))
     received_date_entry.entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, rm_codes_combobox))
     rm_codes_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, qty_entry))
     qty_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, ref_number_entry))
