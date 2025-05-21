@@ -187,7 +187,7 @@ class Forms:
 
 
         self.add_record_window = ttk.Toplevel(self.root)
-        self.add_record_window.title("Inventory Adjustment Form Modal")
+        self.add_record_window.title("Spillage Inventory Adjustment Form")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 780  # Fixed width

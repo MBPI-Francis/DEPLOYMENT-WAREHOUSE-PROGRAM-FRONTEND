@@ -10,11 +10,11 @@ def adjustment_form_tab(notebook):
     # Populate the Raw Materials Tab
     adjustment_form_label = ttk.Label(
         adjustment_form_tab,
-        text="Adjustment Form",
+        text="Spillage Inventory Adjustment Form",
         font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
-    adjustment_form_label.pack(pady=(10, 0), padx=20)
+    adjustment_form_label.pack(pady=(10, 10), padx=20)
 
     entry_fields(adjustment_form_tab)
 

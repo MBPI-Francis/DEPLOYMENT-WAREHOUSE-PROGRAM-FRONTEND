@@ -206,7 +206,7 @@ class EditForm:
         self.ref_date_value = self.record[10]
         
         self.edit_window = ttk.Toplevel(self.root)
-        self.edit_window.title("Inventory Adjustment Form Edit Modal")
+        self.edit_window.title("EDIT Spillage Inventory Adjustment Form")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 780  # Fixed width
