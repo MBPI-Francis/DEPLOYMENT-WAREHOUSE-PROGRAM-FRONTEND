@@ -81,12 +81,9 @@ class AdjustmentFormTable:
             columns=(   "Date Encoded",
                         "Ref#",
                         "Raw Material",
-                        "Quantity(kg)",
+                        "Quantity Lost",
                         "Status",
                         "Warehouse",
-                        "Referenced Doc.",
-                        "Doc. Reference #",
-                        "Reason",
                         "Adjustment Date",
                         "Referenced Date"
          ),
@@ -122,7 +119,7 @@ class AdjustmentFormTable:
 
     def refresh_table(self):
         """Fetch data from API and populate Treeview."""
-        url = server_ip + "/api/adjustment_form/v1/list/"
+        url = server_ip + "/api/adjustment_form/spillage/v1/list/"
         self.original_data = []  # Store all records
         try:
             response = requests.get(url)
@@ -137,12 +134,9 @@ class AdjustmentFormTable:
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["ref_number"],
                     item["raw_material"],
-                    qty_kg_formatted,
+                    "- " + qty_kg_formatted,
                     item["status"],
                     item["wh_name"],
-                    item["ref_form"],
-                    item["ref_form_number"],
-                    item["reason"],
                     datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["reference_date"]).strftime("%m/%d/%Y"),
 
@@ -170,7 +164,7 @@ class AdjustmentFormTable:
     def delete_entry(self, entry_id):
         """Delete selected entry via API."""
         if messagebox.askyesno("Confirm", "Are you sure you want to delete this entry?"):
-            url = server_ip + f"/api/adjustment_form/v1/delete/{entry_id}/"
+            url = server_ip + f"/api/adjustment_form/spillage/v1/delete/{entry_id}/"
             response = requests.delete(url)
             if response.status_code == 200:
                 self.tree.delete(entry_id)

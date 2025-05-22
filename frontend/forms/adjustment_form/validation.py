@@ -31,14 +31,17 @@ class EntryValidation:
             elif key == "reference_date" and not value:
                 text_list.append("Referenced Date")
 
-            elif key == "reason" and not value:
-                text_list.append("Reason/Remarks")
+            elif key == "incident_date" and not value:
+                text_list.append("Date of Incident")
 
-            elif key == "ref_form" and not value:
-                text_list.append("Referenced Doc.")
+            elif key == "spillage_form_number" and not value:
+                text_list.append("Spillage Report #")
 
-            elif key == "ref_form_number" and not value:
-                text_list.append("Doc. Reference #")
+            elif key == "incident_date" and not value:
+                text_list.append("Date of Incident")
+
+            elif key == "person_responsible" and not value:
+                text_list.append("Person Responsible")
 
         return text_list
 
@@ -66,36 +69,25 @@ class EntryValidation:
         # Function to validate numeric input (only numbers, commas, and one decimal point)
     @staticmethod
     def validate_numeric_input(input_value):
-        if input_value.strip() == "":
+        if input_value == "":
             return True  # Allow empty input
 
-        raw_value = input_value.replace(",", "").strip()  # Remove commas and whitespace
+        raw_value = input_value.replace(",", "")  # Remove commas for validation
 
-        # Allow just '+' or '-' as partial valid input while typing
-        if raw_value in ("-", "+"):
-            return True
-
-        # Only one leading + or - sign is allowed
-        if raw_value.startswith(("+", "-")):
-            numeric_part = raw_value[1:]
-        else:
-            numeric_part = raw_value
-
-        # Must be digits or one optional decimal point
-        if numeric_part.count(".") > 1:
+        if raw_value.count(".") > 1:  # Ensure only one decimal point
             return False
 
         try:
-            float(raw_value)  # Check if fully convertible to float
+            float_value = float(raw_value)  # Check if it's a valid float
 
-            # Ensure max of two decimal places
-            parts = numeric_part.split(".")
+            # Ensure only two decimal places
+            parts = raw_value.split(".")
             if len(parts) == 2 and len(parts[1]) > 2:
                 return False
 
             return True
         except ValueError:
-            return False
+            return False  # Reject invalid inputs
 
 
     @staticmethod
