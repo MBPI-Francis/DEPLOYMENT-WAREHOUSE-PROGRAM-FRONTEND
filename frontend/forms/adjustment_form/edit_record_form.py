@@ -1,4 +1,5 @@
 import ttkbootstrap as ttk
+import tkinter as tk
 from ttkbootstrap.constants import *
 import requests
 from backend.settings.database import server_ip
@@ -13,6 +14,12 @@ from tkinter import StringVar, messagebox
 
 class EditForm:
     def __init__(self, root):
+        self.spillage_form_no_value = None
+        self.responsible_person_value = None
+        self.incident_date_value = None
+        self.spillage_no_entry = None
+        self.incident_date_entry = None
+        self.person_responsible_entry = None
         self.item = None
         self.old_qty = None
         self.ref_date_value = None
@@ -30,8 +37,6 @@ class EditForm:
         self.ref_number_entry = None
         self.adj_date_entry = None
         self.ref_date_entry = None
-        self.reason_entry = None
-        self.ref_doc_number_entry = None
         self.checkbox_warehouse_var = None
         self.warehouse_combobox = None
         self.warehouse_to_id = None
@@ -41,7 +46,6 @@ class EditForm:
         self.code_to_id = None
         self.rm_codes_combobox = None
         self.checkbox_reference_var = None
-        self.ref_doc_combobox = None
         self.root = root
         self.shared_functions = SharedFunctions()
         self.edit_window = None
@@ -91,9 +95,10 @@ class EditForm:
         warehouse_id = self.get_selected_warehouse_id()
         rm_code_id = self.get_selected_rm_code_id()
         ref_number = self.ref_number_entry.get()
-        referenced_doc = self.ref_doc_combobox.get()
-        referenced_doc_no = self.ref_doc_number_entry.get()
-        reason = self.reason_entry.get("1.0", "end").strip()
+        person_responsible = self.person_responsible_entry.get()
+        spillage_no = self.spillage_no_entry.get()
+
+
 
         qty = self.qty_entry.get()
 
@@ -105,6 +110,7 @@ class EditForm:
 
         adjustment_date = self.adj_date_entry.entry.get()
         referenced_date = self.ref_date_entry.entry.get()
+        incident_date = self.incident_date_entry.entry.get()
 
         status_id = self.get_selected_status_id()
 
@@ -115,6 +121,7 @@ class EditForm:
         try:
             adjustment_date = datetime.strptime(adjustment_date, "%m/%d/%Y").strftime("%Y-%m-%d")
             referenced_date = datetime.strptime(referenced_date, "%m/%d/%Y").strftime("%Y-%m-%d")
+            incident_date = datetime.strptime(incident_date, "%m/%d/%Y").strftime("%Y-%m-%d")
         except ValueError:
             Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
             return
@@ -126,13 +133,13 @@ class EditForm:
             "ref_number": ref_number,
             "adjustment_date": adjustment_date,
             "reference_date": referenced_date,
-            "ref_form": referenced_doc,
-            "ref_form_number": referenced_doc_no,
             "qty_kg": cleaned_qty,
             "status_id": status_id,
-            "reason": reason,
-
+            "spillage_form_number": spillage_no,
+            "incident_date": incident_date,
+            "responsible_person": person_responsible,
         }
+
 
         # Validate the data entries in front-end side
         if EntryValidation.entry_validation(data):
@@ -154,7 +161,7 @@ class EditForm:
 
             # Send a POST request to the API
             try:
-                response = requests.put(f"{server_ip}/api/adjustment_form/v1/update/{self.item}/", json=data)
+                response = requests.put(f"{server_ip}/api/adjustment_form/spillage/v1/update/{self.item}/", json=data)
                 if response.status_code == 200:  # Successfully created
                     self.root.refresh_table()
                     messagebox.showinfo("Success", "Record updated successfully")
@@ -192,6 +199,9 @@ class EditForm:
             self.edit_window.lift()
             return
 
+
+
+        # Get the data from the record and assign each data to its corresponding variable
         self.item = item
         self.record = self.root.tree.item(item, 'values')
         self.ref_number_value = self.record[1]
@@ -199,9 +209,9 @@ class EditForm:
         self.qty_value = self.record[3]
         self.status_value = self.record[4]
         self.warehouse_value = self.record[5]
-        self.ref_doc_value = self.record[6]
-        self.ref_doc_number_value = self.record[7]
-        self.reason_value = self.record[8]
+        self.spillage_form_no_value = self.record[6]
+        self.responsible_person_value = self.record[7]
+        self.incident_date_value = self.record[8]
         self.adj_date_value = self.record[9]
         self.ref_date_value = self.record[10]
         
@@ -209,8 +219,8 @@ class EditForm:
         self.edit_window.title("EDIT Spillage Inventory Adjustment Form")
 
         # **Fixed Size** (Recommended for consistency)
-        window_width = 780  # Fixed width
-        window_height = 420  # Fixed height
+        window_width = 490  # Fixed width
+        window_height = 490  # Fixed height
 
         # **Center the window**
         screen_width = self.edit_window.winfo_screenwidth()
@@ -248,7 +258,6 @@ class EditForm:
 
 
 
-        # ----------------------------------[ADJUSTMENT DATE FIELD]----------------------------------#
         def format_adj_date_while_typing(event):
             """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
             text = self.adj_date_entry.entry.get().replace("/", "")  # Remove slashes to get raw number input
@@ -491,87 +500,272 @@ class EditForm:
             self.ref_date_entry.entry.delete(0, "end")
             self.ref_date_entry.entry.insert(0, formatted_date)
 
+        def format_incident_date_while_typing(event):
+            """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
+            text = self.incident_date_entry.entry.get().replace("/", "")  # Remove slashes to get raw number input
+            formatted_date = ""
 
-        # DATE FRAME (Left-aligned)
-        date_frame = ttk.Frame(form_frame)
-        date_frame.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="w")
+            if len(text) > 8:  # Prevent overflow of more than 8 characters (MMDDYYYY)
+                text = text[:8]
 
-        # Get the Current Date
-        current_date = datetime.now()
+            # Handle the case where the length is 2 (MD)
+            if len(text) == 2:
+                month = text[:1]
+                day = text[1:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                year = str(datetime.now().year)  # Assume the current year
+                formatted_date = f"0{month}/0{day}/{year}"
 
-        date_label = ttk.Label(date_frame, text="Date of Adjustment", style="CustomLabel.TLabel")
-        date_label.grid(row=1, column=0, padx=(3,0), pady=0, sticky=W)
 
+            # Handle the case where the length is 3 (MDD)
+            elif len(text) == 3:
+                month = text[:1]
+                day = text[1:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+
+                year = str(datetime.now().year)  # Assume the current year
+                formatted_date = f"0{month}/{day}/{year}"
+
+
+            # Handle the case where the length is 4 (MMDD)
+            elif len(text) == 4:
+                month = text[:2]
+                day = text[2:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                    if len(str(month)) == 1:
+                        month = f"0{month}"
+
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+
+                year = str(datetime.now().year)  # Assume the current year
+                formatted_date = f"{month}/{day}/{year}"
+
+                # Handle the case where the length is 5 (MDDYY)
+            elif len(text) == 5:
+                month = text[:1]
+                day = text[1:3]
+                year = text[3:]
+
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+                formatted_date = f"0{month}/{day}/20{year}"
+
+            # Handle the case where the length is 6 (MMDDYY)
+            elif len(text) == 6:
+                month = text[:2]
+                day = text[2:4]
+                year = text[4:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                    if len(str(month)) == 1:
+                        month = f"0{month}"
+
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+
+                formatted_date = f"{month}/{day}/20{year}"  # Assume 20XX for 2-digit year
+
+                # Handle the case where the length is 6 (MMDDYY)
+            elif len(text) == 7:
+                Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
+
+
+            # Handle the case where the length is 8 (MMDDYYYY)
+            elif len(text) == 8:
+                month = text[:2]
+                day = text[2:4]
+                year = text[4:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                    if len(str(month)) == 1:
+                        month = f"0{month}"
+
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+
+                formatted_date = f"{month}/{day}/{year}"
+
+            # Update entry field with formatted value
+            self.incident_date_entry.entry.delete(0, "end")
+            self.incident_date_entry.entry.insert(0, formatted_date)
+
+
+
+        # ----------------------------------[ADJUSTMENT DATE FIELD]----------------------------------#
+        date_label = ttk.Label(form_frame, text="Date of Adjustment", style="CustomLabel.TLabel")
+        date_label.grid(row=0, column=0, padx=(3,0), pady=0, sticky=W)
 
         # Create the DateEntry widget with yesterday's date as the default value
         self.adj_date_entry = ttk.DateEntry(
-            date_frame,
+            form_frame,
             bootstyle=PRIMARY,
             dateformat="%m/%d/%Y",
-            width=26
+            width=25
         )
-        self.adj_date_entry.grid(row=2, column=0, padx=(5,0), pady=0, sticky=W)
-        self.adj_date_entry.entry.delete(0, "end")
-        self.adj_date_entry.entry.insert(0, self.adj_date_value)
+        self.adj_date_entry.grid(row=1, column=0, padx=(5,0), pady=0, sticky=W)
         self.adj_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.adj_date_entry.entry.bind("<FocusOut>", format_adj_date_while_typing)
         self.adj_date_entry.entry.bind("<Return>", format_adj_date_while_typing)
+        self.adj_date_entry.entry.delete(0, "end")
+        self.adj_date_entry.entry.insert(0, self.adj_date_value)
         ToolTip(self.adj_date_entry, text="Please enter the date when the adjustment happened")
+
+        # Set focus to the Entry field
+        self.adj_date_entry.entry.focus_set()
+        # ----------------------------------[REFERENCED NUMBER FIELD]----------------------------------#
+
+
+        # REF Number Entry Field
+        ref_number_label = ttk.Label(form_frame, text="Ref#.", style="CustomLabel.TLabel")
+        ref_number_label.grid(row=0, column=1, padx=(8, 0), pady=(0, 0), sticky=W)
+        self.ref_number_entry = ttk.Entry(form_frame, width=29, font=self.shared_functions.custom_font_size)
+        self.ref_number_entry.grid(row=1, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+        ToolTip(self.ref_number_entry, text="Enter the Reference Number")
+        self.ref_number_entry.insert(0, self.ref_number_value)
 
 
         # ----------------------------------[REFERENCED DATE FIELD]----------------------------------#
-        date_label = ttk.Label(date_frame, text="Referenced Date", style="CustomLabel.TLabel")
-        date_label.grid(row=1, column=1, padx=(3, 0), pady=(0, 0), sticky=W)
-
+        date_label = ttk.Label(form_frame, text="Referenced Date Affected", style="CustomLabel.TLabel")
+        date_label.grid(row=2, column=0, padx=(3, 0), pady=(10, 0), sticky=W)
 
         # Create the DateEntry widget with yesterday's date as the default value
         self.ref_date_entry = ttk.DateEntry(
-            date_frame,
+            form_frame,
             bootstyle=PRIMARY,
             dateformat="%m/%d/%Y",
-            width=26
+            width=57
         )
-        self.ref_date_entry.grid(row=2, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
-        self.ref_date_entry.entry.delete(0, "end")
-        self.ref_date_entry.entry.insert(0, self.ref_date_value)
+        self.ref_date_entry.grid(row=3, column=0, columnspan=2, padx=(5, 0), pady=(0, 0), sticky=W)
         self.ref_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.ref_date_entry.entry.bind("<FocusOut>", format_ref_date_while_typing)
         self.ref_date_entry.entry.bind("<Return>", format_ref_date_while_typing)
+        self.ref_date_entry.entry.delete(0, "end")
+        self.ref_date_entry.entry.insert(0, self.ref_date_value)
         ToolTip(self.ref_date_entry, text="Please enter the date when the discrepancy happened")
 
 
 
-        # ----------------------------------[REFERENCED NUMBER FIELD]----------------------------------#
-        # Reference Number FRAME (Right-aligned)
-        refno_frame = ttk.Frame(form_frame)
-        refno_frame.grid(row=1, column=1, padx=5, pady=(0, 5), sticky="e")
 
-        # REF Number Entry Field
-        ref_number_label = ttk.Label(refno_frame, text="Ref#.", style="CustomLabel.TLabel")
+        # ----------------------------------[SPILLAGE REPORT # FIELD]----------------------------------#
+        label = ttk.Label(form_frame, text="Spillage Report #", style="CustomLabel.TLabel")
+        label.grid(row=4, column=0, padx=5,  pady=(10, 0), sticky=W)
 
-        ref_number_label.grid(row=1, column=0, padx=(3,0), pady=(0, 0), sticky=W)
-        self.ref_number_entry = ttk.Entry(refno_frame, width=24, font=self.shared_functions.custom_font_size)
-        self.ref_number_entry.insert(0, self.ref_number_value)
-        self.ref_number_entry.grid(row=2, column=0, padx=(5,0), pady=(0, 0), sticky=W)
-        ToolTip(self.ref_number_entry, text="Enter the Reference Number")
+        self.spillage_no_entry = ttk.Entry(form_frame, width=29, font=self.shared_functions.custom_font_size)
+        self.spillage_no_entry.grid(row=5, column=0, padx=(5, 0), pady=0, sticky=W)
+        self.spillage_no_entry.insert(0, self.spillage_form_no_value)
+        ToolTip(self.spillage_no_entry, text="Type the Spillage Report Reference Number.")
 
-        self.checkbox_reference_var = ttk.IntVar()  # Integer variable to store checkbox state (0 or 1)
 
-        # Checkbox beside the combobox
-        lock_reference = ttk.Checkbutton(
-            refno_frame,
-            variable=self.checkbox_reference_var,
-            bootstyle="round-toggle"
+
+
+        # ----------------------------------[INCIDENT REPORT DATE FIELD]----------------------------------#
+        date_label = ttk.Label(form_frame, text="Date of Incident", style="CustomLabel.TLabel")
+        date_label.grid(row=4, column=1, padx=(3, 0),  pady=(10, 0), sticky=W)
+
+
+        # Create the DateEntry widget with yesterday's date as the default value
+        self.incident_date_entry = ttk.DateEntry(
+            form_frame,
+            bootstyle=PRIMARY,
+            dateformat="%m/%d/%Y",
+            width=25
         )
-        lock_reference.grid(row=1, pady=(0, 0), padx=(10, 6), sticky=E)  # Position the checkbox next to the combobox
-        ToolTip(lock_reference, text="Lock the reference number by clicking this")
+
+
+        self.incident_date_entry.grid(row=5, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
+        self.incident_date_entry.entry.config(font=self.shared_functions.custom_font_size)
+        self.incident_date_entry.entry.bind("<FocusOut>", format_incident_date_while_typing)
+        self.incident_date_entry.entry.bind("<Return>", format_incident_date_while_typing)
+        self.incident_date_entry.entry.delete(0, "end")
+        self.incident_date_entry.entry.insert(0, self.incident_date_value)
+        ToolTip(self.incident_date_entry, text="Please enter the date when the discrepancy happened")
+
+
+        # ----------------------------------[WAREHOUSE FIELD]----------------------------------#
+
+        # Warehouse JSON-format choices (coming from the API)
+        warehouses = self.get_warehouse_api
+        self.warehouse_to_id = {item["wh_name"]: item["id"] for item in warehouses}
+        warehouse_names = list(self.warehouse_to_id.keys())
+
+        # Combobox for Warehouse Drop Down
+        warehouse_label = ttk.Label(form_frame, text="Warehouse", style="CustomLabel.TLabel")
+        warehouse_label.grid(row=6, column=0, padx=(3, 0),  pady=(10, 0), sticky=W)
+
+
+        # Warehouse Combobox field
+        self.warehouse_combobox = ttk.Combobox(form_frame,
+                                          values=warehouse_names,
+                                          state="readonly",
+                                          width=27,
+                                          font=self.shared_functions.custom_font_size
+                                          )
+        self.warehouse_combobox.grid(row=7, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
+
+
+        ToolTip(self.warehouse_combobox, text="Choose a warehouse")
+        self.warehouse_combobox.set(self.warehouse_value)
 
 
 
-        # ----------------------------------[RAW MATERIAL CODE FIELD]----------------------------------#
-        # RM CODE FRAME
-        rmcode_frame = ttk.Frame(form_frame)
-        rmcode_frame.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="w")
+        # ----------------------------------[STATUS FIELD]----------------------------------#
+
+        # Status JSON-format choices (coming from the API)
+        status = self.get_status_api
+        self.status_to_id = {item["name"]: item["id"] for item in status}
+        status_names = list(self.status_to_id.keys())
+
+        status_label = ttk.Label(form_frame, text="Status", style="CustomLabel.TLabel")
+        status_label.grid(row=6, column=1, padx=(3, 0), pady=(10, 0), sticky=W)
+
+        self.status_combobox = ttk.Combobox(
+            form_frame,
+            values=status_names,
+            state="readonly",
+            width=27,
+            font=self.shared_functions.custom_font_size
+        )
+        self.status_combobox.grid(row=7, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
+
+        ToolTip(self.status_combobox, text="Please choose the raw material status")
+        self.status_combobox.set(self.status_value)
+
+
+
+
+        # ----------------------------------[RM CODE FIELD]----------------------------------#
 
         # RM CODE JSON-format choices (coming from the API)
         rm_codes = self.get_rm_code_api
@@ -586,29 +780,29 @@ class EditForm:
             self.rm_codes_combobox.set(current_text.upper())
 
         # Combobox for RM CODE Drop Down
-        rm_codes_label = ttk.Label(rmcode_frame, text="Raw Material", style="CustomLabel.TLabel")
-        rm_codes_label.grid(row=1, column=0, padx=(3, 0), pady=(0, 0), sticky=W)
+        rm_codes_label = ttk.Label(form_frame, text="Raw Material", style="CustomLabel.TLabel")
+        rm_codes_label.grid(row=8, column=0, padx=(3, 0),  pady=(10, 0), sticky=W)
 
         self.rm_codes_combobox = ttk.Combobox(
-            rmcode_frame,
+            form_frame,
             values=rm_names,
             state="normal",
-            width=20,
+            width=27,
             font=self.shared_functions.custom_font_size
         )
 
-        self.rm_codes_combobox.set(self.rm_code_value)  # Set current value in the combobox
         # Bind the key release event to the combobox to trigger uppercase conversion
         self.rm_codes_combobox.bind("<KeyRelease>", on_combobox_key_release)
-
-        self.rm_codes_combobox.grid(row=2, column=0, pady=(0, 0), padx=(5, 0))
+        self.rm_codes_combobox.set(self.rm_code_value)
+        self.rm_codes_combobox.grid(row=9, column=0, pady=(0, 0), padx=(5, 0), sticky=W)
         ToolTip(self.rm_codes_combobox, text="Choose a raw material")
 
 
-        # ----------------------------------[QUANTITY FIELD]----------------------------------#
-        # Function to format numeric input dynamically with cursor preservation
-        self.old_qty = self.qty_value
 
+
+
+        # ----------------------------------[QUANTITY FIELD]----------------------------------#
+        self.old_qty = self.qty_value
         def format_numeric_input(event):
             entry_widget = event.widget
             input_value = qty_var.get()
@@ -650,152 +844,38 @@ class EditForm:
         # Tkinter StringVar for real-time updates
         qty_var = StringVar()
 
+
         # Validation Command for Entry Widget
-        validate_numeric_command = rmcode_frame.register(EntryValidation.validate_numeric_input)
+        validate_numeric_command = form_frame.register(EntryValidation.validate_numeric_input)
 
         # Quantity Entry Field
-        qty_label = ttk.Label(rmcode_frame, text="Quantity(kg)", style="CustomLabel.TLabel")
-        qty_label.grid(row=1, column=2, padx=(3,0), pady=(0, 0), sticky=W)
+        qty_label = ttk.Label(form_frame, text="Quantity Lost", style="CustomLabel.TLabel")
+        qty_label.grid(row=8, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
 
-        self.qty_entry = ttk.Entry(rmcode_frame,
-                              width=14,
+        self.qty_entry = ttk.Entry(form_frame,
+                              width=29,
                               font=self.shared_functions.custom_font_size,
                               textvariable=qty_var,
                               validate="key",
                               validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
-        self.qty_entry.insert(0, self.qty_value)
-        self.qty_entry.grid(row=2, column=2, padx=(5,0), pady=(0, 0), sticky=W)
+        # Clean qty_value before inserting. It removes the "- " in the qty_value
+        cleaned_qty_value = self.qty_value.replace("-", "").strip()
+        self.qty_entry.insert(0, cleaned_qty_value)
 
         # Bind the event to format input dynamically while preserving cursor position
         self.qty_entry.bind("<KeyRelease>", format_numeric_input)
-        ToolTip(self.qty_entry, text="Enter the Quantity(kg)")
+        ToolTip(self.qty_entry, text="Enter the Quantity Lost")
+        self.qty_entry.grid(row=9, column=1, padx=(5,0), pady=(0, 0), sticky=W)
 
 
+        # ----------------------------------[PERSON RESPONSIBLE FIELD]----------------------------------#
+        label = ttk.Label(form_frame, text="Responsible Person", style="CustomLabel.TLabel")
+        label.grid(row=10, column=0, padx=5,  pady=(10, 0), sticky=W)
 
-        # ----------------------------------[STATUS FIELD]----------------------------------#
-        # Status JSON-format choices (coming from the API)
-        status = self.get_status_api
-        self.status_to_id = {item["name"]: item["id"] for item in status}
-        status_names = list(self.status_to_id.keys())
-
-        status_label = ttk.Label(rmcode_frame, text="Status", style="CustomLabel.TLabel")
-        status_label.grid(row=1, column=3, padx=(3, 0), pady=(0, 0), sticky=W)
-
-        self.status_combobox = ttk.Combobox(
-            rmcode_frame,
-            values=status_names,
-            state="readonly",
-            width=19,
-            font=self.shared_functions.custom_font_size
-        )
-        self.status_combobox.set(self.status_value)
-        self.status_combobox.grid(row=2, column=3, padx=(5, 0), pady=(0, 0), sticky=W)
-        # Checkbox for Warehouse lock
-        self.checkbox_status_var = ttk.IntVar()
-        lock_status = ttk.Checkbutton(
-            rmcode_frame,
-
-            variable=self.checkbox_status_var,
-            bootstyle="round-toggle"
-        )
-        lock_status.grid(row=1, column=3, pady=(0, 0), padx=(0, 0), sticky=E)
-
-
-        ToolTip(lock_status, text="Lock the status by clicking this")
-        ToolTip(self.status_combobox, text="Please choose the raw material status")
-        self.status_combobox.set(self.status_value)
-
-
-
-        # ----------------------------------[WAREHOUSE FIELD]----------------------------------#
-        warehouse_frame = ttk.Frame(form_frame)
-        warehouse_frame.grid(row=2, column=1, padx=5, pady=(0, 10), sticky="e")
-
-        # Warehouse JSON-format choices (coming from the API)
-        warehouses = self.get_warehouse_api
-        self.warehouse_to_id = {item["wh_name"]: item["id"] for item in warehouses}
-        warehouse_names = list(self.warehouse_to_id.keys())
-
-        # Combobox for Warehouse Drop Down
-        warehouse_label = ttk.Label(warehouse_frame, text="Warehouse", style="CustomLabel.TLabel")
-        warehouse_label.grid(row=1, column=0, padx=(3, 0), pady=(0, 0), sticky=W)
-
-        # Checkbox for Warehouse lock
-        self.checkbox_warehouse_var = ttk.IntVar()
-        lock_warehouse = ttk.Checkbutton(
-            warehouse_frame,
-
-            variable=self.checkbox_warehouse_var,
-            bootstyle="round-toggle"
-        )
-        lock_warehouse.grid(row=1, column=0, pady=(0, 0), padx=(0, 0), sticky=E)
-
-        # Warehouse Combobox field
-        self.warehouse_combobox = ttk.Combobox(warehouse_frame,
-                                          values=warehouse_names,
-                                          state="readonly",
-                                          width=22,
-                                          font=self.shared_functions.custom_font_size
-                                          )
-        self.warehouse_combobox.grid(row=2, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
-        self.warehouse_combobox.set(self.warehouse_value)
-
-        ToolTip(self.warehouse_combobox, text="Choose a warehouse")
-        ToolTip(lock_warehouse, text="Lock the warehouse by clicking this")
-
-
-        # ----------------------------------[REFERENCED DOC FIELD]----------------------------------#
-        # REFERENCED DOCUMENT FRAME (Left-aligned)
-        referenced_doc_frame = ttk.Frame(form_frame)
-        referenced_doc_frame.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="w")
-
-        label = ttk.Label(referenced_doc_frame, text="Referenced Doc.", style="CustomLabel.TLabel")
-        label.grid(row=1, column=0, padx=(3,0), pady=0, sticky=W)
-        self.ref_doc_combobox = ttk.Combobox(referenced_doc_frame,
-                                          values=[
-                                              "Receiving Form",
-                                              "Outgoing Form",
-                                              "Preparation Form",
-                                              "Change Status Form",
-                                              "Transfer Form",
-                                              "Adjustment Form",
-                                              "Incident Report",
-                                              "Data Entry"
-                                          ],
-                                          state="readonly",
-                                          width=29,
-                                          font=self.shared_functions.custom_font_size
-                                          )
-        self.ref_doc_combobox.set(self.ref_doc_value)
-        self.ref_doc_combobox.grid(row=2, column=0, padx=(5, 0), pady=0, sticky=W)
-        ToolTip(self.ref_doc_combobox, text="Select the form where the adjustment occurred.")
-
-
-
-
-        # ----------------------------------[REFERENCED DOCUMENT NO FIELD]----------------------------------#
-        label = ttk.Label(referenced_doc_frame, text="Doc. Reference #", style="CustomLabel.TLabel")
-        label.grid(row=1, column=1, padx=5, pady=(3,0), sticky=W)
-        self.ref_doc_number_entry = ttk.Entry(referenced_doc_frame, width=29, font=self.shared_functions.custom_font_size)
-        self.ref_doc_number_entry.grid(row=2, column=1, padx=(5, 0), pady=0, sticky=W)
-        self.ref_doc_number_entry.insert(0, self.ref_doc_number_value)
-        ToolTip(self.ref_doc_number_entry, text="Type the reference number associated with the referenced document.")
-
-
-
-
-        # ----------------------------------[REASON FIELD]----------------------------------#
-        label = ttk.Label(form_frame, text="Reason/Remarks", style="CustomLabel.TLabel")
-        label.grid(row=4, column=0, padx=(8,0), pady=0, sticky=W)
-        self.reason_entry = ttk.Text(form_frame, height=4, font=self.shared_functions.custom_font_size)
-        self.reason_entry.insert("1.0", self.reason_value)
-        self.reason_entry.grid(row=5, column=0,columnspan=2 , padx=(10, 0), pady=0, sticky=NSEW)
-        ToolTip(self.reason_entry, text="Enter the reason of the adjustment")
-
-
-
-        # Configure columns for even stretch
-        form_frame.grid_columnconfigure(1, weight=1)
+        self.person_responsible_entry = ttk.Entry(form_frame, width=61, font=self.shared_functions.custom_font_size)
+        self.person_responsible_entry.grid(row=11, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
+        self.person_responsible_entry.insert(0, self.responsible_person_value)
+        ToolTip(self.person_responsible_entry, text="Type the Spillage Report Reference Number.")
 
         # Submit button
 
@@ -806,13 +886,68 @@ class EditForm:
             bootstyle=DANGER,
             command=self.edit_window.destroy
         )
-        cancel_button.grid(row=6, column=0, padx=5, sticky="w")
+        cancel_button.grid(row=12, column=0, padx=5, sticky="w")
 
         submit_btn = ttk.Button(form_frame, text="Update", bootstyle=SUCCESS,
                                 command=self.submit_data,)
-        submit_btn.grid(row=6, column=1, pady=20, sticky="e")
+        submit_btn.grid(row=12, column=1, pady=20, sticky="e")
 
 
+
+
+        def bind_shift_enter_to_all_children(parent, callback):
+            for child in parent.winfo_children():
+                try:
+                    child.bind("<Shift-Return>", callback)
+                except:
+                    pass
+                # Recursively bind if the child is a container
+                if isinstance(child, (ttk.Frame, tk.Frame)):
+                    bind_shift_enter_to_all_children(child, callback)
+
+        # Bind Shift+Enter to all child widgets in this tab
+        bind_shift_enter_to_all_children(form_frame, lambda e: submit_btn.invoke())
+
+        def bind_shift_a_to_toggle_checkbox(parent, toggle_func):
+            for child in parent.winfo_children():
+                try:
+                    child.bind("<Control-Shift-A>", toggle_func)
+                    child.bind("<Control-Shift-a>", toggle_func)
+                except:
+                    pass
+                if isinstance(child, (ttk.Frame, tk.Frame)):
+                    bind_shift_a_to_toggle_checkbox(child, toggle_func)
+
+        def toggle_warehouse_lock(event=None):
+            current_state_warehouse = self.checkbox_warehouse_var.get()
+            current_state_reference = self.checkbox_reference_var.get()
+            current_state_status = self.checkbox_status_var.get()
+
+            # If any checkbox is unchecked, set all to True (1)
+            if not all([current_state_warehouse, current_state_reference, current_state_status]):
+                self.checkbox_warehouse_var.set(1)
+                self.checkbox_reference_var.set(1)
+                self.checkbox_status_var.set(1)
+            else:
+                self.checkbox_warehouse_var.set(0)
+                self.checkbox_reference_var.set(0)
+                self.checkbox_status_var.set(0)
+
+        bind_shift_a_to_toggle_checkbox(form_frame, toggle_warehouse_lock)
+
+        # This is for the tab button for the tab sequence when the user hits tab to move to the next field
+        self.adj_date_entry.entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.ref_number_entry))
+        self.ref_number_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.ref_date_entry.entry))
+        self.ref_date_entry.entry.bind("<Tab>",
+                                       lambda e: self.shared_functions.focus_next_widget(e, self.spillage_no_entry))
+        self.spillage_no_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.incident_date_entry.entry))
+        self.incident_date_entry.entry.bind("<Tab>",
+                                    lambda e: self.shared_functions.focus_next_widget(e, self.warehouse_combobox))
+        self.warehouse_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.status_combobox))
+        self.status_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.rm_codes_combobox))
+        self.rm_codes_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.qty_entry))
+        self.qty_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.person_responsible_entry))
+        self.person_responsible_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, submit_btn))
 
 
 

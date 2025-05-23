@@ -140,7 +140,8 @@ class EntryValidation:
         # Handle response
         try:
             # Make the GET request
-            response = requests.get(f"{server_ip}/api/check/rm-stock-value/for-update/adjustment_form/", params=params)
+            # response = requests.get(f"{server_ip}/api/check/rm-stock-value/for-update/adjustment_form/", params=params)
+            response = requests.get(f"{server_ip}/api/check/rm-stock-value/for-update/", params=params)
 
             if response.status_code == 200:
 

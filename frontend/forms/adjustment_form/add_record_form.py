@@ -1,4 +1,5 @@
 import ttkbootstrap as ttk
+import tkinter as tk
 from ttkbootstrap.constants import *
 import requests
 from backend.settings.database import server_ip
@@ -95,7 +96,7 @@ class Forms:
         status_id = self.get_selected_status_id()
 
         # Set focus to the Entry field
-        self.rm_codes_combobox.focus_set()
+        self.adj_date_entry.entry.focus_set()
 
         # Convert date to YYYY-MM-DD
         try:
@@ -474,11 +475,127 @@ class Forms:
             self.ref_date_entry.entry.delete(0, "end")
             self.ref_date_entry.entry.insert(0, formatted_date)
 
+        def format_incident_date_while_typing(event):
+            """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
+            text = self.incident_date_entry.entry.get().replace("/", "")  # Remove slashes to get raw number input
+            formatted_date = ""
+
+            if len(text) > 8:  # Prevent overflow of more than 8 characters (MMDDYYYY)
+                text = text[:8]
+
+            # Handle the case where the length is 2 (MD)
+            if len(text) == 2:
+                month = text[:1]
+                day = text[1:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                year = str(datetime.now().year)  # Assume the current year
+                formatted_date = f"0{month}/0{day}/{year}"
 
 
+            # Handle the case where the length is 3 (MDD)
+            elif len(text) == 3:
+                month = text[:1]
+                day = text[1:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
 
-        # Get the Current Date
-        current_date = datetime.now()
+                year = str(datetime.now().year)  # Assume the current year
+                formatted_date = f"0{month}/{day}/{year}"
+
+
+            # Handle the case where the length is 4 (MMDD)
+            elif len(text) == 4:
+                month = text[:2]
+                day = text[2:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                    if len(str(month)) == 1:
+                        month = f"0{month}"
+
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+
+                year = str(datetime.now().year)  # Assume the current year
+                formatted_date = f"{month}/{day}/{year}"
+
+                # Handle the case where the length is 5 (MDDYY)
+            elif len(text) == 5:
+                month = text[:1]
+                day = text[1:3]
+                year = text[3:]
+
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+                formatted_date = f"0{month}/{day}/20{year}"
+
+            # Handle the case where the length is 6 (MMDDYY)
+            elif len(text) == 6:
+                month = text[:2]
+                day = text[2:4]
+                year = text[4:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                    if len(str(month)) == 1:
+                        month = f"0{month}"
+
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+
+                formatted_date = f"{month}/{day}/20{year}"  # Assume 20XX for 2-digit year
+
+                # Handle the case where the length is 6 (MMDDYY)
+            elif len(text) == 7:
+                Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
+
+
+            # Handle the case where the length is 8 (MMDDYYYY)
+            elif len(text) == 8:
+                month = text[:2]
+                day = text[2:4]
+                year = text[4:]
+                # Ensure the month is valid (01-12)
+                if int(month) < 1 or int(month) > 12:
+                    month = str(datetime.now().month)  # Default to January if invalid month
+                    if len(str(month)) == 1:
+                        month = f"0{month}"
+
+                # Ensure the day is valid (01-31)
+                if int(day) < 1 or int(day) > 31:
+                    day = str(datetime.now().day)  # Default to 1st if invalid day
+                    if len(str(day)) == 1:
+                        day = f"0{day}"
+
+                formatted_date = f"{month}/{day}/{year}"
+
+            # Update entry field with formatted value
+            self.incident_date_entry.entry.delete(0, "end")
+            self.incident_date_entry.entry.insert(0, formatted_date)
+
         # ----------------------------------[ADJUSTMENT DATE FIELD]----------------------------------#
         date_label = ttk.Label(form_frame, text="Date of Adjustment", style="CustomLabel.TLabel")
         date_label.grid(row=0, column=0, padx=(3,0), pady=0, sticky=W)
@@ -489,16 +606,20 @@ class Forms:
             form_frame,
             bootstyle=PRIMARY,
             dateformat="%m/%d/%Y",
-            startdate=current_date,  # Set yesterday's date
             width=25
         )
         self.adj_date_entry.grid(row=1, column=0, padx=(5,0), pady=0, sticky=W)
+        self.adj_date_entry.entry.delete(0, "end")
         self.adj_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.adj_date_entry.entry.bind("<FocusOut>", format_adj_date_while_typing)
         self.adj_date_entry.entry.bind("<Return>", format_adj_date_while_typing)
         ToolTip(self.adj_date_entry, text="Please enter the date when the adjustment happened")
 
+        # Set focus to the Entry field
+        self.adj_date_entry.entry.focus_set()
+
         # ----------------------------------[REFERENCED NUMBER FIELD]----------------------------------#
+
 
 
         # REF Number Entry Field
@@ -529,10 +650,10 @@ class Forms:
             form_frame,
             bootstyle=PRIMARY,
             dateformat="%m/%d/%Y",
-            startdate=current_date,  # Set yesterday's date
             width=57
         )
         self.ref_date_entry.grid(row=3, column=0, columnspan=2, padx=(5, 0), pady=(0, 0), sticky=W)
+        self.ref_date_entry.entry.delete(0, "end")
         self.ref_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.ref_date_entry.entry.bind("<FocusOut>", format_ref_date_while_typing)
         self.ref_date_entry.entry.bind("<Return>", format_ref_date_while_typing)
@@ -562,13 +683,13 @@ class Forms:
             form_frame,
             bootstyle=PRIMARY,
             dateformat="%m/%d/%Y",
-            startdate=current_date,  # Set yesterday's date
             width=25
         )
         self.incident_date_entry.grid(row=5, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
+        self.incident_date_entry.entry.delete(0, "end")
         self.incident_date_entry.entry.config(font=self.shared_functions.custom_font_size)
-        self.incident_date_entry.entry.bind("<FocusOut>", format_ref_date_while_typing)
-        self.incident_date_entry.entry.bind("<Return>", format_ref_date_while_typing)
+        self.incident_date_entry.entry.bind("<FocusOut>", format_incident_date_while_typing)
+        self.incident_date_entry.entry.bind("<Return>", format_incident_date_while_typing)
         ToolTip(self.incident_date_entry, text="Please enter the date when the discrepancy happened")
 
 
@@ -773,5 +894,57 @@ class Forms:
 
 
 
+        def bind_shift_enter_to_all_children(parent, callback):
+            for child in parent.winfo_children():
+                try:
+                    child.bind("<Shift-Return>", callback)
+                except:
+                    pass
+                # Recursively bind if the child is a container
+                if isinstance(child, (ttk.Frame, tk.Frame)):
+                    bind_shift_enter_to_all_children(child, callback)
 
+        # Bind Shift+Enter to all child widgets in this tab
+        bind_shift_enter_to_all_children(form_frame, lambda e: submit_btn.invoke())
+
+        def bind_shift_a_to_toggle_checkbox(parent, toggle_func):
+            for child in parent.winfo_children():
+                try:
+                    child.bind("<Control-Shift-A>", toggle_func)
+                    child.bind("<Control-Shift-a>", toggle_func)
+                except:
+                    pass
+                if isinstance(child, (ttk.Frame, tk.Frame)):
+                    bind_shift_a_to_toggle_checkbox(child, toggle_func)
+
+        def toggle_warehouse_lock(event=None):
+            current_state_warehouse = self.checkbox_warehouse_var.get()
+            current_state_reference = self.checkbox_reference_var.get()
+            current_state_status = self.checkbox_status_var.get()
+
+            # If any checkbox is unchecked, set all to True (1)
+            if not all([current_state_warehouse, current_state_reference, current_state_status]):
+                self.checkbox_warehouse_var.set(1)
+                self.checkbox_reference_var.set(1)
+                self.checkbox_status_var.set(1)
+            else:
+                self.checkbox_warehouse_var.set(0)
+                self.checkbox_reference_var.set(0)
+                self.checkbox_status_var.set(0)
+
+        bind_shift_a_to_toggle_checkbox(form_frame, toggle_warehouse_lock)
+
+        # This is for the tab button for the tab sequence when the user hits tab to move to the next field
+        self.adj_date_entry.entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.ref_number_entry))
+        self.ref_number_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.ref_date_entry.entry))
+        self.ref_date_entry.entry.bind("<Tab>",
+                                       lambda e: self.shared_functions.focus_next_widget(e, self.spillage_no_entry))
+        self.spillage_no_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.incident_date_entry.entry))
+        self.incident_date_entry.entry.bind("<Tab>",
+                                    lambda e: self.shared_functions.focus_next_widget(e, self.warehouse_combobox))
+        self.warehouse_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.status_combobox))
+        self.status_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.rm_codes_combobox))
+        self.rm_codes_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.qty_entry))
+        self.qty_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.person_responsible_entry))
+        self.person_responsible_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, submit_btn))
 

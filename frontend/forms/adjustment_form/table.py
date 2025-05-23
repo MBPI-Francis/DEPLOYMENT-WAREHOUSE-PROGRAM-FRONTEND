@@ -84,6 +84,9 @@ class AdjustmentFormTable:
                         "Quantity Lost",
                         "Status",
                         "Warehouse",
+                        "Spillage Report #",
+                        "Responsible Person",
+                        "Incident Date",
                         "Adjustment Date",
                         "Referenced Date"
          ),
@@ -134,9 +137,12 @@ class AdjustmentFormTable:
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["ref_number"],
                     item["raw_material"],
-                    "- " + qty_kg_formatted,
+                    qty_kg_formatted,
                     item["status"],
                     item["wh_name"],
+                    item["spillage_form_number"],
+                    item["responsible_person"],
+                    datetime.fromisoformat(item["incident_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["reference_date"]).strftime("%m/%d/%Y"),
 

@@ -13,6 +13,9 @@ from tkinter import StringVar, messagebox
 
 class ViewRecordForm:
     def __init__(self, root):
+        self.incident_date_value = None
+        self.responsible_person_value = None
+        self.spillage_form_no_value = None
         self.item = None
         self.old_qty = None
         self.ref_date_value = None
@@ -46,17 +49,6 @@ class ViewRecordForm:
         self.shared_functions = SharedFunctions()
         self.view_record_window = None
 
-        self.get_status_api = self.shared_functions.get_status_api()
-        self.get_warehouse_api = self.shared_functions.get_warehouse_api()
-        self.get_rm_code_api = self.shared_functions.get_rm_code_api(force_refresh=True)
-
-
-
-
-
-
-
-
 
     def on_edit_window_close(self):
         """Reset the edit_window reference when it is closed."""
@@ -77,18 +69,18 @@ class ViewRecordForm:
         self.qty_value = self.record[3]
         self.status_value = self.record[4]
         self.warehouse_value = self.record[5]
-        self.ref_doc_value = self.record[6]
-        self.ref_doc_number_value = self.record[7]
-        self.reason_value = self.record[8]
+        self.spillage_form_no_value = self.record[6]
+        self.responsible_person_value = self.record[7]
+        self.incident_date_value = self.record[8]
         self.adj_date_value = self.record[9]
         self.ref_date_value = self.record[10]
-        
+
         self.view_record_window = ttk.Toplevel(self.root)
         self.view_record_window.title("Inventory Adjustment Form View Modal")
 
         # **Fixed Size** (Recommended for consistency)
-        window_width = 780  # Fixed width
-        window_height = 330  # Fixed height
+        window_width = 550  # Fixed width
+        window_height = 450  # Fixed height
 
         # **Center the window**
         screen_width = self.view_record_window.winfo_screenwidth()
@@ -124,388 +116,100 @@ class ViewRecordForm:
         form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
 
 
-
-
-        # ----------------------------------[ADJUSTMENT DATE FIELD]----------------------------------#
-        def format_adj_date_while_typing(event):
-            """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
-            text = self.adj_date_entry.entry.get().replace("/", "")  # Remove slashes to get raw number input
-            formatted_date = ""
-
-            if len(text) > 8:  # Prevent overflow of more than 8 characters (MMDDYYYY)
-                text = text[:8]
-
-            # Handle the case where the length is 2 (MD)
-            if len(text) == 2:
-                month = text[:1]
-                day = text[1:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                year = str(datetime.now().year)  # Assume the current year
-                formatted_date = f"0{month}/0{day}/{year}"
-
-
-            # Handle the case where the length is 3 (MDD)
-            elif len(text) == 3:
-                month = text[:1]
-                day = text[1:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-
-                year = str(datetime.now().year)  # Assume the current year
-                formatted_date = f"0{month}/{day}/{year}"
-
-
-            # Handle the case where the length is 4 (MMDD)
-            elif len(text) == 4:
-                month = text[:2]
-                day = text[2:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                    if len(str(month)) == 1:
-                        month = f"0{month}"
-
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-
-                year = str(datetime.now().year)  # Assume the current year
-                formatted_date = f"{month}/{day}/{year}"
-
-                # Handle the case where the length is 5 (MDDYY)
-            elif len(text) == 5:
-                month = text[:1]
-                day = text[1:3]
-                year = text[3:]
-
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-                formatted_date = f"0{month}/{day}/20{year}"
-
-            # Handle the case where the length is 6 (MMDDYY)
-            elif len(text) == 6:
-                month = text[:2]
-                day = text[2:4]
-                year = text[4:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                    if len(str(month)) == 1:
-                        month = f"0{month}"
-
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-
-                formatted_date = f"{month}/{day}/20{year}"  # Assume 20XX for 2-digit year
-
-                # Handle the case where the length is 6 (MMDDYY)
-            elif len(text) == 7:
-                Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
-
-
-            # Handle the case where the length is 8 (MMDDYYYY)
-            elif len(text) == 8:
-                month = text[:2]
-                day = text[2:4]
-                year = text[4:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                    if len(str(month)) == 1:
-                        month = f"0{month}"
-
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-
-                formatted_date = f"{month}/{day}/{year}"
-
-            # Update entry field with formatted value
-            self.adj_date_entry.entry.delete(0, "end")
-            self.adj_date_entry.entry.insert(0, formatted_date)
-
-        def format_ref_date_while_typing(event):
-            """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
-            text = self.ref_date_entry.entry.get().replace("/", "")  # Remove slashes to get raw number input
-            formatted_date = ""
-
-            if len(text) > 8:  # Prevent overflow of more than 8 characters (MMDDYYYY)
-                text = text[:8]
-
-            # Handle the case where the length is 2 (MD)
-            if len(text) == 2:
-                month = text[:1]
-                day = text[1:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                year = str(datetime.now().year)  # Assume the current year
-                formatted_date = f"0{month}/0{day}/{year}"
-
-
-            # Handle the case where the length is 3 (MDD)
-            elif len(text) == 3:
-                month = text[:1]
-                day = text[1:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-
-                year = str(datetime.now().year)  # Assume the current year
-                formatted_date = f"0{month}/{day}/{year}"
-
-
-            # Handle the case where the length is 4 (MMDD)
-            elif len(text) == 4:
-                month = text[:2]
-                day = text[2:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                    if len(str(month)) == 1:
-                        month = f"0{month}"
-
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-
-                year = str(datetime.now().year)  # Assume the current year
-                formatted_date = f"{month}/{day}/{year}"
-
-                # Handle the case where the length is 5 (MDDYY)
-            elif len(text) == 5:
-                month = text[:1]
-                day = text[1:3]
-                year = text[3:]
-
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-                formatted_date = f"0{month}/{day}/20{year}"
-
-            # Handle the case where the length is 6 (MMDDYY)
-            elif len(text) == 6:
-                month = text[:2]
-                day = text[2:4]
-                year = text[4:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                    if len(str(month)) == 1:
-                        month = f"0{month}"
-
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-
-                formatted_date = f"{month}/{day}/20{year}"  # Assume 20XX for 2-digit year
-
-                # Handle the case where the length is 6 (MMDDYY)
-            elif len(text) == 7:
-                Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
-
-
-            # Handle the case where the length is 8 (MMDDYYYY)
-            elif len(text) == 8:
-                month = text[:2]
-                day = text[2:4]
-                year = text[4:]
-                # Ensure the month is valid (01-12)
-                if int(month) < 1 or int(month) > 12:
-                    month = str(datetime.now().month)  # Default to January if invalid month
-                    if len(str(month)) == 1:
-                        month = f"0{month}"
-
-                # Ensure the day is valid (01-31)
-                if int(day) < 1 or int(day) > 31:
-                    day = str(datetime.now().day)  # Default to 1st if invalid day
-                    if len(str(day)) == 1:
-                        day = f"0{day}"
-
-                formatted_date = f"{month}/{day}/{year}"
-
-            # Update entry field with formatted value
-            self.ref_date_entry.entry.delete(0, "end")
-            self.ref_date_entry.entry.insert(0, formatted_date)
-
-
-        # DATE FRAME (Left-aligned)
-        date_frame = ttk.Frame(form_frame)
-        date_frame.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="w")
-
-        # Get the Current Date
-        current_date = datetime.now()
-
-        date_label = ttk.Label(date_frame, text="Date of Adjustment",  bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        date_label.grid(row=1, column=0, padx=(3,10), pady=0, sticky=W)
-
-        adj_date_label = ttk.Label(date_frame, text=self.adj_date_value, style="CustomLabel.TLabel")
-        adj_date_label.grid(row=2, column=0, padx=(5,10), pady=0, sticky=W)
-
-
-
-
-        # ----------------------------------[REFERENCED DATE FIELD]----------------------------------#
-        date_label = ttk.Label(date_frame, text="Referenced Date", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        date_label.grid(row=1, column=1, padx=(3, 0), pady=(0, 0), sticky=W)
-
-
-        ref_date_label = ttk.Label(date_frame, text=self.ref_date_value,style="CustomLabel.TLabel")
-        ref_date_label.grid(row=2, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
-
-
-
-        # ----------------------------------[REFERENCED NUMBER FIELD]----------------------------------#
-        # Reference Number FRAME (Right-aligned)
-        refno_frame = ttk.Frame(form_frame)
-        refno_frame.grid(row=1, column=1, padx=5, pady=(0, 5), sticky="w")
+        # ----------------------------------[REFERENCED NUMBER]----------------------------------#
 
         # REF Number Entry Field
-        ref_number_label = ttk.Label(refno_frame, text="Ref#.", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        ref_number_label.grid(row=1, column=0, padx=(3,0), pady=(0, 0), sticky=W)
+        ref_number_label = ttk.Label(form_frame, text="Ref#.", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        ref_number_label.grid(row=0, column=0, padx=(3,0), pady=5, sticky=W)
 
-        ref_number_label_value = ttk.Label(refno_frame, text=self.ref_number_value, style="CustomLabel.TLabel")
-        ref_number_label_value.grid(row=2, column=0, padx=(5,0), pady=(0, 0), sticky=E)
-
-
+        ref_number_label_value = ttk.Label(form_frame, text=self.ref_number_value, style="CustomLabel.TLabel")
+        ref_number_label_value.grid(row=0, column=1, padx=(5,0), pady=5, sticky=W)
 
 
-        # ----------------------------------[RAW MATERIAL CODE FIELD]----------------------------------#
-        # RM CODE FRAME
-        rmcode_frame = ttk.Frame(form_frame)
-        rmcode_frame.grid(row=2, column=0, padx=5, pady=(0, 10), sticky="w")
+
+        # ----------------------------------[ADJUSTMENT DATE]----------------------------------#
+        date_label = ttk.Label(form_frame, text="Date of Adjustment",  bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        date_label.grid(row=1, column=0, padx=(3,10), pady=5, sticky=W)
+
+        adj_date_label = ttk.Label(form_frame, text=self.adj_date_value, style="CustomLabel.TLabel")
+        adj_date_label.grid(row=1, column=1, padx=(5,10), pady=5, sticky=W)
 
 
+
+        # ----------------------------------[REFERENCED DATE]----------------------------------#
+        date_label = ttk.Label(form_frame, text="Referenced Date", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        date_label.grid(row=2, column=0, padx=(3, 0), pady=5, sticky=W)
+
+        ref_date_label = ttk.Label(form_frame, text=self.ref_date_value, style="CustomLabel.TLabel")
+        ref_date_label.grid(row=2, column=1, padx=(5, 0), pady=5, sticky=W)
+
+
+
+        # ----------------------------------[Spillage Incident Report]----------------------------------#
+        label = ttk.Label(form_frame, text="Spillage Incident Report #", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        label.grid(row=3, column=0, padx=(3,10), pady=5, sticky=W)
+
+        spillage_report_label = ttk.Label(form_frame, text=self.spillage_form_no_value, style="CustomLabel.TLabel")
+        spillage_report_label.grid(row=3, column=1, padx=(5, 10), pady=5, sticky=W)
+
+
+        # ----------------------------------[INCIDENT DATE]----------------------------------#
+        date_label = ttk.Label(form_frame, text="Incident Date", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        date_label.grid(row=4, column=0, padx=(3, 0), pady=5, sticky=W)
+
+        incident_date_label = ttk.Label(form_frame, text=self.incident_date_value, style="CustomLabel.TLabel")
+        incident_date_label.grid(row=4, column=1, padx=(5, 0), pady=5, sticky=W)
+
+
+        # ----------------------------------[WAREHOUSE]----------------------------------#
+        # Combobox for Warehouse Drop Down
+        warehouse_label = ttk.Label(form_frame, text="Warehouse", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        warehouse_label.grid(row=5, column=0, padx=(3, 0), pady=5, sticky=W)
+
+        warehouse_label_value = ttk.Label(form_frame, text=self.warehouse_value, style="CustomLabel.TLabel")
+        warehouse_label_value.grid(row=5, column=1, padx=(5, 0), pady=5, sticky=W)
+
+
+        # ----------------------------------[STATUS]----------------------------------#
+        status_label = ttk.Label(form_frame, text="Status", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        status_label.grid(row=6, column=0, padx=(3, 0), pady=5, sticky=W)
+
+        status_label_value = ttk.Label(form_frame, text=self.status_value, style="CustomLabel.TLabel")
+        status_label_value.grid(row=6, column=1, padx=(5, 0), pady=5, sticky=W)
+
+
+        # ----------------------------------[RAW MATERIAL CODE]----------------------------------#
         # Combobox for RM CODE Drop Down
-        rm_codes_label = ttk.Label(rmcode_frame, text="Raw Material", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        rm_codes_label.grid(row=1, column=0, padx=(3, 10), pady=(0, 0), sticky=W)
+        rm_codes_label = ttk.Label(form_frame, text="Raw Material", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        rm_codes_label.grid(row=7, column=0, padx=(3, 10), pady=5, sticky=W)
 
-        rm_codes_label_value = ttk.Label(rmcode_frame, text=self.rm_code_value, style="CustomLabel.TLabel")
-        rm_codes_label_value.grid(row=2, column=0, pady=(0, 0), padx=(5, 10), sticky=W)
+        rm_codes_label_value = ttk.Label(form_frame, text=self.rm_code_value, style="CustomLabel.TLabel")
+        rm_codes_label_value.grid(row=7, column=1, padx=(5, 10),  pady=5, sticky=W)
 
 
-
-        # ----------------------------------[QUANTITY FIELD]----------------------------------#
+        # ----------------------------------[QUANTITY]----------------------------------#
         # Function to format numeric input dynamically with cursor preservation
-
-
 
         """
         Formats the input dynamically while preserving the cursor position.
         """
         formatted_value = f"{float(self.qty_value):,}"
 
-
         # Quantity Entry Field
-        qty_label = ttk.Label(rmcode_frame, text="Quantity(kg)", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        qty_label.grid(row=1, column=2, padx=(3,10), pady=(0, 0), sticky=W)
+        qty_label = ttk.Label(form_frame, text="Quantity(kg)", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        qty_label.grid(row=8, column=0, padx=(3, 10), pady=5, sticky=W)
 
-        qty_label_value = ttk.Label(rmcode_frame, text=formatted_value, style="CustomLabel.TLabel")
-        qty_label_value.grid(row=2, column=2, padx=(5,10), pady=(0, 0), sticky=W)
-
-
-        # ----------------------------------[STATUS FIELD]----------------------------------#
-
-        status_label = ttk.Label(rmcode_frame, text="Status", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        status_label.grid(row=1, column=3, padx=(3, 0), pady=(0, 0), sticky=W)
-
-        status_label_value = ttk.Label(rmcode_frame, text=self.status_value, style="CustomLabel.TLabel")
-        status_label_value.grid(row=2, column=3, padx=(5, 0), pady=(0, 0), sticky=W)
+        qty_label_value = ttk.Label(form_frame, text=formatted_value, style="CustomLabel.TLabel")
+        qty_label_value.grid(row=8, column=1, padx=(5, 10), pady=5, sticky=W)
 
 
-        # ----------------------------------[WAREHOUSE FIELD]----------------------------------#
-        warehouse_frame = ttk.Frame(form_frame)
-        warehouse_frame.grid(row=2, column=1, padx=5, pady=(0, 10), sticky="w")
+        # ----------------------------------[RESPONSIBLE PERSON]----------------------------------#
+        date_label = ttk.Label(form_frame, text="Responsible Person", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        date_label.grid(row=9, column=0, padx=(3, 0), pady=5, sticky=W)
 
+        responsible_person_label = ttk.Label(form_frame, text=self.responsible_person_value, style="CustomLabel.TLabel")
+        responsible_person_label.grid(row=9, column=1, padx=(5, 0), pady=5, sticky=W)
 
-        # Combobox for Warehouse Drop Down
-        warehouse_label = ttk.Label(warehouse_frame, text="Warehouse", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        warehouse_label.grid(row=1, column=0, padx=(3, 0), pady=(0, 0), sticky=W)
-
-        warehouse_label_value = ttk.Label(warehouse_frame, text=self.warehouse_value, style="CustomLabel.TLabel")
-        warehouse_label_value.grid(row=2, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
-
-
-
-
-        # ----------------------------------[REFERENCED DOC FIELD]----------------------------------#
-        # REFERENCED DOCUMENT FRAME (Left-aligned)
-        referenced_doc_frame = ttk.Frame(form_frame)
-        referenced_doc_frame.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="w")
-
-        label = ttk.Label(referenced_doc_frame, text="Referenced Doc.", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        label.grid(row=1, column=0, padx=(3,10), pady=0, sticky=W)
-
-        ref_doc_label = ttk.Label(referenced_doc_frame, text=self.ref_doc_value, style="CustomLabel.TLabel")
-        ref_doc_label.grid(row=2, column=0, padx=(5, 10), pady=0, sticky=W)
-
-
-
-
-        # ----------------------------------[REFERENCED DOCUMENT NO FIELD]----------------------------------#
-        label = ttk.Label(referenced_doc_frame, text="Doc. Reference #", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        label.grid(row=1, column=1, padx=5, pady=(0,0), sticky=W)
-
-        ref_doc_number_label = ttk.Label(referenced_doc_frame, text=self.ref_doc_number_value, style="CustomLabel.TLabel")
-        ref_doc_number_label.grid(row=2, column=1, padx=(5, 0), pady=0, sticky=W)
-
-
-
-
-        # ----------------------------------[REASON FIELD]----------------------------------#
-        label = ttk.Label(form_frame, text="Reason/Remarks",  bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        label.grid(row=4, column=0, padx=(8,0), pady=0, sticky=W)
-
-        reason_label = ttk.Label(form_frame, text=self.reason_value, style="CustomLabel.TLabel")
-        reason_label.grid(row=5, column=0,columnspan=2 , padx=(10, 0), pady=0, sticky=NSEW)
-
-
-
-        # Configure columns for even stretch
-        form_frame.grid_columnconfigure(1, weight=1)
-
-        # Submit button
 
         # **Cancel Button**
         cancel_button = ttk.Button(
@@ -514,7 +218,7 @@ class ViewRecordForm:
             bootstyle=DANGER,
             command=self.view_record_window.destroy
         )
-        cancel_button.grid(row=6, column=0, padx=5, pady=(20,0), sticky="w")
+        cancel_button.grid(row=10, column=0, padx=5, pady=(20,0), sticky="w")
 
 
 
