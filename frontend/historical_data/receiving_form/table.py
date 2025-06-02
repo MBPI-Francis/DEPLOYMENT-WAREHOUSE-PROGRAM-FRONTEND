@@ -5,11 +5,14 @@ from backend.settings.database import server_ip
 from tkinter import Toplevel, messagebox
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
+from .adjustment_form import AdjustmentForm
+
 
 
 class ReceivingFormTable:
     def __init__(self, root):
         self.root = root
+        self.adjustment_form = AdjustmentForm(self)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -43,6 +46,7 @@ class ReceivingFormTable:
                 "RR No.",
                 "Raw Material",
                 "Quantity(kg)",
+                "Status",
                 "Warehouse",
                 "Receiving Date",
                 "Date Computed"
@@ -80,6 +84,7 @@ class ReceivingFormTable:
                 "RR No.",
                 "Raw Material",
                 "Quantity(kg)",
+                "Status",
                 "Warehouse",
                 "Receiving Date",
                 "Date Computed"
@@ -87,6 +92,23 @@ class ReceivingFormTable:
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
+
+
+
+        self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click menu
+
+    def show_context_menu(self, event):
+        """Show right-click menu with Edit/Delete options."""
+        item = self.tree.identify_row(event.y)
+
+        if item:
+            menu = ttk.Menu(self.root, tearoff=0)
+            # menu.add_command(label="View", command=lambda: self.view_form.view_records(item))
+            # menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
+            menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
+            # menu.add_command(label="Delete", command=lambda: self.confirm_delete(item))
+            # menu.add_command(label="Delete", command=lambda: self.delete_entry(item))
+            menu.post(event.x_root, event.y_root)
 
     def fetch_data(self):
         """Fetch data from API."""
@@ -111,6 +133,7 @@ class ReceivingFormTable:
                 item["ref_number"],
                 item["raw_material"],
                 qty_kg_formatted,
+                item["status"],
                 item["wh_name"],
                 datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
                 datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y")

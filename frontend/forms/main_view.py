@@ -8,7 +8,7 @@ from .preparation_form.main_tab import preparation_form_tab
 from .outgoing_form.main_tab import outgoing_form_tab
 from .receiving_form.main_tab import receiving_report_tab
 from .submit_entries.main_tab import submit_entries_tab
-from .adjustment_form.main_tab import adjustment_form_tab
+from .adjustment_form_spillage.main_tab import adjustment_form_tab
 
 
 
