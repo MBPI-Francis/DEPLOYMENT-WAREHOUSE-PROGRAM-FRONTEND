@@ -689,7 +689,7 @@ class AdjustmentForm:
         warehouse_names = list(self.warehouse_to_id.keys())
 
         # Warehouse FROM
-        self.warehouse_label = ttk.Label(second_child_frame, text="Warehouse (FROM)",
+        self.warehouse_label = ttk.Label(second_child_frame, text="Warehouse",
                                                    style="CustomLabel.TLabel")
         self.warehouse_label.grid(row=1, column=3, padx=(50, 0), pady=(0, 0), sticky=W)
 
@@ -863,7 +863,7 @@ class AdjustmentForm:
         # ----------------------------------[QUANTITY PREPARED FIELD]----------------------------------#
 
         # Quantity Entry Field
-        qty_prepared_label = ttk.Label(field_frame2, text="Quantity", style="CustomLabel.TLabel")
+        qty_prepared_label = ttk.Label(field_frame2, text="QTY (Prepared)", style="CustomLabel.TLabel")
         qty_prepared_label.grid(row=0, column=1, padx=(3,0), pady=(10, 0), sticky=W)
 
         self.qty_prepared_entry = ttk.Entry(field_frame2,
@@ -876,13 +876,13 @@ class AdjustmentForm:
 
         # Bind the event to format input dynamically while preserving cursor position
         self.qty_prepared_entry.bind("<KeyRelease>", format_numeric_input_prepared)
-        ToolTip(self.qty_prepared_entry, text="Enter the Quantity(kg)")
+        ToolTip(self.qty_prepared_entry, text="Enter the QTY (Prepared)")
         self.qty_prepared_entry.insert(0, self.qty_prepared_value)
 
 
         # ----------------------------------[QUANTITY RETURN FIELD]----------------------------------#
         # Quantity Entry Field
-        qty_return_label = ttk.Label(field_frame2, text="Quantity", style="CustomLabel.TLabel")
+        qty_return_label = ttk.Label(field_frame2, text="QTY (Return)", style="CustomLabel.TLabel")
         qty_return_label.grid(row=0, column=2, padx=(3,0), pady=(10, 0), sticky=W)
 
         self.qty_return_entry = ttk.Entry(field_frame2,
@@ -895,7 +895,7 @@ class AdjustmentForm:
 
         # Bind the event to format input dynamically while preserving cursor position
         self.qty_return_entry.bind("<KeyRelease>", format_numeric_input_prepared)
-        ToolTip(self.qty_return_entry, text="Enter the Quantity(kg)")
+        ToolTip(self.qty_return_entry, text="Enter the QTY (Return)")
         self.qty_return_entry.insert(0, self.qty_return_value)
 
 
