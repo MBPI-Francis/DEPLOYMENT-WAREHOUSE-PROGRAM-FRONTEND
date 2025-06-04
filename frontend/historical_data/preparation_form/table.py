@@ -7,11 +7,13 @@ from ttkbootstrap.dialogs import Messagebox
 from ttkbootstrap.widgets import DateEntry
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
+from .adjustment_form import AdjustmentForm
 
 
 class PreparationFormTable:
     def __init__(self, root):
         self.root = root
+        self.adjustment_form = AdjustmentForm(self)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -96,6 +98,21 @@ class PreparationFormTable:
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
+
+        self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click menu
+
+    def show_context_menu(self, event):
+        """Show right-click menu with Edit/Delete options."""
+        item = self.tree.identify_row(event.y)
+
+        if item:
+            menu = ttk.Menu(self.root, tearoff=0)
+            # menu.add_command(label="View", command=lambda: self.view_form.view_records(item))
+            # menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
+            menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
+            # menu.add_command(label="Delete", command=lambda: self.confirm_delete(item))
+            # menu.add_command(label="Delete", command=lambda: self.delete_entry(item))
+            menu.post(event.x_root, event.y_root)
 
     def fetch_data(self):
         """Fetch data from API."""

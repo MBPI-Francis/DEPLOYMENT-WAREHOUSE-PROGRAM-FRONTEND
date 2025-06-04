@@ -13,6 +13,10 @@ from tkinter import StringVar, messagebox
 
 class AdjustmentForm:
     def __init__(self, root):
+        self.warehouse_to_label = None
+        self.warehouse_to_combobox = None
+        self.warehouse_from_combobox = None
+        self.warehouse_from_label = None
         self.item_id = None
         self.ref_form_number_entry = None
         self.referenced_form_combobox = None
@@ -38,7 +42,8 @@ class AdjustmentForm:
         self.rm_code_value = None
         self.qty_value = None
         self.status_value = None
-        self.warehouse_value = None
+        self.warehouse_from_value = None
+        self.warehouse_to_value = None
         self.spillage_form_no_value = None
         self.responsible_person_value = None
         self.incident_date_value = None
@@ -48,10 +53,19 @@ class AdjustmentForm:
         self.get_status_api = self.shared_functions.get_status_api()
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
         self.get_rm_code_api = self.shared_functions.get_rm_code_api(force_refresh=True)
-        
 
-    def get_selected_warehouse_id(self):
-        selected_name = self.warehouse_combobox.get()
+
+
+    def get_selected_warehouse_from_id(self):
+        selected_name = self.warehouse_from_combobox.get()
+        selected_id = self.warehouse_to_id.get(selected_name)  # Get the corresponding ID
+        if selected_id:
+            return selected_id
+        else:
+            return None
+
+    def get_selected_warehouse_to_id(self):
+        selected_name = self.warehouse_to_combobox.get()
         selected_id = self.warehouse_to_id.get(selected_name)  # Get the corresponding ID
         if selected_id:
             return selected_id
@@ -84,7 +98,8 @@ class AdjustmentForm:
     def submit_data(self):
 
         # Collect the form data
-        warehouse_id = self.get_selected_warehouse_id()
+        warehouse_from_id = self.get_selected_warehouse_from_id()
+        warehouse_to_id = self.get_selected_warehouse_to_id()
         rm_code_id = self.get_selected_rm_code_id()
         ref_number = self.ref_number_entry.get()
         person_responsible = self.person_responsible_entry.get()
@@ -124,12 +139,13 @@ class AdjustmentForm:
             "adjustment_date": adjustment_date,
             "referenced_date": referenced_date,
             "rm_code_id": rm_code_id,
-            "warehouse_id": warehouse_id,
+            "from_warehouse_id": warehouse_from_id,
+            "to_warehouse_id": warehouse_to_id,
             "qty_kg": cleaned_qty,
             "status_id": status_id,
             "responsible_person": person_responsible,
             "adjustment_type": adjustment_type,
-            "incorrect_outgoing_id": self.item_id,
+            "incorrect_transfer_id": self.item_id,
         }
 
 
@@ -141,7 +157,7 @@ class AdjustmentForm:
 
         # Send a POST request to the API
         try:
-            response = requests.post(f"{server_ip}/api/adjustment_form/form_entries/v1/create/outgoing_form/", json=data)
+            response = requests.post(f"{server_ip}/api/adjustment_form/form_entries/v1/create/transfer_form/", json=data)
             if response.status_code == 200:  # Successfully created
 
                 self.root.refresh_table()
@@ -169,11 +185,12 @@ class AdjustmentForm:
         self.rm_code_value = self.record[2]
         self.qty_value = self.record[3]
         self.status_value = self.record[4]
-        self.warehouse_value = self.record[5]
+        self.warehouse_from_value = self.record[5]
+        self.warehouse_to_value = self.record[6]
 
 
         self.add_record_window = ttk.Toplevel(self.root)
-        self.add_record_window.title("Outgoing Form Adjustment - Type 1")
+        self.add_record_window.title("Transfer Form Adjustment - Type 1")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 1020  # Fixed width
@@ -586,6 +603,7 @@ class AdjustmentForm:
             font=self.shared_functions.custom_font_size
         )
         incorrect_warehouse_from_combobox.grid(row=2, column=0,  padx=(5, 0), pady=(0, 0), sticky=W)
+        incorrect_warehouse_from_combobox.set(self.warehouse_from_value)
 
         # Warehouse TO
         incorrect_warehouse_to_label = ttk.Label(second_child_frame, text="Warehouse (TO)", style="CustomLabel.TLabel")
@@ -599,12 +617,7 @@ class AdjustmentForm:
         )
         incorrect_warehouse_to_combobox.grid(row=2, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
 
-
-        # incorrect_warehouse_combobox.set(self.warehouse_value)
-
-
-
-
+        incorrect_warehouse_to_combobox.set(self.warehouse_to_value)
 
 
 
@@ -615,7 +628,7 @@ class AdjustmentForm:
 
         # Combobox for RM CODE Drop Down
         incorrect_rm_codes_label = ttk.Label(field_frame1, text="Raw Material", style="CustomLabel.TLabel")
-        incorrect_rm_codes_label.grid(row=3, column=0, padx=(3, 0),  pady=(10, 0), sticky=W)
+        incorrect_rm_codes_label.grid(row=0, column=0, padx=(3, 0),  pady=(10, 0), sticky=W)
 
         incorrect_rm_codes_combobox = ttk.Combobox(
             field_frame1,
@@ -624,25 +637,21 @@ class AdjustmentForm:
             font=self.shared_functions.custom_font_size
         )
 
-        incorrect_rm_codes_combobox.grid(row=4, column=0, pady=(0, 0), padx=(5, 0), sticky=W)
+        incorrect_rm_codes_combobox.grid(row=1, column=0, pady=(0, 0), padx=(5, 0), sticky=W)
         ToolTip(incorrect_rm_codes_combobox, text="Choose a raw material")
         incorrect_rm_codes_combobox.set(self.rm_code_value)
-
-
-
-
 
 
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
         # Quantity Entry Field
         incorrect_qty_label = ttk.Label(field_frame1, text="Quantity", style="CustomLabel.TLabel")
-        incorrect_qty_label.grid(row=3, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
+        incorrect_qty_label.grid(row=0, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
 
         incorrect_qty_entry = ttk.Entry(field_frame1,
                               width=13,
                               font=self.shared_functions.custom_font_size,
                               )  # Pass input for validation
-        incorrect_qty_entry.grid(row=4, column=1, padx=(5,0), pady=(0, 0), sticky=W)
+        incorrect_qty_entry.grid(row=1, column=1, padx=(5,0), pady=(0, 0), sticky=W)
 
 
         ToolTip(incorrect_qty_entry, text="Enter the Quantity(kg)")
@@ -653,7 +662,7 @@ class AdjustmentForm:
         # ----------------------------------[STATUS FIELD]----------------------------------#
 
         incorrect_status_label = ttk.Label(field_frame1, text="Status", style="CustomLabel.TLabel")
-        incorrect_status_label.grid(row=3, column=2, padx=(3, 0), pady=(10, 0), sticky=W)
+        incorrect_status_label.grid(row=0, column=2, padx=(3, 0), pady=(10, 0), sticky=W)
 
         incorrect_status_combobox = ttk.Combobox(
             field_frame1,
@@ -661,7 +670,7 @@ class AdjustmentForm:
             width=18,
             font=self.shared_functions.custom_font_size
         )
-        incorrect_status_combobox.grid(row=4, column=2, padx=(5, 0), pady=(0, 0), sticky=W)
+        incorrect_status_combobox.grid(row=1, column=2, padx=(5, 0), pady=(0, 0), sticky=W)
         ToolTip(incorrect_status_combobox, text="Please choose the raw material status")
         incorrect_status_combobox.set(self.status_value)
 
@@ -677,7 +686,7 @@ class AdjustmentForm:
         # Warehouse FROM
         self.warehouse_from_label = ttk.Label(second_child_frame, text="Warehouse (FROM)",
                                                    style="CustomLabel.TLabel")
-        self.warehouse_from_label.grid(row=1, column=3, padx=(3, 0), pady=(0, 0), sticky=W)
+        self.warehouse_from_label.grid(row=1, column=3, padx=(50, 0), pady=(0, 0), sticky=W)
 
         self.warehouse_from_combobox = ttk.Combobox(
             second_child_frame,
@@ -686,7 +695,8 @@ class AdjustmentForm:
             values=warehouse_names,
             font=self.shared_functions.custom_font_size
         )
-        self.warehouse_from_combobox.grid(row=2, column=3, padx=(5, 0), pady=(0, 0), sticky=W)
+        self.warehouse_from_combobox.grid(row=2, column=3, padx=(50, 0), pady=(0, 0), sticky=W)
+        self.warehouse_from_combobox.set(self.warehouse_from_value)
 
         # Warehouse TO
         self.warehouse_to_label = ttk.Label(second_child_frame, text="Warehouse (TO)", style="CustomLabel.TLabel")
@@ -701,9 +711,9 @@ class AdjustmentForm:
         )
         self.warehouse_to_combobox.grid(row=2, column=4, padx=(5, 0), pady=(0, 0), sticky=W)
 
-        ToolTip(self.warehouse_combobox, text="Choose a warehouse")
+        ToolTip(self.warehouse_to_combobox, text="Choose a warehouse")
 
-        self.warehouse_combobox.set(self.warehouse_value)
+        self.warehouse_to_combobox.set(self.warehouse_to_value)
 
         # self.warehouse_combobox.set(self.warehouse_value)
 
@@ -711,6 +721,7 @@ class AdjustmentForm:
         # ----------------------------------[RM CODE FIELD]----------------------------------#
         field_frame2 = ttk.Frame(second_child_frame)
         field_frame2.grid(row=3, column=3, columnspan=2, sticky="w")
+
 
         # RM CODE JSON-format choices (coming from the API)
         rm_codes = self.get_rm_code_api
@@ -732,96 +743,16 @@ class AdjustmentForm:
             field_frame2,
             values=rm_names,
             state="normal",
-            width=27,
+            width=21,
             font=self.shared_functions.custom_font_size
         )
 
         # Bind the key release event to the combobox to trigger uppercase conversion
         self.rm_codes_combobox.bind("<KeyRelease>", on_combobox_key_release)
 
-        self.rm_codes_combobox.grid(row=1, column=3, pady=(0, 0), padx=(50, 0), sticky=W)
+        self.rm_codes_combobox.grid(row=1, column=0, pady=(0, 0), padx=(50, 0), sticky=W)
         ToolTip(self.rm_codes_combobox, text="Choose a raw material")
         self.rm_codes_combobox.set(self.rm_code_value)
-
-
-
-        #
-        # # Combobox for RM CODE Drop Down
-        # self.rm_codes_label = ttk.Label(field_frame1, text="Raw Material", style="CustomLabel.TLabel")
-        # self.rm_codes_label.grid(row=3, column=0, padx=(3, 0),  pady=(10, 0), sticky=W)
-        #
-        # self.rm_codes_combobox = ttk.Combobox(
-        #     field_frame1,
-        #     state="disabled",
-        #     width=21,
-        #     font=self.shared_functions.custom_font_size
-        # )
-        #
-        # self.rm_codes_combobox.grid(row=4, column=0, pady=(0, 0), padx=(5, 0), sticky=W)
-        # ToolTip(self.rm_codes_combobox, text="Choose a raw material")
-        self.rm_codes_combobox.set(self.rm_code_value)
-
-
-
-
-
-
-        # ----------------------------------[QUANTITY FIELD]----------------------------------#
-        # Quantity Entry Field
-        incorrect_qty_label = ttk.Label(field_frame1, text="Quantity", style="CustomLabel.TLabel")
-        incorrect_qty_label.grid(row=3, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
-
-        incorrect_qty_entry = ttk.Entry(field_frame1,
-                              width=13,
-                              font=self.shared_functions.custom_font_size,
-                              )  # Pass input for validation
-        incorrect_qty_entry.grid(row=4, column=1, padx=(5,0), pady=(0, 0), sticky=W)
-
-
-        ToolTip(incorrect_qty_entry, text="Enter the Quantity(kg)")
-        incorrect_qty_entry.insert(0, self.qty_value)
-        # Configure the entry as read-only
-        incorrect_qty_entry.state(['disabled'])
-
-        # ----------------------------------[STATUS FIELD]----------------------------------#
-
-        incorrect_status_label = ttk.Label(field_frame1, text="Status", style="CustomLabel.TLabel")
-        incorrect_status_label.grid(row=3, column=2, padx=(3, 0), pady=(10, 0), sticky=W)
-
-        incorrect_status_combobox = ttk.Combobox(
-            field_frame1,
-            state="disabled",
-            width=18,
-            font=self.shared_functions.custom_font_size
-        )
-        incorrect_status_combobox.grid(row=4, column=2, padx=(5, 0), pady=(0, 0), sticky=W)
-        ToolTip(incorrect_status_combobox, text="Please choose the raw material status")
-        incorrect_status_combobox.set(self.status_value)
-
-
-        # ----------------------------------[STATUS FIELD]----------------------------------#
-
-        # Status JSON-format choices (coming from the API)
-        status = self.get_status_api
-        self.status_to_id = {item["name"]: item["id"] for item in status}
-        status_names = list(self.status_to_id.keys())
-
-        status_label = ttk.Label(second_child_frame, text="Status", style="CustomLabel.TLabel")
-        status_label.grid(row=1, column=4, padx=(3, 0), pady=(10, 0), sticky=W)
-
-        self.status_combobox = ttk.Combobox(
-            second_child_frame,
-            values=status_names,
-            state="readonly",
-            width=27,
-            font=self.shared_functions.custom_font_size
-        )
-        self.status_combobox.grid(row=2, column=4, padx=(5, 0), pady=(0, 0), sticky=W)
-        ToolTip(self.status_combobox, text="Please choose the raw material status")
-        self.status_combobox.set(self.status_value)
-
-
-
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
 
         def format_numeric_input(event):
@@ -870,21 +801,48 @@ class AdjustmentForm:
         validate_numeric_command = second_child_frame.register(EntryValidation.validate_numeric_input)
 
         # Quantity Entry Field
-        qty_label = ttk.Label(second_child_frame, text="Quantity", style="CustomLabel.TLabel")
-        qty_label.grid(row=3, column=4, padx=(3,0), pady=(10, 0), sticky=W)
+        qty_label = ttk.Label(field_frame2, text="Quantity", style="CustomLabel.TLabel")
+        qty_label.grid(row=0, column=1, padx=(3,0), pady=(10, 0), sticky=W)
 
-        self.qty_entry = ttk.Entry(second_child_frame,
-                                   width=29,
+        self.qty_entry = ttk.Entry(field_frame2,
+                                   width=13,
                                    font=self.shared_functions.custom_font_size,
                                    textvariable=qty_var,
                                    validate="key",
                                    validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
-        self.qty_entry.grid(row=4, column=4, padx=(3, 0), pady=(0, 0), sticky=W)
+        self.qty_entry.grid(row=1, column=1, padx=(3, 0), pady=(0, 0), sticky=W)
 
         # Bind the event to format input dynamically while preserving cursor position
         self.qty_entry.bind("<KeyRelease>", format_numeric_input)
         ToolTip(self.qty_entry, text="Enter the Quantity(kg)")
         self.qty_entry.insert(0, self.qty_value)
+
+
+
+        # ----------------------------------[STATUS FIELD]----------------------------------#
+
+        # Status JSON-format choices (coming from the API)
+        status = self.get_status_api
+        self.status_to_id = {item["name"]: item["id"] for item in status}
+        status_names = list(self.status_to_id.keys())
+
+        status_label = ttk.Label(field_frame2, text="Status", style="CustomLabel.TLabel")
+        status_label.grid(row=0, column=2, padx=(3, 0), pady=(10, 0), sticky=W)
+
+        self.status_combobox = ttk.Combobox(
+            field_frame2,
+            values=status_names,
+            state="readonly",
+            width=18,
+            font=self.shared_functions.custom_font_size
+        )
+        self.status_combobox.grid(row=1, column=2, padx=(5, 0), pady=(0, 0), sticky=W)
+        ToolTip(self.status_combobox, text="Please choose the raw material status")
+        self.status_combobox.set(self.status_value)
+
+
+
+
 
 
 
@@ -945,10 +903,13 @@ class AdjustmentForm:
         self.ref_date_entry.entry.bind("<Tab>",
                                        lambda e: self.shared_functions.focus_next_widget(e, self.adjustment_type_combobox))
         self.adjustment_type_combobox.bind("<Tab>",
-                                       lambda e: self.shared_functions.focus_next_widget(e, self.warehouse_combobox))
-        self.warehouse_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.status_combobox))
-        self.status_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.rm_codes_combobox))
+                                       lambda e: self.shared_functions.focus_next_widget(e, self.warehouse_from_combobox))
+        self.warehouse_from_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.warehouse_to_combobox))
+        self.warehouse_to_combobox.bind("<Tab>",
+                                          lambda e: self.shared_functions.focus_next_widget(e, self.rm_codes_combobox))
         self.rm_codes_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.qty_entry))
-        self.qty_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.person_responsible_entry))
+        self.qty_entry.bind("<Tab>",
+                            lambda e: self.shared_functions.focus_next_widget(e, self.status_combobox))
+        self.status_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.person_responsible_entry))
         self.person_responsible_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, submit_btn))
 
