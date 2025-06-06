@@ -14,11 +14,6 @@ from tkinter import StringVar, messagebox
 class AdjustmentForm:
     def __init__(self, root):
         self.warehouse_label = None
-        self.warehouse_value = None
-        self.qty_return_value = None
-        self.qty_prepared_value = None
-        self.qty_prepared_entry = None
-        self.qty_return_entry = None
         self.item_id = None
         self.ref_form_number_entry = None
         self.referenced_form_combobox = None
@@ -32,6 +27,7 @@ class AdjustmentForm:
         self.warehouse_to_id = None
         self.status_combobox = None
         self.qty_entry = None
+        self.qty_value = None
         self.code_to_id = None
         self.rm_codes_combobox = None
         self.root = root
@@ -44,8 +40,7 @@ class AdjustmentForm:
         self.rm_code_value = None
         self.qty_value = None
         self.status_value = None
-        self.warehouse_from_value = None
-        self.warehouse_to_value = None
+        self.warehouse_value = None
         self.spillage_form_no_value = None
         self.responsible_person_value = None
         self.incident_date_value = None
@@ -75,8 +70,16 @@ class AdjustmentForm:
         else:
             return None
 
-    def get_selected_status_id(self):
-        selected_name = self.status_combobox.get()
+    def get_selected_previous_status_id(self):
+        selected_name = self.previous_status_combobox.get()
+        selected_id = self.status_to_id.get(selected_name)  # Get the corresponding ID
+        if selected_id:
+            return selected_id
+        else:
+            return None
+
+    def get_selected_present_status_id(self):
+        selected_name = self.present_status_combobox.get()
         selected_id = self.status_to_id.get(selected_name)  # Get the corresponding ID
         if selected_id:
             return selected_id
@@ -98,31 +101,20 @@ class AdjustmentForm:
         ref_number = self.ref_number_entry.get()
         person_responsible = self.person_responsible_entry.get()
         adjustment_type = self.adjustment_type_combobox.get()
+        present_status = self.get_selected_present_status_id()
+        previous_status = self.get_selected_previous_status_id()
 
-        qty_prepared = self.qty_prepared_entry.get()
-        qty_return = self.qty_return_entry.get()
+        qty = self.qty_entry.get()
 
 
         # If the user didn't enter a value in the qty return field, then it will store 0.00 value in the variable
-        if qty_return is None or qty_return == '':
-            qty_return = '0'
-
-
-        if qty_prepared is None or qty_prepared == '':
-            qty_prepared = '0'
-
-
+        if qty is None or qty == '':
+            qty = '0'
         # This code removes the commas in the qty value
-        cleaned_qty_prepared = float(qty_prepared.replace(",", ""))
-        cleaned_qty_return = float(qty_return.replace(",", ""))
-
-
+        cleaned_qty = float(qty.replace(",", ""))
 
         adjustment_date = self.adj_date_entry.entry.get()
         referenced_date = self.ref_date_entry.entry.get()
-
-
-        status_id = self.get_selected_status_id()
 
         # Set focus to the Entry field
         self.adj_date_entry.entry.focus_set()
@@ -137,19 +129,21 @@ class AdjustmentForm:
             return
 
         # Create a dictionary with the data
-        data =         {
+        data = {
             "ref_number": ref_number,
             "adjustment_date": adjustment_date,
             "referenced_date": referenced_date,
             "rm_code_id": rm_code_id,
             "warehouse_id": warehouse_id,
-            "qty_prepared": cleaned_qty_prepared,
-            "qty_return": cleaned_qty_return,
-            "status_id": status_id,
-            "responsible_person": person_responsible,
+            "qty_kg": cleaned_qty,
+            "current_status_id": previous_status,
+            "new_status_id": present_status,
+            "incorrect_change_status_id": self.item_id,
             "adjustment_type": adjustment_type,
-            "incorrect_preparation_id": self.item_id,
+            "responsible_person": person_responsible,
         }
+
+        print(data)
 
 
         # Validate the data entries in front-end side
@@ -160,7 +154,7 @@ class AdjustmentForm:
 
         # Send a POST request to the API
         try:
-            response = requests.post(f"{server_ip}/api/adjustment_form/form_entries/v1/create/preparation_form/", json=data)
+            response = requests.post(f"{server_ip}/api/adjustment_form/form_entries/v1/create/change_status_form/", json=data)
             if response.status_code == 200:  # Successfully created
 
                 self.root.refresh_table()
@@ -186,14 +180,14 @@ class AdjustmentForm:
         self.record = self.root.tree.item(item, 'values')
         self.ref_number_value = self.record[1]
         self.rm_code_value = self.record[2]
-        self.qty_prepared_value = self.record[3]
-        self.qty_return_value = self.record[4]
-        self.status_value = self.record[6]
-        self.warehouse_value = self.record[7]
+        self.qty_value = self.record[3]
+        self.previous_status_value = self.record[4]
+        self.present_status_value = self.record[5]
+        self.warehouse_value = self.record[6]
 
 
         self.add_record_window = ttk.Toplevel(self.root)
-        self.add_record_window.title("Transfer Form Adjustment - Type 1")
+        self.add_record_window.title("Change Status Form Adjustment - Type 1")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 1040  # Fixed width
@@ -597,33 +591,16 @@ class AdjustmentForm:
         
         # Warehouse
         incorrect_warehouse_label = ttk.Label(second_child_frame, text="Warehouse", style="CustomLabel.TLabel")
-        incorrect_warehouse_label.grid(row=1, column=0, padx=(3,0), pady=(0, 0), sticky=W)
+        incorrect_warehouse_label.grid(row=1, column=0, columnspan=2, padx=(3, 0), pady=(0, 0), sticky=W)
 
         incorrect_warehouse_combobox = ttk.Combobox(
-            second_child_frame,
-            state="disabled",
-            width=29,
-            font=self.shared_functions.custom_font_size
-        )
-        incorrect_warehouse_combobox.grid(row=2, column=0,  padx=(5, 0), pady=(0, 0), sticky=W)
-        incorrect_warehouse_combobox.set(self.warehouse_value)
-
-        # ----------------------------------[STATUS FIELD]----------------------------------#
-
-        incorrect_status_label = ttk.Label(second_child_frame, text="Status", style="CustomLabel.TLabel")
-        incorrect_status_label.grid(row=1, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
-
-        incorrect_status_combobox = ttk.Combobox(
             second_child_frame,
             state="disabled",
             width=27,
             font=self.shared_functions.custom_font_size
         )
-        incorrect_status_combobox.grid(row=2, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
-        ToolTip(incorrect_status_combobox, text="Please choose the raw material status")
-        incorrect_status_combobox.set(self.status_value)
-
-
+        incorrect_warehouse_combobox.grid(row=2, column=0,  padx=(5, 0), pady=(0, 0), sticky=W)
+        incorrect_warehouse_combobox.set(self.warehouse_value)
 
         # ----------------------------------[RM CODE FIELD]----------------------------------#
         field_frame1 = ttk.Frame(second_child_frame)
@@ -636,7 +613,7 @@ class AdjustmentForm:
         incorrect_rm_codes_combobox = ttk.Combobox(
             field_frame1,
             state="disabled",
-            width=21,
+            width=27,
             font=self.shared_functions.custom_font_size
         )
 
@@ -646,36 +623,48 @@ class AdjustmentForm:
 
         # ----------------------------------[QUANTITY PREPARED FIELD]----------------------------------#
         # Quantity Entry Field
-        incorrect_qty_prepared_label = ttk.Label(field_frame1, text="QTY (Prepared)", style="CustomLabel.TLabel")
-        incorrect_qty_prepared_label.grid(row=0, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
+        incorrect_qty_label = ttk.Label(field_frame1, text="QTY (Prepared)", style="CustomLabel.TLabel")
+        incorrect_qty_label.grid(row=0, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
 
-        incorrect_qty_prepared_entry = ttk.Entry(field_frame1,
-                              width=17,
+        incorrect_qty_entry = ttk.Entry(field_frame1,
+                              width=28,
                               font=self.shared_functions.custom_font_size,
                               )  # Pass input for validation
-        incorrect_qty_prepared_entry.grid(row=1, column=1, padx=(5,0), pady=(0, 0), sticky=W)
+        incorrect_qty_entry.grid(row=1, column=1, padx=(5,0), pady=(0, 0), sticky=W)
 
 
-        incorrect_qty_prepared_entry.insert(0, self.qty_prepared_value)
+        incorrect_qty_entry.insert(0, self.qty_value)
         # Configure the entry as read-only
-        incorrect_qty_prepared_entry.state(['disabled'])
+        incorrect_qty_entry.state(['disabled'])
 
 
-        # ----------------------------------[QUANTITY RETURN FIELD]----------------------------------#
-        # Quantity Entry Field
-        incorrect_qty_return_label = ttk.Label(field_frame1, text="QTY (Return)", style="CustomLabel.TLabel")
-        incorrect_qty_return_label.grid(row=0, column=2, padx=(3,0),  pady=(10, 0), sticky=W)
+        # ----------------------------------[PREVIOUS STATUS FIELD]----------------------------------#
 
-        incorrect_qty_return_entry = ttk.Entry(field_frame1,
-                              width=17,
-                              font=self.shared_functions.custom_font_size,
-                              )  # Pass input for validation
-        incorrect_qty_return_entry.grid(row=1, column=2, padx=(5,0), pady=(0, 0), sticky=W)
+        incorrect_previous_status_label = ttk.Label(field_frame1, text="Previous Status", style="CustomLabel.TLabel")
+        incorrect_previous_status_label.grid(row=2, column=0, padx=(5, 0), pady=(10, 0), sticky=W)
 
-        incorrect_qty_return_entry.insert(0, self.qty_return_value)
-        # Configure the entry as read-only
-        incorrect_qty_return_entry.state(['disabled'])
+        incorrect_previous_status_combobox = ttk.Combobox(
+            field_frame1,
+            state="disabled",
+            width=27,
+            font=self.shared_functions.custom_font_size
+        )
+        incorrect_previous_status_combobox.grid(row=3, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
+        incorrect_previous_status_combobox.set(self.previous_status_value)
 
+        # ----------------------------------[PRESENT STATUS FIELD]----------------------------------#
+
+        incorrect_present_status_label = ttk.Label(field_frame1, text="Present Status", style="CustomLabel.TLabel")
+        incorrect_present_status_label.grid(row=2, column=1, padx=(5, 0), pady=(10, 0), sticky=W)
+
+        incorrect_present_status_combobox = ttk.Combobox(
+            field_frame1,
+            state="disabled",
+            width=27,
+            font=self.shared_functions.custom_font_size
+        )
+        incorrect_present_status_combobox.grid(row=3, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
+        incorrect_present_status_combobox.set(self.present_status_value)
 
 
 
@@ -690,39 +679,17 @@ class AdjustmentForm:
         # Warehouse FROM
         self.warehouse_label = ttk.Label(second_child_frame, text="Warehouse",
                                                    style="CustomLabel.TLabel")
-        self.warehouse_label.grid(row=1, column=3, padx=(50, 0), pady=(0, 0), sticky=W)
+        self.warehouse_label.grid(row=1, column=3, columnspan=2, padx=(50, 0), pady=(0, 0), sticky=W)
 
         self.warehouse_combobox = ttk.Combobox(
             second_child_frame,
             state="readonly",
-            width=29,
+            width=27,
             values=warehouse_names,
             font=self.shared_functions.custom_font_size
         )
         self.warehouse_combobox.grid(row=2, column=3, padx=(50, 0), pady=(0, 0), sticky=W)
         self.warehouse_combobox.set(self.warehouse_value)
-
-
-        # ----------------------------------[STATUS FIELD]----------------------------------#
-
-        # Status JSON-format choices (coming from the API)
-        status = self.get_status_api
-        self.status_to_id = {item["name"]: item["id"] for item in status}
-        status_names = list(self.status_to_id.keys())
-
-        status_label = ttk.Label(second_child_frame, text="Status", style="CustomLabel.TLabel")
-        status_label.grid(row=1, column=4, padx=(3, 0), pady=(0, 0), sticky=W)
-
-        self.status_combobox = ttk.Combobox(
-            second_child_frame,
-            values=status_names,
-            state="readonly",
-            width=27,
-            font=self.shared_functions.custom_font_size
-        )
-        self.status_combobox.grid(row=2, column=4, padx=(5, 0), pady=(0, 0), sticky=W)
-        ToolTip(self.status_combobox, text="Please choose the raw material status")
-        self.status_combobox.set(self.status_value)
 
 
 
@@ -751,7 +718,7 @@ class AdjustmentForm:
             field_frame2,
             values=rm_names,
             state="normal",
-            width=21,
+            width=27,
             font=self.shared_functions.custom_font_size
         )
 
@@ -767,14 +734,14 @@ class AdjustmentForm:
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
 
         # Function to format numeric input dynamically with cursor preservation
-        def format_numeric_input_prepared(event):
+        def format_numeric_input(event):
             """
             Formats the input dynamically while preserving the cursor position.
             """
-            input_value = qty_prepared_var.get()
+            input_value = qty_var.get()
 
             # Get current cursor position
-            cursor_position = self.qty_prepared_entry.index("insert")
+            cursor_position = self.qty_entry.index("insert")
 
             # Remove commas for processing
             raw_value = input_value.replace(",", "")
@@ -803,110 +770,85 @@ class AdjustmentForm:
                 new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
 
                 # Prevent cursor jumping by resetting the value and restoring cursor position
-                self.qty_prepared_entry.delete(0, "end")
-                self.qty_prepared_entry.insert(0, formatted_value)
-                self.qty_prepared_entry.icursor(new_cursor_position)  # Restore cursor position
+                self.qty_entry.delete(0, "end")
+                self.qty_entry.insert(0, formatted_value)
+                self.qty_entry.icursor(new_cursor_position)  # Restore cursor position
             except ValueError:
                 pass  # Ignore invalid input
 
         # Function to format numeric input dynamically with cursor preservation
-        def format_numeric_input_return(event):
-            """
-            Formats the input dynamically while preserving the cursor position.
-            """
-            input_value = qty_return_var.get()
 
-            # Get current cursor position
-            cursor_position = self.qty_return_entry.index("insert")
-
-            # Remove commas for processing
-            raw_value = input_value.replace(",", "")
-
-            if raw_value == "" or raw_value == ".":
-                return  # Prevent formatting when only `.` is typed
-
-            try:
-                if "." in raw_value and raw_value[-1] == ".":
-                    return  # Allow user to manually enter decimal places
-
-                # Convert input to float and format
-                float_value = float(raw_value)
-
-                if "." in raw_value:
-                    integer_part, decimal_part = raw_value.split(".")
-                    formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
-                    formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
-                else:
-                    formatted_value = "{:,}".format(int(float_value))  # Format whole number
-
-                # Adjust cursor position based on new commas added
-                num_commas_before = input_value[:cursor_position].count(",")
-                num_commas_after = formatted_value[:cursor_position].count(",")
-
-                new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
-
-                # Prevent cursor jumping by resetting the value and restoring cursor position
-                self.qty_return_entry.delete(0, "end")
-                self.qty_return_entry.insert(0, formatted_value)
-                self.qty_return_entry.icursor(new_cursor_position)  # Restore cursor position
-            except ValueError:
-                pass  # Ignore invalid input
 
         # Tkinter StringVar for real-time updates
-        qty_prepared_var = StringVar()
-        qty_return_var = StringVar()
+        qty_var = StringVar()
 
         # Validation Command for Entry Widget
         validate_numeric_command = second_child_frame.register(EntryValidation.validate_numeric_input)
 
-        # ----------------------------------[QUANTITY PREPARED FIELD]----------------------------------#
+        # ----------------------------------[QUANTITY FIELD]----------------------------------#
 
         # Quantity Entry Field
-        qty_prepared_label = ttk.Label(field_frame2, text="QTY (Prepared)", style="CustomLabel.TLabel")
-        qty_prepared_label.grid(row=0, column=1, padx=(3,0), pady=(10, 0), sticky=W)
+        qty_label = ttk.Label(field_frame2, text="QTY (Prepared)", style="CustomLabel.TLabel")
+        qty_label.grid(row=0, column=1, padx=(3,0), pady=(10, 0), sticky=W)
 
-        self.qty_prepared_entry = ttk.Entry(field_frame2,
-                                   width=17,
+        self.qty_entry = ttk.Entry(field_frame2,
+                                   width=28,
                                    font=self.shared_functions.custom_font_size,
-                                   textvariable=qty_prepared_var,
+                                   textvariable=qty_var,
                                    validate="key",
                                    validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
-        self.qty_prepared_entry.grid(row=1, column=1, padx=(3, 0), pady=(0, 0), sticky=W)
+        self.qty_entry.grid(row=1, column=1, padx=(3, 0), pady=(0, 0), sticky=W)
 
         # Bind the event to format input dynamically while preserving cursor position
-        self.qty_prepared_entry.bind("<KeyRelease>", format_numeric_input_prepared)
-        ToolTip(self.qty_prepared_entry, text="Enter the QTY (Prepared)")
-        self.qty_prepared_entry.insert(0, self.qty_prepared_value)
+        self.qty_entry.bind("<KeyRelease>", format_numeric_input)
+        ToolTip(self.qty_entry, text="Enter the QTY (Prepared)")
+        self.qty_entry.insert(0, self.qty_value)
 
 
-        # ----------------------------------[QUANTITY RETURN FIELD]----------------------------------#
-        # Quantity Entry Field
-        qty_return_label = ttk.Label(field_frame2, text="QTY (Return)", style="CustomLabel.TLabel")
-        qty_return_label.grid(row=0, column=2, padx=(3,0), pady=(10, 0), sticky=W)
+        # ----------------------------------[PREVIOUS STATUS FIELD]----------------------------------#
+        # Status JSON-format choices (coming from the API)
+        status = self.get_status_api
+        self.status_to_id = {item["name"]: item["id"] for item in status}
+        status_names = list(self.status_to_id.keys())
 
-        self.qty_return_entry = ttk.Entry(field_frame2,
-                                   width=17,
-                                   font=self.shared_functions.custom_font_size,
-                                   textvariable=qty_return_var,
-                                   validate="key",
-                                   validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
-        self.qty_return_entry.grid(row=1, column=2, padx=(3, 0), pady=(0, 0), sticky=W)
+        self.previous_status_label = ttk.Label(field_frame2, text="Previous Status", style="CustomLabel.TLabel")
+        self.previous_status_label.grid(row=2, column=0, padx=(50, 0), pady=(10, 0), sticky=W)
 
-        # Bind the event to format input dynamically while preserving cursor position
-        self.qty_return_entry.bind("<KeyRelease>", format_numeric_input_prepared)
-        ToolTip(self.qty_return_entry, text="Enter the QTY (Return)")
-        self.qty_return_entry.insert(0, self.qty_return_value)
+        self.previous_status_combobox = ttk.Combobox(
+            field_frame2,
+            values=status_names,
+            state="readonly",
+            width=27,
+            font=self.shared_functions.custom_font_size
+        )
+        self.previous_status_combobox.grid(row=3, column=0, padx=(50, 0), pady=(0, 0), sticky=W)
+        ToolTip(self.previous_status_combobox, text="Please choose the raw material previous status")
+        self.previous_status_combobox.set(self.previous_status_value)
 
 
 
+        # ----------------------------------[PRESENT STATUS FIELD]----------------------------------#
 
+        self.present_status_label = ttk.Label(field_frame2, text="Present Status", style="CustomLabel.TLabel")
+        self.present_status_label.grid(row=2, column=1, padx=(5, 0), pady=(10, 0), sticky=W)
+
+        self.present_status_combobox = ttk.Combobox(
+            field_frame2,
+            values=status_names,
+            state="readonly",
+            width=27,
+            font=self.shared_functions.custom_font_size
+        )
+        self.present_status_combobox.grid(row=3, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
+        ToolTip(self.present_status_combobox, text="Please choose the raw material present status")
+        self.present_status_combobox.set(self.present_status_value)
 
 
         # ----------------------------------[PERSON RESPONSIBLE FIELD]----------------------------------#
         label = ttk.Label(second_child_frame, text="Responsible Person", style="CustomLabel.TLabel")
-        label.grid(row=5, column=0, padx=5,  pady=(10, 0), sticky=W)
+        label.grid(row=5, column=0, padx=5,  pady=(20, 0), sticky=W)
 
-        self.person_responsible_entry = ttk.Entry(second_child_frame, width=61, font=self.shared_functions.custom_font_size)
+        self.person_responsible_entry = ttk.Entry(second_child_frame, width=29, font=self.shared_functions.custom_font_size)
         self.person_responsible_entry.grid(row=6, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
         ToolTip(self.person_responsible_entry, text="Type the Spillage Report Reference Number.")
 
@@ -960,14 +902,14 @@ class AdjustmentForm:
         self.adjustment_type_combobox.bind("<Tab>",
                                        lambda e: self.shared_functions.focus_next_widget(e, self.warehouse_combobox))
         self.warehouse_combobox.bind("<Tab>",
-                                          lambda e: self.shared_functions.focus_next_widget(e, self.status_combobox))
-        self.status_combobox.bind("<Tab>",
-                                  lambda e: self.shared_functions.focus_next_widget(e, self.rm_codes_combobox))
-        self.rm_codes_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.qty_prepared_entry))
-        self.qty_prepared_entry.bind("<Tab>",
-                                    lambda e: self.shared_functions.focus_next_widget(e, self.qty_return_entry))
-        self.qty_return_entry.bind("<Tab>",
-                                     lambda e: self.shared_functions.focus_next_widget(e, self.person_responsible_entry))
+                                          lambda e: self.shared_functions.focus_next_widget(e, self.rm_codes_combobox))
+        self.rm_codes_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.qty_entry))
+        self.qty_entry.bind("<Tab>",
+                                    lambda e: self.shared_functions.focus_next_widget(e, self.previous_status_combobox))
+        self.previous_status_combobox.bind("<Tab>",
+                                  lambda e: self.shared_functions.focus_next_widget(e, self.present_status_combobox))
+        self.present_status_combobox.bind("<Tab>",
+                                  lambda e: self.shared_functions.focus_next_widget(e, self.person_responsible_entry))
 
         self.person_responsible_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, submit_btn))
 
