@@ -192,7 +192,7 @@ class AdjustmentForm:
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 1040  # Fixed width
-        window_height = 580  # Fixed height
+        window_height = 650  # Fixed height
 
         # **Center the window**
         screen_width = self.add_record_window.winfo_screenwidth()
