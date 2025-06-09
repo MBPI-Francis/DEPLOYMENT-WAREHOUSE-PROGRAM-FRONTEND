@@ -2,17 +2,17 @@ import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import requests
 from backend.settings.database import server_ip
-from tkinter import Toplevel, messagebox
+from tkinter import messagebox
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
-from .adjustment_form import AdjustmentForm
+from frontend.historical_data.receiving_form.adjustment_confirmation_messages import ConfirmationMessage
 
 
 
 class ReceivingFormTable:
     def __init__(self, root):
         self.root = root
-        self.adjustment_form = AdjustmentForm(self)
+        self.confirmation_message = ConfirmationMessage(self.root, self)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -105,7 +105,9 @@ class ReceivingFormTable:
             menu = ttk.Menu(self.root, tearoff=0)
             # menu.add_command(label="View", command=lambda: self.view_form.view_records(item))
             # menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
-            menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
+            # menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
+            menu.add_command(label="Adjust", command=lambda: self.confirmation_message.show_confirmation_message(item))
+
             # menu.add_command(label="Delete", command=lambda: self.confirm_delete(item))
             # menu.add_command(label="Delete", command=lambda: self.delete_entry(item))
             menu.post(event.x_root, event.y_root)

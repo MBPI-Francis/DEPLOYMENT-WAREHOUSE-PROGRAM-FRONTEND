@@ -11,8 +11,11 @@ from ...forms.shared import SharedFunctions
 from tkinter import StringVar, messagebox
 
 
+
 class AdjustmentForm:
     def __init__(self, root):
+
+
         self.warehouse_label = None
         self.item_id = None
         self.ref_form_number_entry = None
@@ -142,8 +145,6 @@ class AdjustmentForm:
             "adjustment_type": adjustment_type,
             "responsible_person": person_responsible,
         }
-
-        print(data)
 
 
         # Validate the data entries in front-end side
