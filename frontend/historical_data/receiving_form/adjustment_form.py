@@ -13,6 +13,7 @@ from tkinter import StringVar, messagebox
 
 class AdjustmentForm:
     def __init__(self, root):
+        self.is_adjusted = None
         self.item_id = None
         self.ref_form_number_entry = None
         self.referenced_form_combobox = None
@@ -169,6 +170,7 @@ class AdjustmentForm:
         self.qty_value = self.record[3]
         self.status_value = self.record[4]
         self.warehouse_value = self.record[5]
+        self.is_adjusted = self.record[8]
 
 
         self.add_record_window = ttk.Toplevel(self.root)

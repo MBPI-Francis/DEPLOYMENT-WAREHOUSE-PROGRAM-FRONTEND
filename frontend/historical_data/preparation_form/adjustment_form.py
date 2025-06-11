@@ -193,7 +193,7 @@ class AdjustmentForm:
 
 
         self.add_record_window = ttk.Toplevel(self.root)
-        self.add_record_window.title("Transfer Form Adjustment - Type 1")
+        self.add_record_window.title("Preparation Form Adjustment - Type 1")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 1040  # Fixed width

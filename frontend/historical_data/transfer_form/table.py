@@ -9,7 +9,7 @@ from uuid import UUID
 from ttkbootstrap.widgets import DateEntry
 from ttkbootstrap.dialogs import Messagebox
 from .adjustment_form import AdjustmentForm
-from frontend.historical_data.transfer_form.adjustment_confirmation_messages import ConfirmationMessage
+from frontend.historical_data.shared_confirmation_messages import ConfirmationMessage
 
 
 
@@ -18,7 +18,7 @@ class TransferFormTable:
     def __init__(self, root):
         self.root = root
         self.adjustment_form = AdjustmentForm(self)
-        self.confirmation_message = ConfirmationMessage(self.root, self)
+        self.confirmation_message = ConfirmationMessage(self.root, self, "transfer")
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -96,12 +96,18 @@ class TransferFormTable:
 
         if item:
             menu = ttk.Menu(self.root, tearoff=0)
-            # menu.add_command(label="View", command=lambda: self.view_form.view_records(item))
-            # menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
-            # menu.add_command(label="Adjust", command=lambda: self.adjustment_form.add_records(item))
-            menu.add_command(label="Adjust", command=lambda: self.confirmation_message.show_confirmation_message(item))
-            # menu.add_command(label="Delete", command=lambda: self.confirm_delete(item))
-            # menu.add_command(label="Delete", command=lambda: self.delete_entry(item))
+
+            self.record = self.tree.item(item, 'values')
+            is_adjusted = self.record[9]
+
+            if is_adjusted == 'True':
+                menu.add_command(label="Adjust",
+                                 command=lambda: self.confirmation_message.show_confirmation_message_adjusted(item))
+
+            else:
+                menu.add_command(label="Adjust",
+                                 command=lambda: self.confirmation_message.show_confirmation_message(item))
+
             menu.post(event.x_root, event.y_root)
 
     def refresh_table(self):
@@ -127,6 +133,7 @@ class TransferFormTable:
                     item["to_warehouse"],
                     datetime.fromisoformat(item["transfer_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
+                    item["is_adjusted"]
                 )
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])

@@ -62,6 +62,18 @@ class Sidebar(ttk.Frame):
             width=18,
         ).pack(pady=10)
 
+
+        ttk.Button(
+            self,
+            text="Adjustment Records",
+            command=lambda: navigate_callback("adjustment_records"),
+            bootstyle="primary",
+            width=18,
+        ).pack(pady=10)
+
+
+
+
         # Theme Selection UI
         self.theme_names = ("litera",
                             "cosmo",

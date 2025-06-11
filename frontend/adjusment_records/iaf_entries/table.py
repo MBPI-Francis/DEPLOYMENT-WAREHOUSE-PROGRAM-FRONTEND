@@ -1,22 +1,18 @@
 import ttkbootstrap as ttk
+from ttkbootstrap import DateEntry
 from ttkbootstrap.constants import *
 import requests
+from tkinter import Menu, Toplevel, Label, Entry, Button, messagebox
+import tkinter as tk
+from ttkbootstrap.dialogs import Messagebox
 from backend.settings.database import server_ip
-from tkinter import messagebox
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
-from .adjustment_form import AdjustmentForm
-from frontend.historical_data.shared_confirmation_messages import ConfirmationMessage
 
 
-
-class ReceivingFormTable:
+class AdjustmentEntriesTable:
     def __init__(self, root):
-        self.adjustment_form = None
-        self.record = None
         self.root = root
-        self.confirmation_message = ConfirmationMessage(self.root, self, "receiving")
-        self.adjustment_form = AdjustmentForm(self)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -31,12 +27,11 @@ class ReceivingFormTable:
         btn_refresh = ttk.Button(
             search_frame,
             text="Refresh",
-            command=self.refresh_table,
+            command=self.load_data,
             bootstyle=SECONDARY,
         )
         btn_refresh.pack(side=RIGHT, padx=10)
         ToolTip(btn_refresh, text="Click the button to refresh the data table.")
-
 
         # Create a frame to hold the Treeview and Scrollbars
         tree_frame = ttk.Frame(self.root)
@@ -46,14 +41,12 @@ class ReceivingFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                "Date Encoded",
-                "RR No.",
-                "Raw Material",
-                "Quantity(kg)",
-                "Status",
-                "Warehouse",
-                "Receiving Date",
-                "Date Computed"
+                     "Date Encoded",
+                     "Product Code",
+                     "Lot No.",
+                     "Product Kind",
+                     "Consumption Date",
+                     "Date Computed"
                      ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
@@ -74,84 +67,42 @@ class ReceivingFormTable:
         # Configure the Treeview to use the scrollbars
         self.tree.configure(yscrollcommand=tree_scroll_y.set, xscrollcommand=tree_scroll_x.set)
 
-        # Define columns
-        for col in self.tree['columns']:
-            self.tree.heading(col, text=col)
-            self.tree.column(col, width=150)
-
-        self.tree.pack(fill=BOTH, expand=YES)
-        self.refresh_table()
 
         # Define column headers
-        col_names = [
-                "Date Encoded",
-                "RR No.",
-                "Raw Material",
-                "Quantity(kg)",
-                "Status",
-                "Warehouse",
-                "Receiving Date",
-                "Date Computed"
-                     ]
+        col_names = ["Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded", "Date Computed"]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
 
 
+        # Load Data
+        self.load_data()
 
-        self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click menu
-
-    def show_context_menu(self, event):
-        """Show right-click menu with Edit/Delete options."""
-        item = self.tree.identify_row(event.y)
-
-        self.record = self.tree.item(item, 'values')
-        is_adjusted = self.record[8]
-
-        if item:
-            menu = ttk.Menu(self.root, tearoff=0)
-            # menu.add_command(label="View", command=lambda: self.view_form.view_records(item))
-
-            if is_adjusted == 'True':
-                menu.add_command(label="Adjust",
-                                 command=lambda: self.confirmation_message.show_confirmation_message_adjusted(item))
-
-            else:
-                menu.add_command(label="Adjust", command=lambda: self.confirmation_message.show_confirmation_message(item))
-
-            menu.post(event.x_root, event.y_root)
-
-    def fetch_data(self):
-        """Fetch data from API."""
-        url = server_ip + "/api/receiving_reports/v1/list/historical/"
+    def load_data(self):
+        """Fetch data from API and populate treeview."""
+        url = server_ip + "/api/notes/v1/list/historical/"
         try:
             response = requests.get(url)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+
+            self.original_data = []  # Store all records
+
+            self.tree.delete(*self.tree.get_children())  # Clear existing data
+            for item in data:
+                record = (
+                    item["id"],  # Store ID
+                    item["product_code"],
+                    item["lot_number"],
+                    item["product_kind_id"],
+                    datetime.fromisoformat(item["stock_change_date"]).strftime("%m/%d/%Y"),
+                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
+                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
+                )
+                self.original_data.append(record)  # Save record
+                self.tree.insert("", END, iid=record[0], values=record[1:])
         except requests.exceptions.RequestException as e:
             return []
-
-    def refresh_table(self):
-        """Refresh Treeview with data."""
-        self.tree.delete(*self.tree.get_children())
-        self.original_data = []  # Store all records
-
-        for item in self.fetch_data():
-            qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
-            record = (
-                item["id"],  # Store ID
-                datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
-                item["ref_number"],
-                item["raw_material"],
-                qty_kg_formatted,
-                item["status"],
-                item["wh_name"],
-                datetime.fromisoformat(item["receiving_date"]).strftime("%m/%d/%Y"),
-                datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
-                item["is_adjusted"]
-            )
-            self.original_data.append(record)  # Save record
-            self.tree.insert("", END, iid=record[0], values=record[1:])
 
     def sort_treeview(self, col, reverse):
         """Sort treeview column data."""
@@ -188,3 +139,4 @@ class ReceivingFormTable:
         """Helper function to insert data into the Treeview."""
         for record in data:
             self.tree.insert("", END, iid=record[0], values=record[1:])
+

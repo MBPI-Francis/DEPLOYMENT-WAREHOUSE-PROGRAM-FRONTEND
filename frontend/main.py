@@ -9,6 +9,7 @@ from frontend.user.user_view import UserView
 from frontend.raw_material.main_view import RawMaterialView
 from frontend.forms.main_view import ConsumptionEntryView
 from frontend.stock_on_hand.main_view import StockOnHandView
+from frontend.adjusment_records.main_view import AdjustmentFormRecordsView
 from tkinter import StringVar, N, S, E, W, VERTICAL
 from tkinter import font
 
@@ -84,7 +85,8 @@ class App(ttk.Window):
             "user": UserView(self.content_frame),
             "consumption_entry": ConsumptionEntryView(self.content_frame),
             "stock_on_hand": StockOnHandView(self.content_frame),
-            "historical_data": HistoricalDataView(self.content_frame)
+            "historical_data": HistoricalDataView(self.content_frame),
+            "adjustment_records": AdjustmentFormRecordsView(self.content_frame)
         }
 
         # Default View
