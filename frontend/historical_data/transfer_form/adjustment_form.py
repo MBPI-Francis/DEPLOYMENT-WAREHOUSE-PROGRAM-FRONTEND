@@ -563,7 +563,7 @@ class AdjustmentForm:
         self.referenced_form_combobox.grid(row=5, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
 
         ToolTip(self.referenced_form_combobox, text="You are adjusting a receiving form record")
-        self.referenced_form_combobox.set("Outgoing Form")
+        self.referenced_form_combobox.set("Transfer Form")
 
 
         # ----------------------------------[Referenced Form Number]----------------------------------

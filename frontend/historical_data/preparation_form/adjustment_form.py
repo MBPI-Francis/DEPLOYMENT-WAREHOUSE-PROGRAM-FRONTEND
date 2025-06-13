@@ -566,7 +566,7 @@ class AdjustmentForm:
         self.referenced_form_combobox.grid(row=5, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
 
         ToolTip(self.referenced_form_combobox, text="You are adjusting a receiving form record")
-        self.referenced_form_combobox.set("Outgoing Form")
+        self.referenced_form_combobox.set("Preparation Form")
 
 
         # ----------------------------------[Referenced Form Number]----------------------------------
@@ -893,7 +893,7 @@ class AdjustmentForm:
         self.qty_return_entry.grid(row=1, column=2, padx=(3, 0), pady=(0, 0), sticky=W)
 
         # Bind the event to format input dynamically while preserving cursor position
-        self.qty_return_entry.bind("<KeyRelease>", format_numeric_input_prepared)
+        self.qty_return_entry.bind("<KeyRelease>", format_numeric_input_return)
         ToolTip(self.qty_return_entry, text="Enter the QTY (Return)")
         self.qty_return_entry.insert(0, self.qty_return_value)
 

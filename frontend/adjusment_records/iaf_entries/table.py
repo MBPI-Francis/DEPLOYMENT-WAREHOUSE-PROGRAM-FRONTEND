@@ -10,6 +10,9 @@ from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
 from .view_record_receiving import ReceivingRecord
 from .view_record_outgoing import OutgoingRecord
+from .view_record_preparation import PreparationRecord
+from .view_record_transfer import TransferRecord
+from .view_record_change_status import ChangeStatusRecord
 
 
 class AdjustmentEntriesTable:
@@ -17,6 +20,9 @@ class AdjustmentEntriesTable:
         self.root = root
         self.view_receiving_record = ReceivingRecord(self)
         self.view_outgoing_record = OutgoingRecord(self)
+        self.view_preparation_record = PreparationRecord(self)
+        self.view_transfer_record = TransferRecord(self)
+        self.view_change_status_record = ChangeStatusRecord(self)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -102,7 +108,7 @@ class AdjustmentEntriesTable:
             # menu.add_command(label="View", command=lambda: self.view_form.view_records(item))
 
             self.record = self.tree.item(item, 'values')
-
+            self.date_computed = self.record[7]
             self.preparation_record_id = self.record[17]
             self.receiving_record_id = self.record[18]
             self.outgoing_record_id = self.record[19]
@@ -112,24 +118,45 @@ class AdjustmentEntriesTable:
 
 
             if self.preparation_record_id != 'None':
-                menu.add_command(label="Adjust",
-                                 command=lambda: self.view_receiving_record.view_record(item))
+                menu.add_command(label="View Record",
+                                 command=lambda: self.view_preparation_record.view_record(item))
+
+                if self.date_computed == 'Not yet Computed':
+                    menu.add_command(label="Edit Record",
+                                     command=lambda: self.view_preparation_record.edit_record(item))
 
             elif self.receiving_record_id != 'None':
-                menu.add_command(label="Adjust",
+                menu.add_command(label="View Record",
                                  command=lambda: self.view_receiving_record.view_record(item))
+
+                if self.date_computed == 'Not yet Computed':
+                    menu.add_command(label="Edit Record",
+                                     command=lambda: self.view_receiving_record.edit_record(item))
 
             elif self.outgoing_record_id != 'None':
-                menu.add_command(label="Adjust",
+                menu.add_command(label="View Record",
                                  command=lambda: self.view_outgoing_record.view_record(item))
 
+                if self.date_computed == 'Not yet Computed':
+                    menu.add_command(label="Edit Record",
+                                     command=lambda: self.view_receiving_record.edit_record(item))
+
             elif self.transfer_record_id != 'None':
-                menu.add_command(label="Adjust",
-                                 command=lambda: self.view_receiving_record.view_record(item))
+                menu.add_command(label="View Record",
+                                 command=lambda: self.view_transfer_record.view_record(item))
+
+                if self.date_computed == 'Not yet Computed':
+                    menu.add_command(label="Edit Record",
+                                     command=lambda: self.view_transfer_record.edit_record(item))
+
 
             elif self.change_status_record_id != 'None':
-                menu.add_command(label="Adjust",
-                                 command=lambda: self.view_receiving_record.view_record(item))
+                menu.add_command(label="View Record",
+                                 command=lambda: self.view_change_status_record.view_record(item))
+
+                if self.date_computed == 'Not yet Computed':
+                    menu.add_command(label="Edit Record",
+                                     command=lambda: self.view_change_status_record.edit_record(item))
 
             menu.post(event.x_root, event.y_root)
 

@@ -561,7 +561,7 @@ class AdjustmentForm:
         self.referenced_form_combobox.grid(row=5, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
 
         ToolTip(self.referenced_form_combobox, text="You are adjusting a receiving form record")
-        self.referenced_form_combobox.set("Outgoing Form")
+        self.referenced_form_combobox.set("Change Status Form")
 
 
         # ----------------------------------[Referenced Form Number]----------------------------------
@@ -624,7 +624,7 @@ class AdjustmentForm:
 
         # ----------------------------------[QUANTITY PREPARED FIELD]----------------------------------#
         # Quantity Entry Field
-        incorrect_qty_label = ttk.Label(field_frame1, text="QTY (Prepared)", style="CustomLabel.TLabel")
+        incorrect_qty_label = ttk.Label(field_frame1, text="QTY", style="CustomLabel.TLabel")
         incorrect_qty_label.grid(row=0, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
 
         incorrect_qty_entry = ttk.Entry(field_frame1,
@@ -789,7 +789,7 @@ class AdjustmentForm:
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
 
         # Quantity Entry Field
-        qty_label = ttk.Label(field_frame2, text="QTY (Prepared)", style="CustomLabel.TLabel")
+        qty_label = ttk.Label(field_frame2, text="QTY", style="CustomLabel.TLabel")
         qty_label.grid(row=0, column=1, padx=(3,0), pady=(10, 0), sticky=W)
 
         self.qty_entry = ttk.Entry(field_frame2,
@@ -802,7 +802,7 @@ class AdjustmentForm:
 
         # Bind the event to format input dynamically while preserving cursor position
         self.qty_entry.bind("<KeyRelease>", format_numeric_input)
-        ToolTip(self.qty_entry, text="Enter the QTY (Prepared)")
+        ToolTip(self.qty_entry, text="Enter the QTY")
         self.qty_entry.insert(0, self.qty_value)
 
 
