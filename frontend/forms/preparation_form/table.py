@@ -188,7 +188,6 @@ class PreparationFormTable:
 
         """Open edit form."""
         record = self.tree.item(item, 'values')
-        print(record)
         if not record:
             return
 

@@ -44,9 +44,6 @@ class AdjustmentSpillageTable:
                 "Date Encoded",
                 "Reference No.",
                 "Raw Material (RM)",
-                "Quantity (QTY)",
-                "Status",
-                "Warehouse",
                 "Adjustment Date",
                 "Referenced Date",
                 "Responsible Person",
@@ -77,9 +74,6 @@ class AdjustmentSpillageTable:
                 "Date Encoded",
                 "Reference No.",
                 "Raw Material (RM)",
-                "Quantity (QTY)",
-                "Status",
-                "Warehouse",
                 "Adjustment Date",
                 "Referenced Date",
                 "Responsible Person",
@@ -94,7 +88,7 @@ class AdjustmentSpillageTable:
 
     def load_data(self):
         """Fetch data from API and populate treeview."""
-        url = server_ip + "/api/notes/v1/list/historical/"
+        url = server_ip + "/api/adjustment_form/form_entries/v1/list/"
         try:
             response = requests.get(url)
             response.raise_for_status()
@@ -109,12 +103,12 @@ class AdjustmentSpillageTable:
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["ref_number"],
                     item["raw_material"],
-                    item["incorrect_preparation_id"],
-                    item["incorrect_receiving_id"],
-                    item["incorrect_outgoing_id"],
-                    item["incorrect_transfer_id"],
-                    item["incorrect_change_status_id"],
+                    datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
+                    datetime.fromisoformat(item["referenced_date"]).strftime("%m/%d/%Y"),
                     item["responsible_person"],
+                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y") if item["date_computed"] else "Not yet Computed",
+
+                    item["qty_kg"],
                     item["qty_prepared"],
                     item["qty_return"],
                     item["wh_name"],
@@ -123,9 +117,11 @@ class AdjustmentSpillageTable:
                     item["status"],
                     item["current_status"],
                     item["new_status"],
-                    datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
-                    datetime.fromisoformat(item["referenced_date"]).strftime("%m/%d/%Y"),
-                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
+                    item["incorrect_preparation_id"],
+                    item["incorrect_receiving_id"],
+                    item["incorrect_outgoing_id"],
+                    item["incorrect_transfer_id"],
+                    item["incorrect_change_status_id"],
 
                 )
                 self.original_data.append(record)  # Save record

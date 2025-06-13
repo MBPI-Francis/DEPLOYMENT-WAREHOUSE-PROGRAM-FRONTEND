@@ -105,12 +105,12 @@ class ReceivingFormTable:
         """Show right-click menu with Edit/Delete options."""
         item = self.tree.identify_row(event.y)
 
-        self.record = self.tree.item(item, 'values')
-        is_adjusted = self.record[8]
-
         if item:
             menu = ttk.Menu(self.root, tearoff=0)
             # menu.add_command(label="View", command=lambda: self.view_form.view_records(item))
+
+            self.record = self.tree.item(item, 'values')
+            is_adjusted = self.record[8]
 
             if is_adjusted == 'True':
                 menu.add_command(label="Adjust",

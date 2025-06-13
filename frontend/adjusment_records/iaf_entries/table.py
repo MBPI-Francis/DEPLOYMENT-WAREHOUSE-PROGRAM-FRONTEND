@@ -8,11 +8,15 @@ from ttkbootstrap.dialogs import Messagebox
 from backend.settings.database import server_ip
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
+from .view_record_receiving import ReceivingRecord
+from .view_record_outgoing import OutgoingRecord
 
 
 class AdjustmentEntriesTable:
     def __init__(self, root):
         self.root = root
+        self.view_receiving_record = ReceivingRecord(self)
+        self.view_outgoing_record = OutgoingRecord(self)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -41,13 +45,14 @@ class AdjustmentEntriesTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(
-                     "Date Encoded",
-                     "Product Code",
-                     "Lot No.",
-                     "Product Kind",
-                     "Consumption Date",
-                     "Date Computed"
-                     ),
+                    "Date Encoded",
+                    "Reference No.",
+                    "Raw Material (RM)",
+                    "Adjustment Date",
+                    "Referenced Date",
+                    "Adjustment Type",
+                    "Responsible Person",
+                    "Date Computed"),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
             bootstyle=PRIMARY
@@ -69,7 +74,15 @@ class AdjustmentEntriesTable:
 
 
         # Define column headers
-        col_names = ["Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded", "Date Computed"]
+        col_names = [                "Date Encoded",
+                "Reference No.",
+                "Raw Material (RM)",
+                "Adjustment Date",
+                "Referenced Date",
+                "Adjustment Type",
+                "Responsible Person",
+                "Date Computed"
+                                     ]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
@@ -78,9 +91,51 @@ class AdjustmentEntriesTable:
         # Load Data
         self.load_data()
 
+        self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click menu
+
+    def show_context_menu(self, event):
+        """Show right-click menu with Edit/Delete options."""
+        item = self.tree.identify_row(event.y)
+
+        if item:
+            menu = ttk.Menu(self.root, tearoff=0)
+            # menu.add_command(label="View", command=lambda: self.view_form.view_records(item))
+
+            self.record = self.tree.item(item, 'values')
+
+            self.preparation_record_id = self.record[17]
+            self.receiving_record_id = self.record[18]
+            self.outgoing_record_id = self.record[19]
+            self.transfer_record_id = self.record[20]
+            self.change_status_record_id = self.record[21]
+
+
+
+            if self.preparation_record_id != 'None':
+                menu.add_command(label="Adjust",
+                                 command=lambda: self.view_receiving_record.view_record(item))
+
+            elif self.receiving_record_id != 'None':
+                menu.add_command(label="Adjust",
+                                 command=lambda: self.view_receiving_record.view_record(item))
+
+            elif self.outgoing_record_id != 'None':
+                menu.add_command(label="Adjust",
+                                 command=lambda: self.view_outgoing_record.view_record(item))
+
+            elif self.transfer_record_id != 'None':
+                menu.add_command(label="Adjust",
+                                 command=lambda: self.view_receiving_record.view_record(item))
+
+            elif self.change_status_record_id != 'None':
+                menu.add_command(label="Adjust",
+                                 command=lambda: self.view_receiving_record.view_record(item))
+
+            menu.post(event.x_root, event.y_root)
+
     def load_data(self):
         """Fetch data from API and populate treeview."""
-        url = server_ip + "/api/notes/v1/list/historical/"
+        url = server_ip + "/api/adjustment_form/form_entries/v1/list/"
         try:
             response = requests.get(url)
             response.raise_for_status()
@@ -92,12 +147,31 @@ class AdjustmentEntriesTable:
             for item in data:
                 record = (
                     item["id"],  # Store ID
-                    item["product_code"],
-                    item["lot_number"],
-                    item["product_kind_id"],
-                    datetime.fromisoformat(item["stock_change_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
-                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
+                    item["ref_number"],
+                    item["raw_material"],
+                    datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
+                    datetime.fromisoformat(item["referenced_date"]).strftime("%m/%d/%Y"),
+                    item["adjustment_type"],
+                    item["responsible_person"] if item["responsible_person"] else "",
+                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y")
+                    if item["date_computed"]
+                    else "Not yet Computed",
+
+                    item["qty_kg"],
+                    item["qty_prepared"],
+                    item["qty_return"],
+                    item["wh_name"],
+                    item["from_warehouse"],
+                    item["to_warehouse"],
+                    item["status"],
+                    item["current_status"],
+                    item["new_status"],
+                    item["incorrect_preparation_id"],
+                    item["incorrect_receiving_id"],
+                    item["incorrect_outgoing_id"],
+                    item["incorrect_transfer_id"],
+                    item["incorrect_change_status_id"],
                 )
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])

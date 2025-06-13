@@ -92,11 +92,11 @@ class NoteTable:
             for item in data:
                 record = (
                     item["id"],  # Store ID
+                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["product_code"],
                     item["lot_number"],
                     item["product_kind_id"],
                     datetime.fromisoformat(item["stock_change_date"]).strftime("%m/%d/%Y"),
-                    datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
                 )
                 self.original_data.append(record)  # Save record
