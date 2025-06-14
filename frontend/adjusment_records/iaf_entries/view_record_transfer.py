@@ -196,7 +196,6 @@ class TransferRecord:
             "status_id": status_id,
             "responsible_person": person_responsible,
             "adjustment_type": adjustment_type,
-            "incorrect_transfer_id": self.item_id,
         }
 
 
@@ -206,22 +205,33 @@ class TransferRecord:
             Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
             return
 
-        # Send a POST request to the API
-        try:
-            response = requests.post(f"{server_ip}/api/adjustment_form/form_entries/v1/create/transfer_form/", json=data)
-            if response.status_code == 200:  # Successfully created
+        adjustment_form_id = self.adjustment_parent_id
+        url = f"{server_ip}/api/adjustment_form/form_entries/v1/update/{adjustment_form_id}/"
 
+        try:
+            response = requests.put(url, json=data)
+
+            if response.status_code == 200:
                 self.root.refresh_table()
                 self.add_record_window.destroy()
-                messagebox.showinfo("Success",
-                                    "The record successfully adjusted. Please see the New Adjusted Ending Balance to confirm the adjustment.")
 
-
-
+                messagebox.showinfo(
+                    "Success",
+                    "The adjustment record has been successfully updated.\n\n"
+                    "Check the new adjusted ending balance to confirm the adjustment."
+                )
+            else:
+                # Provide helpful feedback for non-200 responses
+                messagebox.showerror(
+                    "Update Failed",
+                    f"Failed to update the adjustment record.\n\n"
+                    f"Status Code: {response.status_code}\n"
+                    f"Response: {response.text}"
+                )
 
         except requests.exceptions.RequestException as e:
-            Messagebox.show_error(e, "Data Entry Error")
-            return
+            Messagebox.show_error("Network Error", f"An error occurred while updating the record:\n\n{e}")
+
 
     def edit_record(self, item):
         # If the window already exists, bring it to the front and return
@@ -234,10 +244,28 @@ class TransferRecord:
         self.record = self.root.tree.item(item, 'values')
         self.ref_number_value = self.record[1]
         self.rm_code_value = self.record[2]
-        self.qty_value = self.record[3]
-        self.status_value = self.record[4]
-        self.warehouse_from_value = self.record[5]
-        self.warehouse_to_value = self.record[6]
+        self.adjustment_date_value = self.record[3]
+        self.referenced_date_value = self.record[4]
+        self.adjustment_type_value = self.record[5]
+        self.responsible_person_value = self.record[6]
+        self.qty_value = self.record[8]
+        self.qty_prepared_value = self.record[9]
+        self.qty_return_value = self.record[10]
+        self.warehouse_value = self.record[11]
+        self.warehouse_from_value = self.record[12]
+        self.warehouse_to_value = self.record[13]
+        self.status_value = self.record[14]
+        self.status_old_value = self.record[15]
+        self.status_new_value = self.record[16]
+
+        self.preparation_record_id = self.record[17]
+        self.receiving_record_id = self.record[18]
+        self.outgoing_record_id = self.record[19]
+        self.transfer_record_id = self.record[20]
+        self.change_status_record_id = self.record[21]
+        self.adjustment_parent_id = self.record[22]
+
+        self.transfer_record = self.get_transfer_record(self.transfer_record_id)
 
 
         self.add_record_window = ttk.Toplevel(self.root)
@@ -547,6 +575,7 @@ class TransferRecord:
         )
         self.adj_date_entry.grid(row=1, column=0, padx=(5,0), pady=0, sticky=W)
         self.adj_date_entry.entry.delete(0, "end")
+        self.adj_date_entry.entry.insert(0, self.adjustment_date_value)
         self.adj_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.adj_date_entry.entry.bind("<FocusOut>", format_adj_date_while_typing)
         self.adj_date_entry.entry.bind("<Return>", format_adj_date_while_typing)
@@ -562,6 +591,7 @@ class TransferRecord:
 
         self.ref_number_entry = ttk.Entry(first_child_frame, width=29, font=self.shared_functions.custom_font_size)
         self.ref_number_entry.grid(row=1, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+        self.ref_number_entry.insert(0, self.ref_number_value)
         ToolTip(self.ref_number_entry, text="Enter the Reference Number")
 
 
@@ -578,6 +608,7 @@ class TransferRecord:
         )
         self.ref_date_entry.grid(row=3, column=0, columnspan=2, padx=(5, 0), pady=(0, 0), sticky=W)
         self.ref_date_entry.entry.delete(0, "end")
+        self.ref_date_entry.entry.insert(0, self.referenced_date_value)
         self.ref_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.ref_date_entry.entry.bind("<FocusOut>", format_ref_date_while_typing)
         self.ref_date_entry.entry.bind("<Return>", format_ref_date_while_typing)
@@ -598,6 +629,7 @@ class TransferRecord:
             width=27,
             font=self.shared_functions.custom_font_size
         )
+        self.adjustment_type_combobox.set(self.adjustment_type_value)
         self.adjustment_type_combobox.grid(row=3, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
 
 
@@ -613,7 +645,7 @@ class TransferRecord:
         )
         self.referenced_form_combobox.grid(row=5, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
 
-        ToolTip(self.referenced_form_combobox, text="You are adjusting a receiving form record")
+        ToolTip(self.referenced_form_combobox, text="You are adjusting a transfer form record")
         self.referenced_form_combobox.set("Transfer Form")
 
 
@@ -626,7 +658,7 @@ class TransferRecord:
         self.ref_form_number_entry = ttk.Entry(first_child_frame, width=29, font=self.shared_functions.custom_font_size)
         self.ref_form_number_entry.grid(row=5, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
         ToolTip(self.ref_form_number_entry, text="This is the reference number of the receiving form you will be adjusting")
-        self.ref_form_number_entry.insert(0, self.ref_number_value)
+        self.ref_form_number_entry.insert(0, self.transfer_record['ref_number'])
         # Configure the entry as read-only
         self.ref_form_number_entry.state(['disabled'])
 
@@ -654,7 +686,7 @@ class TransferRecord:
             font=self.shared_functions.custom_font_size
         )
         incorrect_warehouse_from_combobox.grid(row=2, column=0,  padx=(5, 0), pady=(0, 0), sticky=W)
-        incorrect_warehouse_from_combobox.set(self.warehouse_from_value)
+        incorrect_warehouse_from_combobox.set(self.transfer_record['from_warehouse'])
 
         # Warehouse TO
         incorrect_warehouse_to_label = ttk.Label(second_child_frame, text="Warehouse (TO)", style="CustomLabel.TLabel")
@@ -668,7 +700,7 @@ class TransferRecord:
         )
         incorrect_warehouse_to_combobox.grid(row=2, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
 
-        incorrect_warehouse_to_combobox.set(self.warehouse_to_value)
+        incorrect_warehouse_to_combobox.set(self.transfer_record['to_warehouse'])
 
 
 
@@ -690,7 +722,7 @@ class TransferRecord:
 
         incorrect_rm_codes_combobox.grid(row=1, column=0, pady=(0, 0), padx=(5, 0), sticky=W)
         ToolTip(incorrect_rm_codes_combobox, text="Choose a raw material")
-        incorrect_rm_codes_combobox.set(self.rm_code_value)
+        incorrect_rm_codes_combobox.set(self.transfer_record['raw_material'])
 
 
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
@@ -706,7 +738,7 @@ class TransferRecord:
 
 
         ToolTip(incorrect_qty_entry, text="Enter the Quantity(kg)")
-        incorrect_qty_entry.insert(0, self.qty_value)
+        incorrect_qty_entry.insert(0, self.transfer_record['qty_kg'])
         # Configure the entry as read-only
         incorrect_qty_entry.state(['disabled'])
 
@@ -723,7 +755,7 @@ class TransferRecord:
         )
         incorrect_status_combobox.grid(row=1, column=2, padx=(5, 0), pady=(0, 0), sticky=W)
         ToolTip(incorrect_status_combobox, text="Please choose the raw material status")
-        incorrect_status_combobox.set(self.status_value)
+        incorrect_status_combobox.set(self.transfer_record['status'])
 
 
 # --------------------------------------------------[CORRECT DETAILS]---------------------------------------------------
@@ -892,19 +924,14 @@ class TransferRecord:
         self.status_combobox.set(self.status_value)
 
 
-
-
-
-
-
-
         # ----------------------------------[PERSON RESPONSIBLE FIELD]----------------------------------#
         label = ttk.Label(second_child_frame, text="Responsible Person", style="CustomLabel.TLabel")
         label.grid(row=5, column=0, padx=5,  pady=(10, 0), sticky=W)
 
         self.person_responsible_entry = ttk.Entry(second_child_frame, width=61, font=self.shared_functions.custom_font_size)
         self.person_responsible_entry.grid(row=6, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
-        ToolTip(self.person_responsible_entry, text="Type the Spillage Report Reference Number.")
+        self.person_responsible_entry.insert(0, self.responsible_person_value)
+        ToolTip(self.person_responsible_entry, text="Please enter who is the responsible for the adjustment.")
 
 
 

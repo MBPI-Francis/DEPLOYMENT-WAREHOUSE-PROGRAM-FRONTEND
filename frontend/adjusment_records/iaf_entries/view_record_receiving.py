@@ -248,9 +248,9 @@ class ReceivingRecord:
         self.outgoing_record_id = self.record[19]
         self.transfer_record_id = self.record[20]
         self.change_status_record_id = self.record[21]
+        self.adjustment_parent_id = self.record[22]
 
         self.receiving_record = self.get_receiving_record(self.receiving_record_id)
-        print(self.receiving_record)
 
         self.add_record_window = ttk.Toplevel(self.root)
         self.add_record_window.title("Receiving Form Adjustment - Type 1")
