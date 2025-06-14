@@ -124,6 +124,28 @@ class TransferRecord:
         self.add_record_window = None
 
 
+    def delete_entry(self, entry_id):
+        """Delete selected entry via API with confirmation and error handling."""
+        confirm = messagebox.askyesno("Confirm", "Are you sure you want to delete this entry?")
+        if not confirm:
+            return
+
+        try:
+            url = f"{server_ip}/api/adjustment_form/form_entries/v1/delete/{entry_id}/"
+            response = requests.delete(url, timeout=10)
+
+            if response.status_code == 200:
+                self.root.tree.delete(entry_id)
+                messagebox.showinfo("Success", "Adjustment record deleted successfully.")
+            elif response.status_code == 404:
+                messagebox.showerror("Not Found", "The record was not found on the server.")
+            else:
+                messagebox.showerror("Error", f"Failed to delete the record. Status Code: {response.status_code}")
+
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Network Error", f"Could not connect to the server:\n{str(e)}")
+
+
     def submit_data(self):
 
         # Collect the form data

@@ -37,7 +37,7 @@ class AdjustmentEntriesTable:
         btn_refresh = ttk.Button(
             search_frame,
             text="Refresh",
-            command=self.load_data,
+            command=self.refresh_table,
             bootstyle=SECONDARY,
         )
         btn_refresh.pack(side=RIGHT, padx=10)
@@ -53,7 +53,7 @@ class AdjustmentEntriesTable:
             columns=(
                     "Date Encoded",
                     "Reference No.",
-                    "Raw Material (RM)",
+                    "RM",
                     "Adjustment Date",
                     "Referenced Date",
                     "Adjustment Type",
@@ -82,7 +82,7 @@ class AdjustmentEntriesTable:
         # Define column headers
         col_names = [                "Date Encoded",
                 "Reference No.",
-                "Raw Material (RM)",
+                "RM",
                 "Adjustment Date",
                 "Referenced Date",
                 "Adjustment Type",
@@ -95,7 +95,7 @@ class AdjustmentEntriesTable:
 
 
         # Load Data
-        self.load_data()
+        self.refresh_table()
 
         self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click menu
 
@@ -121,9 +121,11 @@ class AdjustmentEntriesTable:
                 menu.add_command(label="View Record",
                                  command=lambda: self.view_preparation_record.view_record(item))
 
+
                 if self.date_computed == 'Not yet Computed':
                     menu.add_command(label="Edit Record",
                                      command=lambda: self.view_preparation_record.edit_record(item))
+                    menu.add_command(label="Delete", command=lambda: self.view_preparation_record.delete_entry(item))
 
             elif self.receiving_record_id != 'None':
                 menu.add_command(label="View Record",
@@ -133,13 +135,20 @@ class AdjustmentEntriesTable:
                     menu.add_command(label="Edit Record",
                                      command=lambda: self.view_receiving_record.edit_record(item))
 
+                    menu.add_command(label="Delete",
+                                     command=lambda: self.view_receiving_record.delete_entry(item))
+
             elif self.outgoing_record_id != 'None':
                 menu.add_command(label="View Record",
                                  command=lambda: self.view_outgoing_record.view_record(item))
 
                 if self.date_computed == 'Not yet Computed':
                     menu.add_command(label="Edit Record",
-                                     command=lambda: self.view_receiving_record.edit_record(item))
+                                     command=lambda: self.view_outgoing_record.edit_record(item))
+
+                    menu.add_command(label="Delete",
+                                     command=lambda: self.view_outgoing_record.delete_entry(item))
+
 
             elif self.transfer_record_id != 'None':
                 menu.add_command(label="View Record",
@@ -149,18 +158,24 @@ class AdjustmentEntriesTable:
                     menu.add_command(label="Edit Record",
                                      command=lambda: self.view_transfer_record.edit_record(item))
 
+                    menu.add_command(label="Delete",
+                                     command=lambda: self.view_transfer_record.delete_entry(item))
+
 
             elif self.change_status_record_id != 'None':
                 menu.add_command(label="View Record",
                                  command=lambda: self.view_change_status_record.view_record(item))
 
+
                 if self.date_computed == 'Not yet Computed':
                     menu.add_command(label="Edit Record",
                                      command=lambda: self.view_change_status_record.edit_record(item))
 
+                    menu.add_command(label="Delete", command=lambda: self.view_change_status_record.delete_entry(item))
+
             menu.post(event.x_root, event.y_root)
 
-    def load_data(self):
+    def refresh_table(self):
         """Fetch data from API and populate treeview."""
         url = server_ip + "/api/adjustment_form/form_entries/v1/list/"
         try:
@@ -199,6 +214,7 @@ class AdjustmentEntriesTable:
                     item["incorrect_outgoing_id"],
                     item["incorrect_transfer_id"],
                     item["incorrect_change_status_id"],
+                    item["adjustment_parent_id"]
                 )
                 self.original_data.append(record)  # Save record
                 self.tree.insert("", END, iid=record[0], values=record[1:])

@@ -110,6 +110,29 @@ class ReceivingRecord:
             return None
 
 
+    def delete_entry(self, entry_id):
+        """Delete selected entry via API with confirmation and error handling."""
+        confirm = messagebox.askyesno("Confirm", "Are you sure you want to delete this entry?")
+        if not confirm:
+            return
+
+        try:
+            url = f"{server_ip}/api/adjustment_form/form_entries/v1/delete/{entry_id}/"
+            response = requests.delete(url, timeout=10)
+
+            if response.status_code == 200:
+                self.root.tree.delete(entry_id)
+                messagebox.showinfo("Success", "Adjustment record deleted successfully.")
+            elif response.status_code == 404:
+                messagebox.showerror("Not Found", "The record was not found on the server.")
+            else:
+                messagebox.showerror("Error", f"Failed to delete the record. Status Code: {response.status_code}")
+
+        except requests.exceptions.RequestException as e:
+            messagebox.showerror("Network Error", f"Could not connect to the server:\n{str(e)}")
+
+
+
     def submit_data(self):
 
         # Collect the form data
@@ -157,11 +180,8 @@ class ReceivingRecord:
             "qty_kg": cleaned_qty,
             "status_id": status_id,
             "responsible_person": person_responsible,
-            "adjustment_type": adjustment_type,
-            "incorrect_receiving_id": self.item_id,
+            "adjustment_type": adjustment_type
         }
-
-
 
         # Validate the data entries in front-end side
         if EntryValidation.entry_validation(data):
@@ -169,20 +189,33 @@ class ReceivingRecord:
             Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
             return
 
-        # Send a POST request to the API
-        try:
-            response = requests.post(f"{server_ip}/api/adjustment_form/form_entries/v1/create/receiving_form/", json=data)
-            if response.status_code == 200:  # Successfully created
+        adjustment_form_id = self.adjustment_parent_id
+        url = f"{server_ip}/api/adjustment_form/form_entries/v1/update/{adjustment_form_id}/"
 
+        try:
+            response = requests.put(url, json=data)
+
+            if response.status_code == 200:
                 self.root.refresh_table()
                 self.add_record_window.destroy()
-                messagebox.showinfo("Success",
-                                    "The record successfully adjusted. Please see the New Adjusted Ending Balance to confirm the adjustment.")
 
+                messagebox.showinfo(
+                    "Success",
+                    "The adjustment record has been successfully updated.\n\n"
+                    "Check the new adjusted ending balance to confirm the adjustment."
+                )
+            else:
+                # Provide helpful feedback for non-200 responses
+                messagebox.showerror(
+                    "Update Failed",
+                    f"Failed to update the adjustment record.\n\n"
+                    f"Status Code: {response.status_code}\n"
+                    f"Response: {response.text}"
+                )
 
         except requests.exceptions.RequestException as e:
-            Messagebox.show_error(e, "Data Entry Error")
-            return
+            Messagebox.show_error("Network Error", f"An error occurred while updating the record:\n\n{e}")
+
 
     def edit_record(self, item):
         # If the window already exists, bring it to the front and return
@@ -195,11 +228,29 @@ class ReceivingRecord:
         self.record = self.root.tree.item(item, 'values')
         self.ref_number_value = self.record[1]
         self.rm_code_value = self.record[2]
-        self.qty_value = self.record[3]
-        self.status_value = self.record[4]
-        self.warehouse_value = self.record[5]
-        self.is_adjusted = self.record[8]
+        self.adjustment_date_value = self.record[3]
+        self.referenced_date_value = self.record[4]
+        self.adjustment_type_value = self.record[5]
+        self.responsible_person_value = self.record[6]
+        self.qty_value = self.record[8]
+        self.qty_prepared_value = self.record[9]
+        self.qty_return_value = self.record[10]
+        self.warehouse_value = self.record[11]
+        self.warehouse_from_value = self.record[12]
+        self.warehouse_to_value = self.record[13]
+        self.status_value = self.record[14]
+        self.status_old_value = self.record[15]
+        self.status_new_value = self.record[16]
 
+
+        self.preparation_record_id = self.record[17]
+        self.receiving_record_id = self.record[18]
+        self.outgoing_record_id = self.record[19]
+        self.transfer_record_id = self.record[20]
+        self.change_status_record_id = self.record[21]
+
+        self.receiving_record = self.get_receiving_record(self.receiving_record_id)
+        print(self.receiving_record)
 
         self.add_record_window = ttk.Toplevel(self.root)
         self.add_record_window.title("Receiving Form Adjustment - Type 1")
@@ -508,6 +559,7 @@ class ReceivingRecord:
         )
         self.adj_date_entry.grid(row=1, column=0, padx=(5,0), pady=0, sticky=W)
         self.adj_date_entry.entry.delete(0, "end")
+        self.adj_date_entry.entry.insert(0,self.adjustment_date_value)
         self.adj_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.adj_date_entry.entry.bind("<FocusOut>", format_adj_date_while_typing)
         self.adj_date_entry.entry.bind("<Return>", format_adj_date_while_typing)
@@ -523,6 +575,7 @@ class ReceivingRecord:
 
         self.ref_number_entry = ttk.Entry(first_child_frame, width=29, font=self.shared_functions.custom_font_size)
         self.ref_number_entry.grid(row=1, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
+        self.ref_number_entry.insert(0, self.ref_number_value)
         ToolTip(self.ref_number_entry, text="Enter the Reference Number")
 
 
@@ -539,6 +592,7 @@ class ReceivingRecord:
         )
         self.ref_date_entry.grid(row=3, column=0, columnspan=2, padx=(5, 0), pady=(0, 0), sticky=W)
         self.ref_date_entry.entry.delete(0, "end")
+        self.ref_date_entry.entry.insert(0, self.referenced_date_value)
         self.ref_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.ref_date_entry.entry.bind("<FocusOut>", format_ref_date_while_typing)
         self.ref_date_entry.entry.bind("<Return>", format_ref_date_while_typing)
@@ -559,6 +613,7 @@ class ReceivingRecord:
             width=27,
             font=self.shared_functions.custom_font_size
         )
+        self.adjustment_type_combobox.set(self.adjustment_type_value)
         self.adjustment_type_combobox.grid(row=3, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
 
 
@@ -587,7 +642,7 @@ class ReceivingRecord:
         self.ref_form_number_entry = ttk.Entry(first_child_frame, width=29, font=self.shared_functions.custom_font_size)
         self.ref_form_number_entry.grid(row=5, column=1, padx=(10, 0), pady=(0, 0), sticky=W)
         ToolTip(self.ref_form_number_entry, text="This is the reference number of the receiving form you will be adjusting")
-        self.ref_form_number_entry.insert(0, self.ref_number_value)
+        self.ref_form_number_entry.insert(0, self.receiving_record['ref_number'])
         # Configure the entry as read-only
         self.ref_form_number_entry.state(['disabled'])
 
@@ -618,9 +673,7 @@ class ReceivingRecord:
                                           font=self.shared_functions.custom_font_size
                                           )
         incorrect_warehouse_combobox.grid(row=2, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
-
-
-        incorrect_warehouse_combobox.set(self.warehouse_value)
+        incorrect_warehouse_combobox.set(self.receiving_record['wh_name'])
 
 
 
@@ -638,7 +691,7 @@ class ReceivingRecord:
             font=self.shared_functions.custom_font_size
         )
         incorrect_status_combobox.grid(row=2, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
-        incorrect_status_combobox.set(self.status_value)
+        incorrect_status_combobox.set(self.receiving_record['status'])
 
 
 
@@ -657,7 +710,7 @@ class ReceivingRecord:
         )
 
         incorrect_rm_codes_combobox.grid(row=4, column=0, pady=(0, 0), padx=(5, 0), sticky=W)
-        incorrect_rm_codes_combobox.set(self.rm_code_value)
+        incorrect_rm_codes_combobox.set(self.receiving_record['raw_material'])
 
 
 
@@ -672,7 +725,7 @@ class ReceivingRecord:
                               font=self.shared_functions.custom_font_size,
                               )  # Pass input for validation
         incorrect_qty_entry.grid(row=4, column=1, padx=(5,0), pady=(0, 0), sticky=W)
-        incorrect_qty_entry.insert(0, self.qty_value)
+        incorrect_qty_entry.insert(0, self.receiving_record['qty_kg'])
         # Configure the entry as read-only
         incorrect_qty_entry.state(['disabled'])
 
@@ -828,7 +881,8 @@ class ReceivingRecord:
 
         self.person_responsible_entry = ttk.Entry(second_child_frame, width=61, font=self.shared_functions.custom_font_size)
         self.person_responsible_entry.grid(row=6, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
-        ToolTip(self.person_responsible_entry, text="Type the Spillage Report Reference Number.")
+        self.person_responsible_entry.insert(0, self.responsible_person_value)
+        ToolTip(self.person_responsible_entry, text="Please enter who is the responsible for the adjustment.")
 
 
 
