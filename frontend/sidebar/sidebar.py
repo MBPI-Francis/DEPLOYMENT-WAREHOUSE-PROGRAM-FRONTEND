@@ -11,48 +11,23 @@ class Sidebar(ttk.Frame):
         style = ttk.Style()
         style.configure("Sidebar.TFrame", background="#8B4513")  # Brown color
 
-        # Navigation Buttons
-        ttk.Button(
-            self,
-            text="Statuses",
-            command=lambda: navigate_callback("status"),
-            bootstyle="primary",
-            width=18,
-        ).pack(pady=10)
+        # # Navigation Buttons
+        # ttk.Button(
+        #     self,
+        #     text="Statuses",
+        #     command=lambda: navigate_callback("status"),
+        #     bootstyle="primary",
+        #     width=18,
+        # ).pack(pady=10)
 
-        # Navigation Buttons
-        ttk.Button(
-            self,
-            text="Warehouse",
-            command=lambda: navigate_callback("warehouse"),
-            bootstyle="primary",
-            width=18,
-        ).pack(pady=10)
-
-        ttk.Button(
-            self,
-            text="Raw Materials",
-            command=lambda: navigate_callback("raw_material"),
-            bootstyle="primary",
-            width=18,
-        ).pack(pady=10)
-
-        ttk.Button(
-            self,
-            text="Stock On Hand",
-            command=lambda: navigate_callback("stock_on_hand"),
-            bootstyle="primary",
-            width=18,
-        ).pack(pady=10)
-
-
-        ttk.Button(
-            self,
-            text="Historical Data",
-            command=lambda: navigate_callback("historical_data"),
-            bootstyle="primary",
-            width=18,
-        ).pack(pady=10)
+        # # Navigation Buttons
+        # ttk.Button(
+        #     self,
+        #     text="Warehouse",
+        #     command=lambda: navigate_callback("warehouse"),
+        #     bootstyle="primary",
+        #     width=18,
+        # ).pack(pady=10)
 
         ttk.Button(
             self,
@@ -72,7 +47,29 @@ class Sidebar(ttk.Frame):
         ).pack(pady=10)
 
 
+        ttk.Button(
+            self,
+            text="Historical Data",
+            command=lambda: navigate_callback("historical_data"),
+            bootstyle="primary",
+            width=18,
+        ).pack(pady=10)
 
+        ttk.Button(
+            self,
+            text="Stock On Hand",
+            command=lambda: navigate_callback("stock_on_hand"),
+            bootstyle="primary",
+            width=18,
+        ).pack(pady=10)
+
+        ttk.Button(
+            self,
+            text="Raw Materials",
+            command=lambda: navigate_callback("raw_material"),
+            bootstyle="primary",
+            width=18,
+        ).pack(pady=10)
 
         # Theme Selection UI
         self.theme_names = ("litera",

@@ -3,3 +3,5 @@ START_WAREHOUSE_PROGRAM_API_SERVER.bat
 .idea/misc.xml
 .idea/RM-Consumption-Management-System.iml
 backend/settings/database.py
+/venv
+/build
