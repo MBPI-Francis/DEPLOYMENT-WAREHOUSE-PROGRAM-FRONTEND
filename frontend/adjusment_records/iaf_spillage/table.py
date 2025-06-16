@@ -8,11 +8,13 @@ from ttkbootstrap.dialogs import Messagebox
 from backend.settings.database import server_ip
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
+from .view_record_form import ViewForm
 
 
 class AdjustmentSpillageTable:
     def __init__(self, root):
         self.root = root
+        self.view_record = ViewForm(self)
 
         # Frame for search
         search_frame = ttk.Frame(self.root)
@@ -27,7 +29,7 @@ class AdjustmentSpillageTable:
         btn_refresh = ttk.Button(
             search_frame,
             text="Refresh",
-            command=self.load_data,
+            command=self.refresh_table,
             bootstyle=SECONDARY,
         )
         btn_refresh.pack(side=RIGHT, padx=10)
@@ -42,12 +44,16 @@ class AdjustmentSpillageTable:
             master=tree_frame,
             columns=(
                 "Date Encoded",
-                "Reference No.",
-                "Raw Material (RM)",
-                "Adjustment Date",
-                "Referenced Date",
+                "Ref#",
+                "Raw Material",
+                "Quantity Lost",
+                "Status",
+                "Warehouse",
+                "Spillage Report #",
                 "Responsible Person",
-                "Date Computed"
+                "Incident Date",
+                "Adjustment Date",
+                "Referenced Date"
                      ),
             show='headings',
             style="Custom.Treeview",  # Apply row height adjustment
@@ -71,24 +77,42 @@ class AdjustmentSpillageTable:
 
         # Define column headers
         col_names = [
-                "Date Encoded",
-                "Reference No.",
-                "Raw Material (RM)",
-                "Adjustment Date",
-                "Referenced Date",
-                "Responsible Person",
-                "Date Computed"]
+            "Date Encoded",
+            "Ref#",
+            "Raw Material",
+            "Quantity Lost",
+            "Status",
+            "Warehouse",
+            "Spillage Report #",
+            "Responsible Person",
+            "Incident Date",
+            "Adjustment Date",
+            "Referenced Date"
+        ]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
 
 
         # Load Data
-        self.load_data()
+        self.refresh_table()
 
-    def load_data(self):
+        self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click menu
+
+    def show_context_menu(self, event):
+        """Show right-click menu with Edit/Delete options."""
+        item = self.tree.identify_row(event.y)
+
+        if item:
+            menu = ttk.Menu(self.root, tearoff=0)
+            menu.add_command(label="View Record",
+                                     command=lambda: self.view_record.view_record(item))
+
+            menu.post(event.x_root, event.y_root)
+
+    def refresh_table(self):
         """Fetch data from API and populate treeview."""
-        url = server_ip + "/api/adjustment_form/form_entries/v1/list/"
+        url = server_ip + "/api/adjustment_form/spillage/v1/list/historical/"
         try:
             response = requests.get(url)
             response.raise_for_status()
@@ -98,30 +122,21 @@ class AdjustmentSpillageTable:
 
             self.tree.delete(*self.tree.get_children())  # Clear existing data
             for item in data:
+                qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
+
                 record = (
                     item["id"],  # Store ID
                     datetime.fromisoformat(item["created_at"]).strftime("%m/%d/%Y %I:%M %p"),
                     item["ref_number"],
                     item["raw_material"],
-                    datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
-                    datetime.fromisoformat(item["referenced_date"]).strftime("%m/%d/%Y"),
-                    item["responsible_person"],
-                    datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y") if item["date_computed"] else "Not yet Computed",
-
-                    item["qty_kg"],
-                    item["qty_prepared"],
-                    item["qty_return"],
-                    item["wh_name"],
-                    item["from_warehouse"],
-                    item["to_warehouse"],
+                    qty_kg_formatted,
                     item["status"],
-                    item["current_status"],
-                    item["new_status"],
-                    item["incorrect_preparation_id"],
-                    item["incorrect_receiving_id"],
-                    item["incorrect_outgoing_id"],
-                    item["incorrect_transfer_id"],
-                    item["incorrect_change_status_id"],
+                    item["wh_name"],
+                    item["spillage_form_number"],
+                    item["responsible_person"],
+                    datetime.fromisoformat(item["incident_date"]).strftime("%m/%d/%Y"),
+                    datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
+                    datetime.fromisoformat(item["reference_date"]).strftime("%m/%d/%Y"),
 
                 )
                 self.original_data.append(record)  # Save record

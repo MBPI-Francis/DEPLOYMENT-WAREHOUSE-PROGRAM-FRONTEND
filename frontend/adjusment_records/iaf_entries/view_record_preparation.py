@@ -1079,7 +1079,6 @@ class PreparationRecord:
         self.change_status_record_id = self.record[21]
 
         self.preparation_record = self.get_preparation_record(self.preparation_record_id)
-        print(self.preparation_record)
 
         self.add_record_window = ttk.Toplevel(self.root)
         self.add_record_window.title("Preparation Form Adjustment - Type 1")
