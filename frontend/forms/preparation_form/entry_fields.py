@@ -74,7 +74,7 @@ def entry_fields(note_form_tab):
 
 
         # If the user didn't enter a value in the qty return field, then it will store 0.00 value in the variable
-        if qty_return == None or qty_return == '':
+        if qty_return is None or qty_return == '':
             qty_return = '0'
 
 
