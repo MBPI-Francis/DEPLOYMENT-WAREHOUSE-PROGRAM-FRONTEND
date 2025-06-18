@@ -441,12 +441,13 @@ class PreparationFormTable:
             qty_return = qty_return_entry.get()
             qty_prepared = qty_prepared_entry.get()
 
+            # If the user didn't enter a value in the qty return field, then it will store '0.00' as a string
             if qty_return is None or qty_return == '':
-                qty_return = float(0.00)
+                qty_return = '0.00'  # Set as string so replace() can be used
 
-            # This code removes the commas in the qty value
-            cleaned_qty_prepared = float(qty_prepared.replace(",", ""))
-            cleaned_qty_return = float(qty_return.replace(",", ""))
+            # Clean and convert both fields
+            cleaned_qty_prepared = float(str(qty_prepared).replace(",", ""))
+            cleaned_qty_return = float(str(qty_return).replace(",", ""))
 
             new_consumption = cleaned_qty_prepared - cleaned_qty_return
             prev_consumption =  old_qty_prepared - old_qty_return

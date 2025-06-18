@@ -5,3 +5,4 @@ START_WAREHOUSE_PROGRAM_API_SERVER.bat
 backend/settings/database.py
 /venv
 /build
+/build

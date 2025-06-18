@@ -81,10 +81,9 @@ def entry_fields(note_form_tab):
         if qty_prepared is None or qty_prepared == '':
             qty_prepared = '0'
 
-
-        # This code removes the commas in the qty value
-        cleaned_qty_prepared = float(qty_prepared.replace(",", ""))
-        cleaned_qty_return = float(qty_return.replace(",", ""))
+        # Clean and convert both fields
+        cleaned_qty_prepared = float(str(qty_prepared).replace(",", ""))
+        cleaned_qty_return = float(str(qty_return).replace(",", ""))
 
 
         preparation_date = preparation_date_entry.entry.get()
