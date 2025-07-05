@@ -389,7 +389,15 @@ class ReceivingFormTable:
                     self.refresh_table()
                     self.edit_window.destroy()
                 else:
-                    messagebox.showerror("Error", "Failed to update record - ",response.status_code)
+                    try:
+                        # Try to get a more detailed error message (if response is JSON)
+                        error_message = response.json().get("detail") or response.text
+                    except ValueError:
+                        # If response is not JSON, fall back to raw text
+                        error_message = response.text or f"HTTP {response.status_code}"
+
+                    messagebox.showerror("Error",
+                                         f"Failed to update record.\nStatus Code: {response.status_code}\nMessage: {error_message}")
             except requests.exceptions.RequestException as e:
                 messagebox.showerror("Error", f"Failed to update: {e}")
 
