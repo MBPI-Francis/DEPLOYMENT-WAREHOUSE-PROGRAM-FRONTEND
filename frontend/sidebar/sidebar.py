@@ -63,6 +63,15 @@ class Sidebar(ttk.Frame):
             width=18,
         ).pack(pady=10)
 
+
+        ttk.Button(
+            self,
+            text="Reports",
+            command=lambda: navigate_callback("reports"),
+            bootstyle="primary",
+            width=18,
+        ).pack(pady=10)
+
         ttk.Button(
             self,
             text="Raw Materials",
