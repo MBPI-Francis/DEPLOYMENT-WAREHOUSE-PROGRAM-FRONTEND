@@ -6,11 +6,11 @@ from .table import NoteTable
 
 def notes_form_tab(notebook):
     note_form_tab = ttk.Frame(notebook)
-    notebook.add(note_form_tab, text="Notes Form")
+    notebook.add(note_form_tab, text="RM Transaction Report")
     # Populate the Raw Materials Tab
     note_form_label = ttk.Label(
         note_form_tab,
-        text="Note Form",
+        text="RM Transaction Report",
         font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
@@ -18,7 +18,7 @@ def notes_form_tab(notebook):
 
     notes_label = ttk.Label(
         note_form_tab,
-        text="The table contains the user's previous entries, showing historical data and past notes.",
+        text="The table contains all raw material transactions from form entries.",
         font=("Arial", 11, "bold"),
 bootstyle=SECONDARY,
     )
