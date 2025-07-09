@@ -6,15 +6,31 @@ from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
 from .table import SubmitEntriesTable
-import tkinter as tk
-import os
-from ttkbootstrap import Style
 from tkinter.filedialog import asksaveasfilename
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.styles import numbers
 from frontend.forms.shared import SharedFunctions
+from frontend.constant import FormConstant
+import os
+import time # Import for potential small delay
+
+# Try to import win32com.client for full workbook encryption
+try:
+    import win32com.client as win32
+    WIN32_AVAILABLE = True
+except ImportError:
+    WIN32_AVAILABLE = False
+    # Messagebox.show_warning(
+    #     "pywin32 library not found. Full workbook encryption will not be available. "
+    #     "Only sheet protection will be applied (if password is set). "
+    #     "Install with: pip install pywin32",
+    #     "Library Missing"
+    # )
+
+excel_password = FormConstant.EXCEL_SOH_PASSWORD.value
+
 
 def entry_fields(note_form_tab):
     shared_functions = SharedFunctions()
@@ -378,8 +394,153 @@ def entry_fields(note_form_tab):
     # Calling the table
     note_table = SubmitEntriesTable(note_form_tab)
 
+# def create_soh_whse_excel(date_entry_value, data):
+#     # Convert the string into a datetime object
+#     notes_date_object = datetime.strptime(date_entry_value, "%Y-%m-%d")
+#     notes_formatted_date = notes_date_object.strftime("%B %d, %Y")
+#     notes_date = notes_formatted_date
+#
+#     wh_date_object = datetime.strptime(date_entry_value, "%Y-%m-%d")
+#     wh_formatted_date = wh_date_object.strftime("%m/%d/%Y")
+#     wh_date = wh_formatted_date
+#
+#     # Create a new workbook
+#     wb = Workbook()
+#
+#     # Sheet 1: NOTES
+#     notes_sheet = wb.active
+#     notes_sheet.title = "NOTES"
+#
+#     # Populate the NOTES sheet
+#     notes_sheet["A1"] = "Daily Ending Inventory Report from:"
+#     notes_sheet["B1"] = f"{notes_date}"  # Sample date
+#     notes_sheet["A2"] = "List of Batches Included in Report"
+#     notes_sheet["A3"] = "MASTERBATCH"
+#     notes_sheet.append(["PRODUCT CODE", "LOT#", "Product Kind"])
+#
+#     # Fetch data from the API
+#     try:
+#         api_url = f"{server_ip}/api/notes/v1/list/"
+#         response = requests.get(api_url)
+#         response.raise_for_status()
+#         api_data = response.json()
+#
+#         # Insert data into the NOTES sheet
+#         for record in api_data:
+#             notes_sheet.append([
+#                 record["product_code"],
+#                 record["lot_number"],
+#                 record["product_kind_id"]
+#             ])
+#
+#     except requests.exceptions.RequestException as e:
+#         # print(f"Error fetching data from API: {e}")
+#         return
+#
+#     # Apply formatting
+#     for col in ["A", "B", "C"]:
+#         for cell in notes_sheet[col]:
+#             cell.alignment = Alignment(horizontal="center", vertical="center")
+#     notes_sheet["A4"].font = Font(bold=True)
+#
+#     # Function to create a WHSE sheet
+#     def create_whse_sheet(sheet_name):
+#         sheet = wb.create_sheet(sheet_name)
+#
+#         # Set header based on warehouse number
+#         if sheet_name == "WHSE1":
+#             wh_header = "WHSE #1 - Excess"
+#         elif sheet_name == "WHSE2":
+#             wh_header = "WHSE #2 - Excess"
+#         elif sheet_name == "WHSE4":
+#             wh_header = "WHSE #4 - Excess"
+#
+#         # Populate the header
+#         header = [
+#             "Date", "No of bags", "qty per packing",
+#             f"{wh_header}", "Total", "Status"
+#         ]
+#         sheet.append(header)
+#         sheet["A1"] = f"{wh_date}"  # Example date
+#         sheet["A1"].font = Font(bold=True)
+#
+#         # Insert data into the respective warehouse sheet
+#         for record in data:
+#             if record["warehousenumber"] == int(sheet_name[-1]):  # Match warehouse number to sheet
+#
+#                 row = [
+#                     record["rmcode"],  # rmcode
+#                     "",  # No of bags (blank)
+#                     "",  # qty per packing (blank)
+#                     "",  # Excess column (blank)
+#                     float(record["new_beginning_balance"]),  # Total
+#                     "" if record["status"].lower() == "good" else record["status"],  # Store blank if status is 'good'
+#                     ""  # Drop list (blank)
+#                 ]
+#                 sheet.append(row)
+#
+#                 # Apply number format (thousands separator)
+#                 qty_cell = sheet.cell(row=sheet.max_row, column=5)  # Column 5 is qty_value
+#                 qty_cell.number_format = numbers.FORMAT_NUMBER_COMMA_SEPARATED1  # Apply Excel formatting
+#
+#         # Create a dropdown list for the "drop list" column
+#         dv = DataValidation(
+#             type="list",
+#             formula1='"held : under evaluation,held : reject,held : contaminated"',
+#             allow_blank=True,
+#             showDropDown=True
+#         )
+#         # Apply the data validation to the G column for rows 2 to 100
+#         for row in range(2, 101):
+#             cell = f"G{row}"  # Example: G2, G3, ..., G100
+#             dv.add(sheet[cell])
+#         sheet.add_data_validation(dv)
+#
+#     # Create sheets for WHSE1, WHSE2, and WHSE4
+#     create_whse_sheet("WHSE1")
+#     create_whse_sheet("WHSE2")
+#     create_whse_sheet("WHSE4")
+#
+#
+#     # Use tkinter's asksaveasfilename for file dialog
+#     file_path = asksaveasfilename(
+#         title="Save Excel File",
+#         defaultextension=".xlsx",
+#         filetypes=[("Excel files", "*.xlsx")]
+#     )
+#
+#     # Save the workbook
+#     if file_path:
+#         try:
+#             wb.save(file_path)
+#             Messagebox.show_info(f"Excel file saved successfully at {file_path}", "The File is Successfully Saved")
+#         except Exception as e:
+#             Messagebox.show_error(f"Error saving file: {e}", "Success")
+#
+#     else:
+#         # Saving the file was cancelled
+#         pass
+#
+
+
+
+
+
 def create_soh_whse_excel(date_entry_value, data):
-    # Convert the string into a datetime object
+    """
+    Exports raw material movement data to an Excel file with multiple sheets.
+    Encrypts the entire workbook with a password if on Windows with Excel installed.
+
+    Args:
+        date_entry_value (str): The date string in "YYYY-MM-DD" format.
+        data (list): A list of dictionaries containing raw material movement data.
+                     Each dictionary should have 'warehousenumber', 'rmcode',
+                     'new_beginning_balance', and 'status'.
+        excel_password (str, optional): The password to encrypt the entire Excel workbook.
+                                        If provided, the file will require this password to open.
+                                        Defaults to None (no workbook encryption).
+    """
+    # Convert the string into datetime objects
     notes_date_object = datetime.strptime(date_entry_value, "%Y-%m-%d")
     notes_formatted_date = notes_date_object.strftime("%B %d, %Y")
     notes_date = notes_formatted_date
@@ -397,7 +558,7 @@ def create_soh_whse_excel(date_entry_value, data):
 
     # Populate the NOTES sheet
     notes_sheet["A1"] = "Daily Ending Inventory Report from:"
-    notes_sheet["B1"] = f"{notes_date}"  # Sample date
+    notes_sheet["B1"] = f"{notes_date}"
     notes_sheet["A2"] = "List of Batches Included in Report"
     notes_sheet["A3"] = "MASTERBATCH"
     notes_sheet.append(["PRODUCT CODE", "LOT#", "Product Kind"])
@@ -406,20 +567,20 @@ def create_soh_whse_excel(date_entry_value, data):
     try:
         api_url = f"{server_ip}/api/notes/v1/list/"
         response = requests.get(api_url)
-        response.raise_for_status()
+        response.raise_for_status() # Raise an HTTPError for bad responses (4xx or 5xx)
         api_data = response.json()
 
         # Insert data into the NOTES sheet
         for record in api_data:
             notes_sheet.append([
-                record["product_code"],
-                record["lot_number"],
-                record["product_kind_id"]
+                record.get("product_code", ""), # Use .get() for safer access
+                record.get("lot_number", ""),
+                record.get("product_kind_id", "")
             ])
 
     except requests.exceptions.RequestException as e:
-        # print(f"Error fetching data from API: {e}")
-        return
+        Messagebox.show_error(f"Error fetching data from API for NOTES sheet: {e}", "API Error")
+        return # Exit function if API call fails
 
     # Apply formatting
     for col in ["A", "B", "C"]:
@@ -432,6 +593,7 @@ def create_soh_whse_excel(date_entry_value, data):
         sheet = wb.create_sheet(sheet_name)
 
         # Set header based on warehouse number
+        wh_header = "" # Initialize wh_header
         if sheet_name == "WHSE1":
             wh_header = "WHSE #1 - Excess"
         elif sheet_name == "WHSE2":
@@ -439,44 +601,57 @@ def create_soh_whse_excel(date_entry_value, data):
         elif sheet_name == "WHSE4":
             wh_header = "WHSE #4 - Excess"
 
-        # Populate the header
+
+
+        # Populate the header (original code had "Date" as first column, but A1 is already date)
+        # Assuming "Date" in header means the RM Code or similar, adjusting
         header = [
             "Date", "No of bags", "qty per packing",
             f"{wh_header}", "Total", "Status"
         ]
-        sheet.append(header)
+
+        sheet.append(header) # This will append to row 2
+
+        # Insert a row for the report date and set its style (original code had A1 as date)
+        # To maintain original structure, we'll append header after date if A1 is date
         sheet["A1"] = f"{wh_date}"  # Example date
         sheet["A1"].font = Font(bold=True)
+        sheet["B1"].font = Font(bold=True)
+        sheet["C1"].font = Font(bold=True)
+        sheet["D1"].font = Font(bold=True)
+        sheet["E1"].font = Font(bold=True)
+        sheet["F1"].font = Font(bold=True)
 
         # Insert data into the respective warehouse sheet
         for record in data:
-            if record["warehousenumber"] == int(sheet_name[-1]):  # Match warehouse number to sheet
-
+            # Ensure 'warehousenumber' exists and matches sheet number
+            if record.get("warehousenumber") == int(sheet_name[-1]):
                 row = [
-                    record["rmcode"],  # rmcode
+                    record.get("rmcode", ""),  # rmcode
                     "",  # No of bags (blank)
                     "",  # qty per packing (blank)
                     "",  # Excess column (blank)
-                    float(record["new_beginning_balance"]),  # Total
-                    "" if record["status"].lower() == "good" else record["status"],  # Store blank if status is 'good'
+                    float(record.get("new_beginning_balance", 0.0)),  # Total, ensure float
+                    "" if record.get("status", "").lower() == "good" else record.get("status", ""),  # Store blank if status is 'good'
                     ""  # Drop list (blank)
                 ]
                 sheet.append(row)
 
                 # Apply number format (thousands separator)
-                qty_cell = sheet.cell(row=sheet.max_row, column=5)  # Column 5 is qty_value
-                qty_cell.number_format = numbers.FORMAT_NUMBER_COMMA_SEPARATED1  # Apply Excel formatting
+                # Column 5 is 'Total' (E column)
+                qty_cell = sheet.cell(row=sheet.max_row, column=5)
+                qty_cell.number_format = numbers.FORMAT_NUMBER_COMMA_SEPARATED1
 
-        # Create a dropdown list for the "drop list" column
+        # Create a dropdown list for the "drop list" column (Column G)
         dv = DataValidation(
             type="list",
             formula1='"held : under evaluation,held : reject,held : contaminated"',
             allow_blank=True,
             showDropDown=True
         )
-        # Apply the data validation to the G column for rows 2 to 100
-        for row in range(2, 101):
-            cell = f"G{row}"  # Example: G2, G3, ..., G100
+        # Apply the data validation to the G column for rows starting from row 3 (after date and header)
+        for row_num in range(3, sheet.max_row + 1): # Start from row 3, go to max_row
+            cell = f"G{row_num}"
             dv.add(sheet[cell])
         sheet.add_data_validation(dv)
 
@@ -484,7 +659,6 @@ def create_soh_whse_excel(date_entry_value, data):
     create_whse_sheet("WHSE1")
     create_whse_sheet("WHSE2")
     create_whse_sheet("WHSE4")
-
 
     # Use tkinter's asksaveasfilename for file dialog
     file_path = asksaveasfilename(
@@ -496,14 +670,78 @@ def create_soh_whse_excel(date_entry_value, data):
     # Save the workbook
     if file_path:
         try:
-            wb.save(file_path)
-            Messagebox.show_info(f"Excel file saved successfully at {file_path}", "The File is Successfully Saved")
-        except Exception as e:
-            Messagebox.show_error(f"Error saving file: {e}", "Success")
+            # Check if the file exists and is open before saving
+            if os.path.exists(file_path):
+                try:
+                    # Attempt to open in exclusive mode to check if it's locked
+                    with open(file_path, 'rb+') as f:
+                        pass
+                except IOError:
+                    Messagebox.show_error(
+                        f"Error: The file '{os.path.basename(file_path)}' is currently open in another program (e.g., Microsoft Excel). Please close it and try again.",
+                        "File In Use"
+                    )
+                    return # Exit function if file is in use
 
+            # Save the workbook initially using openpyxl (unencrypted)
+            wb.save(file_path)
+
+            # --- Apply full workbook password protection using win32com.client ---
+            if excel_password and WIN32_AVAILABLE:
+                excel_app = None
+                try:
+                    excel_app = win32.Dispatch("Excel.Application")
+                    excel_app.Visible = False # Keep Excel hidden
+                    excel_app.DisplayAlerts = False # Suppress alerts
+
+                    # Open the workbook
+                    workbook = excel_app.Workbooks.Open(file_path)
+
+                    # Set the password for opening the workbook
+                    workbook.Password = excel_password
+                    workbook.Save() # Save the workbook with the new password
+                    workbook.Close()
+
+                except Exception as e:
+                    Messagebox.show_error(
+                        f"Error applying workbook password with Excel automation. "
+                        f"Ensure Microsoft Excel is installed and pywin32 is correctly installed.\n\nError details: {e}",
+                        "Excel Automation Error"
+                    )
+                finally:
+                    if excel_app:
+                        excel_app.Quit() # Always quit Excel application
+                        del excel_app # Release the COM object
+                        time.sleep(0.5) # Give Excel a moment to fully close
+
+            elif excel_password and not WIN32_AVAILABLE:
+                Messagebox.show_warning(
+                    "Full workbook encryption was requested but 'pywin32' library is not installed or not available. "
+                    "The file has been saved, but it is NOT password-protected for opening. "
+                    "To enable full workbook encryption, install 'pywin32' using: pip install pywin32",
+                    "Pywin32 Not Found"
+                )
+
+            Messagebox.show_info(f"Excel file saved successfully at:\n{file_path}", "File Saved")
+
+        except PermissionError as e:
+            Messagebox.show_error(
+                f"Permission denied: You do not have sufficient permissions to save the file to '{file_path}'.\n\nError details: {e}",
+                "Permission Error"
+            )
+        except IOError as e:
+            Messagebox.show_error(
+                f"I/O Error: Could not write the file to '{file_path}'. This might be due to an invalid path or disk issues.\n\nError details: {e}",
+                "I/O Error"
+            )
+        except Exception as e:
+            Messagebox.show_error(
+                f"An unexpected error occurred while saving the file: {e}",
+                "Error Saving File"
+            )
     else:
         # Saving the file was cancelled
-        pass
+        Messagebox.show_warning("File save cancelled.", "Cancelled")
 
 def get_soh_data():
 
