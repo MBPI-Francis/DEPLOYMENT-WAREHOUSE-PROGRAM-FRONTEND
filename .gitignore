@@ -6,3 +6,7 @@ backend/settings/database.py
 /venv
 /build
 /build
+build/main/COLLECT-00.toc
+/build
+main.spec
+main.spec
