@@ -230,7 +230,7 @@
 #             if date_from_str:
 #                 params['date_from'] = datetime.strptime(date_from_str, "%m/%d/%Y").strftime("%Y-%m-%d")
 #         except ValueError:
-#             messagebox.show_error("Invalid Date", "Please enter 'Date FROM' in MM/DD/YYYY format.", parent=self.root)
+#             messagebox.showerror("Invalid Date", "Please enter 'Date FROM' in MM/DD/YYYY format.", parent=self.root)
 #             return None
 #
 #         # Date TO
@@ -239,7 +239,7 @@
 #             if date_to_str:
 #                 params['date_to'] = datetime.strptime(date_to_str, "%m/%d/%Y").strftime("%Y-%m-%d")
 #         except ValueError:
-#             messagebox.show_error("Invalid Date", "Please enter 'Date TO' in MM/DD/YYYY format.", parent=self.root)
+#             messagebox.showerror("Invalid Date", "Please enter 'Date TO' in MM/DD/YYYY format.", parent=self.root)
 #             return None
 #
 #         # Raw Material Code
@@ -649,7 +649,7 @@ class NoteTable:
             else:
                 params['date_from'] = None # Ensure None if empty
         except ValueError:
-            messagebox.show_error("Invalid Date", "Please enter 'Date FROM' in MM/DD/YYYY format.", parent=self.root)
+            messagebox.showerror("Invalid Date", "Please enter 'Date FROM' in MM/DD/YYYY format.", parent=self.root)
             return None
 
         # Date TO
@@ -660,7 +660,7 @@ class NoteTable:
             else:
                 params['date_to'] = None # Ensure None if empty
         except ValueError:
-            messagebox.show_error("Invalid Date", "Please enter 'Date TO' in MM/DD/YYYY format.", parent=self.root)
+            messagebox.showerror("Invalid Date", "Please enter 'Date TO' in MM/DD/YYYY format.", parent=self.root)
             return None
 
         # Raw Material Code
