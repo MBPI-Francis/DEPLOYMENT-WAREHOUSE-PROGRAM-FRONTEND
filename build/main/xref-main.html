@@ -152,6 +152,7 @@ imports:
  &#8226;   <a href="#frontend.forms.main_view">frontend.forms.main_view</a>
  &#8226;   <a href="#frontend.historical_data.main_view">frontend.historical_data.main_view</a>
  &#8226;   <a href="#frontend.raw_material.main_view">frontend.raw_material.main_view</a>
+ &#8226;   <a href="#frontend.reports.main_view">frontend.reports.main_view</a>
  &#8226;   <a href="#frontend.sidebar">frontend.sidebar</a>
  &#8226;   <a href="#frontend.status.main_view">frontend.status.main_view</a>
  &#8226;   <a href="#frontend.stock_on_hand.main_view">frontend.stock_on_hand.main_view</a>
@@ -5372,6 +5373,7 @@ imported by:
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
  &#8226;   <a href="#frontend.status.shared">frontend.status.shared</a>
@@ -7422,6 +7424,7 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.table">frontend.status.table</a>
  &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
  &#8226;   <a href="#frontend.stock_on_hand.main_tab">frontend.stock_on_hand.main_tab</a>
@@ -10881,6 +10884,7 @@ imported by:
  &#8226;   <a href="#frontend.forms">frontend.forms</a>
  &#8226;   <a href="#frontend.historical_data">frontend.historical_data</a>
  &#8226;   <a href="#frontend.raw_material">frontend.raw_material</a>
+ &#8226;   <a href="#frontend.reports">frontend.reports</a>
  &#8226;   <a href="#frontend.sidebar">frontend.sidebar</a>
  &#8226;   <a href="#frontend.status">frontend.status</a>
  &#8226;   <a href="#frontend.stock_on_hand">frontend.stock_on_hand</a>
@@ -12110,6 +12114,7 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.preparation_form.adjustment_form">frontend.historical_data.preparation_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.receiving_form.adjustment_form">frontend.historical_data.receiving_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.adjustment_form">frontend.historical_data.transfer_form.adjustment_form</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
 
   </div>
 
@@ -13195,6 +13200,106 @@ imports:
   <div class="import">
 imported by:
     <a href="#frontend.raw_material.entry_fields">frontend.raw_material.entry_fields</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.reports"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/reports/__init__.py" type="text/plain"><tt>frontend.reports</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#frontend">frontend</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.reports.main_view">frontend.reports.main_view</a>
+ &#8226;   <a href="#frontend.reports.notes_form">frontend.reports.notes_form</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.reports.main_view"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/reports/main_view.py" type="text/plain"><tt>frontend.reports.main_view</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#frontend.reports">frontend.reports</a>
+ &#8226;   <a href="#frontend.reports.notes_form.main_tab">frontend.reports.notes_form.main_tab</a>
+ &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
+ &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.reports.notes_form"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/reports/notes_form/__init__.py" type="text/plain"><tt>frontend.reports.notes_form</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#frontend.reports">frontend.reports</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.reports.notes_form.main_tab">frontend.reports.notes_form.main_tab</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.reports.notes_form.main_tab"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/reports/notes_form/main_tab.py" type="text/plain"><tt>frontend.reports.notes_form.main_tab</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#frontend.reports.notes_form">frontend.reports.notes_form</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
+ &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
+ &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.reports.main_view">frontend.reports.main_view</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.reports.notes_form.table"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/reports/notes_form/table.py" type="text/plain"><tt>frontend.reports.notes_form.table</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#backend.settings.database">backend.settings.database</a>
+ &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#frontend.forms.shared">frontend.forms.shared</a>
+ &#8226;   <a href="#frontend.reports.notes_form">frontend.reports.notes_form</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.filedialog">tkinter.filedialog</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+ &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
+ &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
+ &#8226;   <a href="#ttkbootstrap.dialogs">ttkbootstrap.dialogs</a>
+ &#8226;   <a href="#ttkbootstrap.tooltip">ttkbootstrap.tooltip</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.reports.notes_form.main_tab">frontend.reports.notes_form.main_tab</a>
 
   </div>
 
@@ -14613,6 +14718,7 @@ imports:
  &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
  &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
+ &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#warnings">warnings</a>
 
@@ -14758,7 +14864,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#importlib.abc">importlib.abc</a>
+    <a href="#importlib">importlib</a>
+ &#8226;   <a href="#importlib.abc">importlib.abc</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#packaging.tags">packaging.tags</a>
  &#8226;   <a href="#pkg_resources">pkg_resources</a>
@@ -28368,6 +28475,7 @@ imported by:
  &#8226;   <a href="#fileinput">fileinput</a>
  &#8226;   <a href="#fnmatch">fnmatch</a>
  &#8226;   <a href="#frontend.forms.submit_entries.entry_fields">frontend.forms.submit_entries.entry_fields</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#genericpath">genericpath</a>
  &#8226;   <a href="#getopt">getopt</a>
  &#8226;   <a href="#getpass">getpass</a>
@@ -30178,6 +30286,7 @@ imported by:
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
  &#8226;   <a href="#frontend.status.main_tab">frontend.status.main_tab</a>
@@ -36308,6 +36417,7 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.transfer_form.adjustment_form">frontend.historical_data.transfer_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.sidebar.sidebar">frontend.sidebar.sidebar</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
@@ -36411,6 +36521,7 @@ imports:
 imported by:
     <a href="#frontend.forms.submit_entries.entry_fields">frontend.forms.submit_entries.entry_fields</a>
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
  &#8226;   <a href="#frontend.stock_on_hand.import_feature.core_function">frontend.stock_on_hand.import_feature.core_function</a>
  &#8226;   <a href="#frontend.warehouse.generate_warehouse.core_function">frontend.warehouse.generate_warehouse.core_function</a>
@@ -36485,6 +36596,7 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.transfer_form.adjustment_form">frontend.historical_data.transfer_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
  &#8226;   <a href="#frontend.status.shared">frontend.status.shared</a>
@@ -36865,6 +36977,9 @@ imported by:
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.main_view">frontend.raw_material.main_view</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.reports.main_view">frontend.reports.main_view</a>
+ &#8226;   <a href="#frontend.reports.notes_form.main_tab">frontend.reports.notes_form.main_tab</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.sidebar.sidebar">frontend.sidebar.sidebar</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
@@ -37005,6 +37120,9 @@ imported by:
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.main_view">frontend.raw_material.main_view</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.reports.main_view">frontend.reports.main_view</a>
+ &#8226;   <a href="#frontend.reports.notes_form.main_tab">frontend.reports.notes_form.main_tab</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.sidebar.sidebar">frontend.sidebar.sidebar</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.main_tab">frontend.status.main_tab</a>
@@ -37062,6 +37180,7 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.outgoing_form.table">frontend.historical_data.outgoing_form.table</a>
  &#8226;   <a href="#frontend.historical_data.preparation_form.table">frontend.historical_data.preparation_form.table</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
  &#8226;   <a href="#frontend.warehouse.generate_warehouse.confirm_messages">frontend.warehouse.generate_warehouse.confirm_messages</a>
@@ -37466,6 +37585,7 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.raw_material.entry_fields">frontend.raw_material.entry_fields</a>
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
+ &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.main_tab">frontend.status.main_tab</a>
  &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>

@@ -32,6 +32,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['C:\\Users\\Administrator\\Desktop\\MBPI-Projects\\DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND\\icon_whse_program.png'],
 )
 coll = COLLECT(
     exe,

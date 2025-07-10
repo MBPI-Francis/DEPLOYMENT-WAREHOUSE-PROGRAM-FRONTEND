@@ -40,6 +40,9 @@ class App(ttk.Window):
             style.configure("Treeview.Heading", background=style.colors.primary, foreground="white",
                             font=("Arial", 10, "bold"))  # Set header background to PRIMARY
 
+            # Style for the radio button
+            style.configure("Custom.TRadiobutton", font=("Arial", 12))  # Define a custom style with desired font size
+
             # Increase tab font size
             style.configure("TNotebook.Tab", font=("Arial", 11, "bold"))  # Change font and size
             style.configure("CustomLabel.TLabel", font=("Arial", 11, "bold"))
