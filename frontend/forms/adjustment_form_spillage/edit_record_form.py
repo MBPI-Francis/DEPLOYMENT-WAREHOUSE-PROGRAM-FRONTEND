@@ -802,7 +802,9 @@ class EditForm:
 
 
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
+        # Function to format numeric input dynamically with cursor preservation
         self.old_qty = self.qty_value
+
         def format_numeric_input(event):
             entry_widget = event.widget
             input_value = qty_var.get()
@@ -844,7 +846,6 @@ class EditForm:
         # Tkinter StringVar for real-time updates
         qty_var = StringVar()
 
-
         # Validation Command for Entry Widget
         validate_numeric_command = form_frame.register(EntryValidation.validate_numeric_input)
 
@@ -859,7 +860,7 @@ class EditForm:
                               validate="key",
                               validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
         # Clean qty_value before inserting. It removes the "- " in the qty_value
-        cleaned_qty_value = self.qty_value.replace("-", "").strip()
+        # cleaned_qty_value = self.qty_value.replace("-", "").strip()
         self.qty_entry.insert(0, cleaned_qty_value)
 
         # Bind the event to format input dynamically while preserving cursor position
