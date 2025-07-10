@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from .validation import EntryValidation
 from ..shared import SharedFunctions
 from tkinter import StringVar
-
+import re
 
 
 class Forms:
@@ -37,7 +37,8 @@ class Forms:
         self.get_status_api = self.shared_functions.get_status_api()
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
         self.get_rm_code_api = self.shared_functions.get_rm_code_api(force_refresh=True)
-        
+
+        self.discrepancy_reason = tk.StringVar(value="None Selected")  # Default value for the Radio Buttons
 
     def get_selected_warehouse_id(self):
         selected_name = self.warehouse_combobox.get()
@@ -63,12 +64,10 @@ class Forms:
         else:
             return None
 
-
     def on_add_window_close(self):
         """Reset the edit_window reference when it is closed."""
         self.add_record_window.destroy()
         self.add_record_window = None
-
 
     def submit_data(self):
 
@@ -78,8 +77,6 @@ class Forms:
         ref_number = self.ref_number_entry.get()
         person_responsible = self.person_responsible_entry.get()
         spillage_no = self.spillage_no_entry.get()
-
-
 
         qty = self.qty_entry.get()
 
@@ -121,14 +118,11 @@ class Forms:
             "responsible_person": person_responsible,
         }
 
-
         # Validate the data entries in front-end side
         if EntryValidation.entry_validation(data):
             error_text = EntryValidation.entry_validation(data)
             Messagebox.show_error(f"There is no data in these fields {error_text}.", "Data Entry Error", alert=True)
             return
-
-
 
         # Validate if the entry value exceeds the stock
         validatation_result = EntryValidation.validate_soh_value(
@@ -168,6 +162,7 @@ class Forms:
             return
 
         # Function to clear all entry fields
+
     def clear_fields(self):
 
         if not self.checkbox_reference_var.get():
@@ -182,20 +177,18 @@ class Forms:
         self.rm_codes_combobox.set("")
         self.qty_entry.delete(0, ttk.END)
 
-
     def add_records(self):
         # If the window already exists, bring it to the front and return
         if self.add_record_window and self.add_record_window.winfo_exists():
             self.add_record_window.lift()
             return
 
-
         self.add_record_window = ttk.Toplevel(self.root)
         self.add_record_window.title("Spillage Inventory Adjustment Form")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 490  # Fixed width
-        window_height = 490  # Fixed height
+        window_height = 550  # Fixed height
 
         # **Center the window**
         screen_width = self.add_record_window.winfo_screenwidth()
@@ -210,7 +203,6 @@ class Forms:
         self.add_record_window.grid_columnconfigure(0, weight=1)
         self.add_record_window.grid_rowconfigure(0, weight=1)
 
-
         # **Message Label (Warning)**
         message_label = ttk.Label(
             self.add_record_window,
@@ -221,7 +213,6 @@ class Forms:
         )
         message_label.pack(pady=10)
 
-
         # Create a frame for the form inputs
         form_frame = ttk.Frame(self.add_record_window)
         form_frame.pack(fill=X, pady=10, padx=20)
@@ -229,9 +220,6 @@ class Forms:
         # Configure grid columns to make them behave correctly
         form_frame.grid_columnconfigure(0, weight=1)  # Left (Warehouse) stays at the left
         form_frame.grid_columnconfigure(1, weight=1)  # Right (Ref Number) is pushed to the right
-
-
-
 
         def format_adj_date_while_typing(event):
             """Auto-formats the date entry while typing, ensuring valid MM/DD/YYYY format."""
@@ -598,8 +586,7 @@ class Forms:
 
         # ----------------------------------[ADJUSTMENT DATE FIELD]----------------------------------#
         date_label = ttk.Label(form_frame, text="Date of Adjustment", style="CustomLabel.TLabel")
-        date_label.grid(row=0, column=0, padx=(3,0), pady=0, sticky=W)
-
+        date_label.grid(row=0, column=0, padx=(3, 0), pady=0, sticky=W)
 
         # Create the DateEntry widget with yesterday's date as the default value
         self.adj_date_entry = ttk.DateEntry(
@@ -608,7 +595,7 @@ class Forms:
             dateformat="%m/%d/%Y",
             width=25
         )
-        self.adj_date_entry.grid(row=1, column=0, padx=(5,0), pady=0, sticky=W)
+        self.adj_date_entry.grid(row=1, column=0, padx=(5, 0), pady=0, sticky=W)
         self.adj_date_entry.entry.delete(0, "end")
         self.adj_date_entry.entry.config(font=self.shared_functions.custom_font_size)
         self.adj_date_entry.entry.bind("<FocusOut>", format_adj_date_while_typing)
@@ -619,8 +606,6 @@ class Forms:
         self.adj_date_entry.entry.focus_set()
 
         # ----------------------------------[REFERENCED NUMBER FIELD]----------------------------------#
-
-
 
         # REF Number Entry Field
         ref_number_label = ttk.Label(form_frame, text="Ref#.", style="CustomLabel.TLabel")
@@ -637,9 +622,9 @@ class Forms:
             variable=self.checkbox_reference_var,
             bootstyle="round-toggle"
         )
-        lock_reference.grid(row=0, column=1, pady=(0, 0), padx=(10, 0), sticky=E)  # Position the checkbox next to the combobox
+        lock_reference.grid(row=0, column=1, pady=(0, 0), padx=(10, 0),
+                            sticky=E)  # Position the checkbox next to the combobox
         ToolTip(lock_reference, text="Lock the reference number by clicking this")
-
 
         # ----------------------------------[REFERENCED DATE FIELD]----------------------------------#
         date_label = ttk.Label(form_frame, text="Referenced Date Affected", style="CustomLabel.TLabel")
@@ -659,24 +644,17 @@ class Forms:
         self.ref_date_entry.entry.bind("<Return>", format_ref_date_while_typing)
         ToolTip(self.ref_date_entry, text="Please enter the date when the discrepancy happened")
 
-
-
-
         # ----------------------------------[SPILLAGE REPORT # FIELD]----------------------------------#
         label = ttk.Label(form_frame, text="Spillage Report #", style="CustomLabel.TLabel")
-        label.grid(row=4, column=0, padx=5,  pady=(10, 0), sticky=W)
+        label.grid(row=4, column=0, padx=5, pady=(10, 0), sticky=W)
 
         self.spillage_no_entry = ttk.Entry(form_frame, width=29, font=self.shared_functions.custom_font_size)
         self.spillage_no_entry.grid(row=5, column=0, padx=(5, 0), pady=0, sticky=W)
         ToolTip(self.spillage_no_entry, text="Type the Spillage Report Reference Number.")
 
-
-
-
         # ----------------------------------[INCIDENT REPORT DATE FIELD]----------------------------------#
         date_label = ttk.Label(form_frame, text="Date of Incident", style="CustomLabel.TLabel")
-        date_label.grid(row=4, column=1, padx=(3, 0),  pady=(10, 0), sticky=W)
-
+        date_label.grid(row=4, column=1, padx=(3, 0), pady=(10, 0), sticky=W)
 
         # Create the DateEntry widget with yesterday's date as the default value
         self.incident_date_entry = ttk.DateEntry(
@@ -692,7 +670,6 @@ class Forms:
         self.incident_date_entry.entry.bind("<Return>", format_incident_date_while_typing)
         ToolTip(self.incident_date_entry, text="Please enter the date when the discrepancy happened")
 
-
         # ----------------------------------[WAREHOUSE FIELD]----------------------------------#
 
         # Warehouse JSON-format choices (coming from the API)
@@ -701,8 +678,8 @@ class Forms:
         warehouse_names = list(self.warehouse_to_id.keys())
 
         # Combobox for Warehouse Drop Down
-        warehouse_label = ttk.Label(form_frame, text="Warehouse", style="CustomLabel.TLabel")
-        warehouse_label.grid(row=6, column=0, padx=(3, 0),  pady=(10, 0), sticky=W)
+        warehouse_label = ttk.Label(form_frame, text="Location", style="CustomLabel.TLabel")
+        warehouse_label.grid(row=6, column=0, padx=(3, 0), pady=(10, 0), sticky=W)
 
         # Checkbox for Warehouse lock
         self.checkbox_warehouse_var = ttk.IntVar()
@@ -716,19 +693,16 @@ class Forms:
 
         # Warehouse Combobox field
         self.warehouse_combobox = ttk.Combobox(form_frame,
-                                          values=warehouse_names,
-                                          state="readonly",
-                                          width=27,
-                                          font=self.shared_functions.custom_font_size
-                                          )
+                                               values=warehouse_names,
+                                               state="readonly",
+                                               width=27,
+                                               font=self.shared_functions.custom_font_size
+                                               )
         self.warehouse_combobox.grid(row=7, column=0, padx=(5, 0), pady=(0, 0), sticky=W)
-
 
         ToolTip(self.warehouse_combobox, text="Choose a warehouse")
         ToolTip(lock_warehouse, text="Lock the warehouse by clicking this")
         self.warehouse_combobox.set("Warehouse #1")
-
-
 
         # ----------------------------------[STATUS FIELD]----------------------------------#
 
@@ -758,13 +732,9 @@ class Forms:
         )
         lock_status.grid(row=6, column=1, pady=(10, 0), padx=(0, 0), sticky=E)
 
-
         ToolTip(lock_status, text="Lock the status by clicking this")
         ToolTip(self.status_combobox, text="Please choose the raw material status")
         self.status_combobox.set("good")
-
-
-
 
         # ----------------------------------[RM CODE FIELD]----------------------------------#
 
@@ -782,7 +752,7 @@ class Forms:
 
         # Combobox for RM CODE Drop Down
         rm_codes_label = ttk.Label(form_frame, text="Raw Material", style="CustomLabel.TLabel")
-        rm_codes_label.grid(row=8, column=0, padx=(3, 0),  pady=(10, 0), sticky=W)
+        rm_codes_label.grid(row=8, column=0, padx=(3, 0), pady=(10, 0), sticky=W)
 
         self.rm_codes_combobox = ttk.Combobox(
             form_frame,
@@ -798,11 +768,29 @@ class Forms:
         self.rm_codes_combobox.grid(row=9, column=0, pady=(0, 0), padx=(5, 0), sticky=W)
         ToolTip(self.rm_codes_combobox, text="Choose a raw material")
 
-
-
-
-
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
+
+        # New validation function to restrict input characters
+        def validate_qty_input(P):
+            """
+            Validates the input for the quantity field.
+            Allows:
+            - Optional leading '+' or '-'
+            - Digits (0-9)
+            - A single optional decimal point '.'
+            - No other special characters or letters
+            """
+            # This regex allows:
+            # ^[+-]?  : optional leading '+' or '-'
+            # \d* : zero or more digits
+            # \.?     : optional single decimal point
+            # \d* : zero or more digits after the decimal
+            # $       : end of the string
+            # It also handles empty string, just a sign, or just a sign and a dot.
+            if re.fullmatch(r"^[+-]?\d*\.?\d*$", P):
+                return True
+            else:
+                return False
 
         def format_numeric_input(event):
             entry_widget = event.widget
@@ -812,27 +800,65 @@ class Forms:
             # Strip commas for processing
             raw_value = input_value.replace(",", "")
 
-            # Allow incomplete but valid numeric input
-            if raw_value in {"-", ".", "-."} or raw_value.endswith(".") or raw_value == "":
+            # Determine the sign and the numeric part
+            current_sign = ""
+            numeric_part = raw_value
+
+            if raw_value.startswith("-"):
+                current_sign = "-"
+                numeric_part = raw_value.lstrip("-")
+            elif raw_value.startswith("+"):
+                # For formatting, we don't re-add the '+' sign, it's treated as positive.
+                current_sign = "+"
+                numeric_part = raw_value.lstrip("+")
+
+            # Allow incomplete but valid numeric input (e.g., just a sign, or a sign followed by a dot)
+            # This check is crucial for allowing users to type '-' or '+', or '-.' or '+.'
+            if numeric_value := re.fullmatch(r"^\d*\.?\d*$", numeric_part):  # Check if numeric_part is valid
+                if numeric_part == "" or numeric_part == ".":
+                    # If it's just a sign, or a sign with a dot, or empty, allow as is.
+                    # The validation command already ensures it's a valid pattern.
+                    return
+            else:
+                # If numeric_part itself is not valid (e.g., empty after stripping sign but not just a sign),
+                # this means the input is in an un-formattable state.
+                # This case should ideally be caught by validate_qty_input before reaching here.
                 return
 
             try:
-                # Extract sign
-                sign = "-" if raw_value.startswith("-") else ""
-                value = raw_value.lstrip("-")
-
+                formatted_value = ""
                 # If there's a decimal point, format integer part only
-                if "." in value:
-                    integer_part, decimal_part = value.split(".", 1)
+                if "." in numeric_part:
+                    integer_part, decimal_part = numeric_part.split(".", 1)
+                    # Format integer part, handle empty integer part before decimal
                     formatted_integer = "{:,}".format(int(integer_part)) if integer_part else "0"
-                    formatted_value = f"{sign}{formatted_integer}.{decimal_part}"
+                    formatted_value = f"{current_sign if current_sign == '-' else ''}{formatted_integer}.{decimal_part}"
                 else:
-                    formatted_value = f"{sign}{int(value):,}"
+                    # Format as integer with commas
+                    formatted_value = f"{current_sign if current_sign == '-' else ''}{int(numeric_part):,}"
 
                 # Compute cursor shift from added/removed commas
-                num_commas_before = input_value[:cursor_position].count(",")
-                num_commas_after = formatted_value[:cursor_position].count(",")
-                new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+                # A more robust way to handle cursor position with dynamic formatting:
+                original_digits_before_cursor = 0
+                for char in numeric_part[:cursor_position - (1 if current_sign else 0)]:  # Adjust for sign
+                    if char.isdigit():
+                        original_digits_before_cursor += 1
+
+                new_cursor_position = 0
+                digits_counted = 0
+                # Iterate through formatted_value to find the new cursor position
+                # accounting for the sign and commas.
+                if current_sign == '-':
+                    new_cursor_position += 1  # Account for the '-' sign
+
+                for i, char in enumerate(formatted_value[len(current_sign if current_sign == '-' else ''):]):
+                    if char.isdigit():
+                        digits_counted += 1
+                    if digits_counted == original_digits_before_cursor:
+                        new_cursor_position += i + 1
+                        break
+                else:  # If loop completes, means original_digits_before_cursor was too large or no digits
+                    new_cursor_position = len(formatted_value)  # Place at end
 
                 # Update entry field
                 entry_widget.delete(0, "end")
@@ -840,41 +866,65 @@ class Forms:
                 entry_widget.icursor(new_cursor_position)
 
             except ValueError:
-                pass  # Ignore formatting if still invalid input (e.g. just a dash)
+                # This should ideally not be hit often if validate_qty_input is working
+                pass
 
         # Tkinter StringVar for real-time updates
         qty_var = StringVar()
 
-        # Validation Command for Entry Widget
-        validate_numeric_command = form_frame.register(EntryValidation.validate_numeric_input)
+        # Register the validation command with the form_frame
+        validate_numeric_command = form_frame.register(validate_qty_input)
 
         # Quantity Entry Field
-        qty_label = ttk.Label(form_frame, text="Quantity Lost", style="CustomLabel.TLabel")
-        qty_label.grid(row=8, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
+        qty_label = ttk.Label(form_frame, text="Variance (Gain/Loss)", style="CustomLabel.TLabel")
+        qty_label.grid(row=8, column=1, padx=(3, 0), pady=(10, 0), sticky=W)
 
         self.qty_entry = ttk.Entry(form_frame,
-                              width=29,
-                              font=self.shared_functions.custom_font_size,
-                              textvariable=qty_var,
-                              validate="key",
-                              validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
-        self.qty_entry.grid(row=9, column=1, padx=(5,0), pady=(0, 0), sticky=W)
+                                   width=29,
+                                   font=self.shared_functions.custom_font_size,
+                                   textvariable=qty_var,
+                                   validate="key",  # Validate on each key press
+                                   validatecommand=(validate_numeric_command,
+                                                    "%P"))  # %P is the value of the entry if the edit is allowed
+        self.qty_entry.grid(row=9, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
 
         # Bind the event to format input dynamically while preserving cursor position
         self.qty_entry.bind("<KeyRelease>", format_numeric_input)
-        ToolTip(self.qty_entry, text="Enter the Quantity(kg)")
+        ToolTip(self.qty_entry, text="Enter the Variance if it is Gain or Loss")
 
+        # -------------------------------[REASON FOR DISCREPANCY FIELD]----------------------------------#
+        label = ttk.Label(form_frame, text="Reason for Discrepancy", style="CustomLabel.TLabel")
+        label.grid(row=10, column=0, padx=5, pady=(12, 0), sticky=W)
 
+        spillage_radio = ttk.Radiobutton(
+            form_frame,
+            text="Spillage",
+            variable=self.discrepancy_reason,
+            value="Spillage",
+            style="Custom.TRadiobutton",
+            bootstyle="primary",
+
+        )
+        spillage_radio.grid(row=11, column=0, padx=5, pady=(12, 0), sticky=W)
+
+        inventory_radio = ttk.Radiobutton(
+            form_frame,
+            text="Inventory Discrepancy",
+            variable=self.discrepancy_reason,
+            value="Inventory Discrepancy",
+            style="Custom.TRadiobutton",
+            bootstyle="primary",
+
+        )
+        inventory_radio.grid(row=11, column=1, padx=5, pady=(12, 0), sticky=W)
 
         # ----------------------------------[PERSON RESPONSIBLE FIELD]----------------------------------#
         label = ttk.Label(form_frame, text="Responsible Person", style="CustomLabel.TLabel")
-        label.grid(row=10, column=0, padx=5,  pady=(10, 0), sticky=W)
+        label.grid(row=12, column=0, padx=5, pady=(12, 0), sticky=W)
 
         self.person_responsible_entry = ttk.Entry(form_frame, width=61, font=self.shared_functions.custom_font_size)
-        self.person_responsible_entry.grid(row=11, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
+        self.person_responsible_entry.grid(row=13, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
         ToolTip(self.person_responsible_entry, text="Type the Spillage Report Reference Number.")
-
-
 
         # Submit button
 
@@ -885,14 +935,11 @@ class Forms:
             bootstyle=DANGER,
             command=self.add_record_window.destroy
         )
-        cancel_button.grid(row=12, column=0, padx=5, sticky="w")
+        cancel_button.grid(row=14, column=0, padx=5, sticky="w")
 
         submit_btn = ttk.Button(form_frame, text="+ Add", bootstyle=SUCCESS,
-                                command=self.submit_data,)
-        submit_btn.grid(row=12, column=1, pady=20, sticky="e")
-
-
-
+                                command=self.submit_data, )
+        submit_btn.grid(row=14, column=1, pady=20, sticky="e")
 
         def bind_shift_enter_to_all_children(parent, callback):
             for child in parent.winfo_children():
@@ -935,16 +982,22 @@ class Forms:
         bind_shift_a_to_toggle_checkbox(form_frame, toggle_warehouse_lock)
 
         # This is for the tab button for the tab sequence when the user hits tab to move to the next field
-        self.adj_date_entry.entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.ref_number_entry))
-        self.ref_number_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.ref_date_entry.entry))
+        self.adj_date_entry.entry.bind("<Tab>",
+                                       lambda e: self.shared_functions.focus_next_widget(e, self.ref_number_entry))
+        self.ref_number_entry.bind("<Tab>",
+                                   lambda e: self.shared_functions.focus_next_widget(e, self.ref_date_entry.entry))
         self.ref_date_entry.entry.bind("<Tab>",
                                        lambda e: self.shared_functions.focus_next_widget(e, self.spillage_no_entry))
-        self.spillage_no_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.incident_date_entry.entry))
+        self.spillage_no_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e,
+                                                                                               self.incident_date_entry.entry))
         self.incident_date_entry.entry.bind("<Tab>",
-                                    lambda e: self.shared_functions.focus_next_widget(e, self.warehouse_combobox))
-        self.warehouse_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.status_combobox))
+                                            lambda e: self.shared_functions.focus_next_widget(e,
+                                                                                              self.warehouse_combobox))
+        self.warehouse_combobox.bind("<Tab>",
+                                     lambda e: self.shared_functions.focus_next_widget(e, self.status_combobox))
         self.status_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.rm_codes_combobox))
         self.rm_codes_combobox.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.qty_entry))
-        self.qty_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, self.person_responsible_entry))
+        self.qty_entry.bind("<Tab>",
+                            lambda e: self.shared_functions.focus_next_widget(e, self.person_responsible_entry))
         self.person_responsible_entry.bind("<Tab>", lambda e: self.shared_functions.focus_next_widget(e, submit_btn))
 
