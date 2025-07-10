@@ -53,8 +53,6 @@ class EditForm:
 
 
 
-
-
     def get_selected_warehouse_id(self):
         selected_name = self.warehouse_combobox.get()
         selected_id = self.warehouse_to_id.get(selected_name)  # Get the corresponding ID

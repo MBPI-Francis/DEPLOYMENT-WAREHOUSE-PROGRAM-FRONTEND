@@ -43,7 +43,7 @@ class ConsumptionEntryView:
         held_form_tab(notebook)
         outgoing_form_tab(notebook)
         preparation_form_tab(notebook)
-        # adjustment_form_tab(notebook)
+        adjustment_form_tab(notebook)
         submit_entries_tab(notebook)
 
 
