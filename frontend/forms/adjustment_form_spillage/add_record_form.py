@@ -77,6 +77,8 @@ class Forms:
         ref_number = self.ref_number_entry.get()
         person_responsible = self.person_responsible_entry.get()
         spillage_no = self.spillage_no_entry.get()
+        selected_reason = self.discrepancy_reason.get()
+
 
         qty = self.qty_entry.get()
 
@@ -116,6 +118,7 @@ class Forms:
             "spillage_form_number": spillage_no,
             "incident_date": incident_date,
             "responsible_person": person_responsible,
+            "reason": selected_reason,
         }
 
         # Validate the data entries in front-end side
@@ -129,7 +132,7 @@ class Forms:
             rm_code_id,
             warehouse_id,
             cleaned_qty,
-            status_id
+            status_id,
         )
 
         if validatation_result:

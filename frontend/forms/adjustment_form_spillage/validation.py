@@ -43,6 +43,9 @@ class EntryValidation:
             elif key == "person_responsible" and not value:
                 text_list.append("Person Responsible")
 
+            elif key == "reason" and not value:
+                text_list.append("Reason for Discrepancy")
+
         return text_list
 
     # Validation function for numeric input

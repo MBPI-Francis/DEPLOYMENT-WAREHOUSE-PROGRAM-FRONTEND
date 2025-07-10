@@ -97,6 +97,7 @@ class EditForm:
         ref_number = self.ref_number_entry.get()
         person_responsible = self.person_responsible_entry.get()
         spillage_no = self.spillage_no_entry.get()
+        selected_reason = self.discrepancy_reason.get()
 
 
 
@@ -138,6 +139,7 @@ class EditForm:
             "spillage_form_number": spillage_no,
             "incident_date": incident_date,
             "responsible_person": person_responsible,
+            "reason": selected_reason,
         }
 
 
@@ -861,8 +863,8 @@ class EditForm:
                               validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
         # Clean qty_value before inserting. It removes the "- " in the qty_value
         # cleaned_qty_value = self.qty_value.replace("-", "").strip()
-        self.qty_entry.insert(0, cleaned_qty_value)
-
+        # self.qty_entry.insert(0, cleaned_qty_value)
+        self.qty_entry.insert(0, self.qty_value)
         # Bind the event to format input dynamically while preserving cursor position
         self.qty_entry.bind("<KeyRelease>", format_numeric_input)
         ToolTip(self.qty_entry, text="Enter the Quantity Lost")
