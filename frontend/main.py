@@ -43,8 +43,10 @@ class App(ttk.Window):
 
 
             # Style for the radio button
-            style.configure("Custom.TRadiobutton", font=("Arial", 12))  # Define a custom style with desired font size
+            style.configure("Custom.TRadiobutton", font=("Arial", 12, "bold"))  # Define a custom style with desired font size
 
+
+            # style.configure("Toolbutton", font=("Arial", 12, "bold"))  # Define a custom style with desired font size
 
             # Increase tab font size
             style.configure("TNotebook.Tab", font=("Arial", 11, "bold"))  # Change font and size

@@ -842,6 +842,7 @@ class Forms:
             style="Custom.TRadiobutton",
             bootstyle="primary",
 
+
         )
         spillage_radio.grid(row=11, column=0, padx=5, pady=(12, 0), sticky=W)
 
@@ -852,6 +853,7 @@ class Forms:
             value="Inventory Discrepancy",
             style="Custom.TRadiobutton",
             bootstyle="primary",
+
 
         )
         inventory_radio.grid(row=11, column=1, padx=5, pady=(12, 0), sticky=W)

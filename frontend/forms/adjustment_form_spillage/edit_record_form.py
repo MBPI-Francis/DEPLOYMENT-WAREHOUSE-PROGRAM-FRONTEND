@@ -56,7 +56,7 @@ class EditForm:
 
 
 
-
+        self.discrepancy_reason = tk.StringVar(value="None Selected")  # Default value for the Radio Buttons
 
 
     def get_selected_warehouse_id(self):
@@ -220,7 +220,7 @@ class EditForm:
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 490  # Fixed width
-        window_height = 490  # Fixed height
+        window_height = 550  # Fixed height
 
         # **Center the window**
         screen_width = self.edit_window.winfo_screenwidth()
@@ -721,7 +721,7 @@ class EditForm:
         warehouse_names = list(self.warehouse_to_id.keys())
 
         # Combobox for Warehouse Drop Down
-        warehouse_label = ttk.Label(form_frame, text="Warehouse", style="CustomLabel.TLabel")
+        warehouse_label = ttk.Label(form_frame, text="Location", style="CustomLabel.TLabel")
         warehouse_label.grid(row=6, column=0, padx=(3, 0),  pady=(10, 0), sticky=W)
 
 
@@ -849,7 +849,7 @@ class EditForm:
         validate_numeric_command = form_frame.register(EntryValidation.validate_numeric_input)
 
         # Quantity Entry Field
-        qty_label = ttk.Label(form_frame, text="Quantity Lost", style="CustomLabel.TLabel")
+        qty_label = ttk.Label(form_frame, text="Variance (Gain/Loss)", style="CustomLabel.TLabel")
         qty_label.grid(row=8, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
 
         self.qty_entry = ttk.Entry(form_frame,
@@ -868,12 +868,42 @@ class EditForm:
         self.qty_entry.grid(row=9, column=1, padx=(5,0), pady=(0, 0), sticky=W)
 
 
+        # -------------------------------[REASON FOR DISCREPANCY FIELD]----------------------------------#
+        label = ttk.Label(form_frame, text="Reason for Discrepancy", style="CustomLabel.TLabel")
+        label.grid(row=10, column=0, padx=5, pady=(12, 0), sticky=W)
+
+        spillage_radio = ttk.Radiobutton(
+            form_frame,
+            text="Spillage",
+            variable=self.discrepancy_reason,
+            value="Spillage",
+            style="Custom.TRadiobutton",
+            bootstyle="primary",
+
+
+        )
+        spillage_radio.grid(row=11, column=0, padx=5, pady=(12, 0), sticky=W)
+
+        inventory_radio = ttk.Radiobutton(
+            form_frame,
+            text="Inventory Discrepancy",
+            variable=self.discrepancy_reason,
+            value="Inventory Discrepancy",
+            style="Custom.TRadiobutton",
+            bootstyle="primary",
+
+
+        )
+        inventory_radio.grid(row=11, column=1, padx=5, pady=(12, 0), sticky=W)
+
+
+
         # ----------------------------------[PERSON RESPONSIBLE FIELD]----------------------------------#
         label = ttk.Label(form_frame, text="Responsible Person", style="CustomLabel.TLabel")
-        label.grid(row=10, column=0, padx=5,  pady=(10, 0), sticky=W)
+        label.grid(row=12, column=0, padx=5,  pady=(10, 0), sticky=W)
 
         self.person_responsible_entry = ttk.Entry(form_frame, width=61, font=self.shared_functions.custom_font_size)
-        self.person_responsible_entry.grid(row=11, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
+        self.person_responsible_entry.grid(row=13, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
         self.person_responsible_entry.insert(0, self.responsible_person_value)
         ToolTip(self.person_responsible_entry, text="Type the Spillage Report Reference Number.")
 
@@ -886,11 +916,11 @@ class EditForm:
             bootstyle=DANGER,
             command=self.edit_window.destroy
         )
-        cancel_button.grid(row=12, column=0, padx=5, sticky="w")
+        cancel_button.grid(row=14, column=0, padx=5, sticky="w")
 
         submit_btn = ttk.Button(form_frame, text="Update", bootstyle=SUCCESS,
                                 command=self.submit_data,)
-        submit_btn.grid(row=12, column=1, pady=20, sticky="e")
+        submit_btn.grid(row=14, column=1, pady=20, sticky="e")
 
 
 
