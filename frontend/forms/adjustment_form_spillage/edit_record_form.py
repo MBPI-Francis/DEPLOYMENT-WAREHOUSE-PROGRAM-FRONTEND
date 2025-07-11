@@ -54,9 +54,7 @@ class EditForm:
         self.get_warehouse_api = self.shared_functions.get_warehouse_api()
         self.get_rm_code_api = self.shared_functions.get_rm_code_api(force_refresh=True)
 
-
-
-        self.discrepancy_reason = tk.StringVar(value="None Selected")  # Default value for the Radio Buttons
+        self.discrepancy_reason = tk.StringVar()
 
 
     def get_selected_warehouse_id(self):
@@ -216,6 +214,7 @@ class EditForm:
         self.incident_date_value = self.record[8]
         self.adj_date_value = self.record[9]
         self.ref_date_value = self.record[10]
+        self.reason_value = self.record[11]
         
         self.edit_window = ttk.Toplevel(self.root)
         self.edit_window.title("EDIT Spillage Inventory Adjustment Form")
@@ -875,6 +874,12 @@ class EditForm:
         label = ttk.Label(form_frame, text="Reason for Discrepancy", style="CustomLabel.TLabel")
         label.grid(row=10, column=0, padx=5, pady=(12, 0), sticky=W)
 
+        # Set the default selected radio button based on self.reason_value
+        if self.reason_value == "Spillage":
+            self.discrepancy_reason.set("Spillage")
+        else:
+            self.discrepancy_reason.set("Inventory Discrepancy")
+
         spillage_radio = ttk.Radiobutton(
             form_frame,
             text="Spillage",
@@ -898,6 +903,7 @@ class EditForm:
 
         )
         inventory_radio.grid(row=11, column=1, padx=5, pady=(12, 0), sticky=W)
+
 
 
 

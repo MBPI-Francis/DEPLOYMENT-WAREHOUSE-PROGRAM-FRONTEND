@@ -74,13 +74,14 @@ class ViewRecordForm:
         self.incident_date_value = self.record[8]
         self.adj_date_value = self.record[9]
         self.ref_date_value = self.record[10]
+        self.reason_value = self.record[11]
 
         self.view_record_window = ttk.Toplevel(self.root)
         self.view_record_window.title("Inventory Adjustment Form View Modal")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 550  # Fixed width
-        window_height = 450  # Fixed height
+        window_height = 480  # Fixed height
 
         # **Center the window**
         screen_width = self.view_record_window.winfo_screenwidth()
@@ -163,7 +164,7 @@ class ViewRecordForm:
 
         # ----------------------------------[WAREHOUSE]----------------------------------#
         # Combobox for Warehouse Drop Down
-        warehouse_label = ttk.Label(form_frame, text="Warehouse", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        warehouse_label = ttk.Label(form_frame, text="Location", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
         warehouse_label.grid(row=5, column=0, padx=(3, 0), pady=5, sticky=W)
 
         warehouse_label_value = ttk.Label(form_frame, text=self.warehouse_value, style="CustomLabel.TLabel")
@@ -196,19 +197,27 @@ class ViewRecordForm:
         formatted_value = f"{float(self.qty_value):,}"
 
         # Quantity Entry Field
-        qty_label = ttk.Label(form_frame, text="Quantity(kg)", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        qty_label = ttk.Label(form_frame, text="Variance (Gain/Loss)", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
         qty_label.grid(row=8, column=0, padx=(3, 10), pady=5, sticky=W)
 
         qty_label_value = ttk.Label(form_frame, text=formatted_value, style="CustomLabel.TLabel")
         qty_label_value.grid(row=8, column=1, padx=(5, 10), pady=5, sticky=W)
 
 
+        # Quantity Entry Field
+        qty_label = ttk.Label(form_frame, text="Reason for Discrepancy", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
+        qty_label.grid(row=9, column=0, padx=(3, 10), pady=5, sticky=W)
+
+        qty_label_value = ttk.Label(form_frame, text=self.reason_value, style="CustomLabel.TLabel")
+        qty_label_value.grid(row=9, column=1, padx=(5, 10), pady=5, sticky=W)
+
+
         # ----------------------------------[RESPONSIBLE PERSON]----------------------------------#
         date_label = ttk.Label(form_frame, text="Responsible Person", bootstyle=SECONDARY, font=("Arial", 11, "bold"))
-        date_label.grid(row=9, column=0, padx=(3, 0), pady=5, sticky=W)
+        date_label.grid(row=10, column=0, padx=(3, 0), pady=5, sticky=W)
 
         responsible_person_label = ttk.Label(form_frame, text=self.responsible_person_value, style="CustomLabel.TLabel")
-        responsible_person_label.grid(row=9, column=1, padx=(5, 0), pady=5, sticky=W)
+        responsible_person_label.grid(row=10, column=1, padx=(5, 0), pady=5, sticky=W)
 
 
         # **Cancel Button**
@@ -218,7 +227,7 @@ class ViewRecordForm:
             bootstyle=DANGER,
             command=self.view_record_window.destroy
         )
-        cancel_button.grid(row=10, column=0, padx=5, pady=(20,0), sticky="w")
+        cancel_button.grid(row=11, column=0, padx=5, pady=(20,0), sticky="w")
 
 
 

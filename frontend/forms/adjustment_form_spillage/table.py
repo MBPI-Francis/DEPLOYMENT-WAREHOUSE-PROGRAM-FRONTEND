@@ -145,6 +145,7 @@ class AdjustmentFormTable:
                     datetime.fromisoformat(item["incident_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["adjustment_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["reference_date"]).strftime("%m/%d/%Y"),
+                    item["reason"],
 
                 )
 
