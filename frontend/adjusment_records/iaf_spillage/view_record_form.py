@@ -79,13 +79,14 @@ class ViewForm:
         self.incident_date_value = self.record[8]
         self.adj_date_value = self.record[9]
         self.ref_date_value = self.record[10]
+        self.reason_value = self.record[11]
         
         self.edit_window = ttk.Toplevel(self.root)
         self.edit_window.title("View Spillage Adjustment Record")
 
         # **Fixed Size** (Recommended for consistency)
         window_width = 490  # Fixed width
-        window_height = 490  # Fixed height
+        window_height = 550  # Fixed height
 
         # **Center the window**
         screen_width = self.edit_window.winfo_screenwidth()
@@ -253,12 +254,25 @@ class ViewForm:
         self.qty_entry.grid(row=9, column=1, padx=(5,0), pady=(0, 0), sticky=W)
 
 
+        # ----------------------------------[REASON FOR DISCREPANCY]----------------------------------#
+        # Quantity Entry Field
+        reason_label = ttk.Label(form_frame, text="Reason for Discrepancy", style="CustomLabel.TLabel")
+        reason_label.grid(row=10, column=0, padx=(3,0),  pady=(10, 0), sticky=W)
+
+        self.reason = ttk.Entry(form_frame,
+                              width=61,
+                              font=self.shared_functions.custom_font_size)
+        self.reason.insert(0, self.reason_value)
+        self.reason.config(state="disabled")
+        self.reason.grid(row=11, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
+
+
         # ----------------------------------[PERSON RESPONSIBLE FIELD]----------------------------------#
         label = ttk.Label(form_frame, text="Responsible Person", style="CustomLabel.TLabel")
-        label.grid(row=10, column=0, padx=5,  pady=(10, 0), sticky=W)
+        label.grid(row=12, column=0, padx=5,  pady=(10, 0), sticky=W)
 
         self.person_responsible_entry = ttk.Entry(form_frame, width=61, font=self.shared_functions.custom_font_size)
-        self.person_responsible_entry.grid(row=11, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
+        self.person_responsible_entry.grid(row=13, column=0, columnspan=2, padx=(5, 0), pady=0, sticky=W)
         self.person_responsible_entry.insert(0, self.responsible_person_value)
         self.person_responsible_entry.config(state='disabled')
 
@@ -271,4 +285,4 @@ class ViewForm:
             bootstyle=DANGER,
             command=self.edit_window.destroy
         )
-        cancel_button.grid(row=12, column=0, padx=5, pady=(20, 0), sticky="w")
+        cancel_button.grid(row=14, column=0, padx=5, pady=(20, 0), sticky="w")
