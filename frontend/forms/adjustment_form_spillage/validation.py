@@ -92,6 +92,12 @@ class EntryValidation:
             return False
 
         try:
+            if raw_value == ".":
+                return True
+
+            if raw_value == "-.":
+                return True
+
             float(raw_value)  # Check if fully convertible to float
 
             # Ensure max of two decimal places

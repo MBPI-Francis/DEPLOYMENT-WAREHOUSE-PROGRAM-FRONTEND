@@ -6,7 +6,8 @@ from backend.settings.database import server_ip
 import threading
 import time
 from tkinter.font import Font
-
+import tkinter as tk
+from tkinter import ttk, StringVar, W
 
 # class SharedFunctions:
 #     _instance = None
@@ -194,3 +195,205 @@ class SharedFunctions:
     def focus_next_widget(event, next_widget):
         next_widget.focus_set()
         return "break"  # Prevent default Tab behavior
+
+
+
+class NumericInputFormatter:
+    def __init__(self, entry_widget: ttk.Entry, string_var: StringVar):
+        """
+        Initializes the formatter for a specific Tkinter Entry widget.
+
+        Args:
+            entry_widget: The ttk.Entry widget to format.
+            string_var: The Tkinter StringVar associated with the entry_widget.
+        """
+        self.entry_widget = entry_widget
+        self.string_var = string_var
+        # Initialize the previous_raw_value for this specific entry
+        self._previous_raw_value = ""
+
+        # Bind the formatting method to the KeyRelease event of the entry widget
+        self.entry_widget.bind("<KeyRelease>", self.format_input_event)
+
+    def format_input_event(self, event):
+        """
+        Formats the input dynamically while preserving the cursor position.
+        This method is designed to be bound to a Tkinter KeyRelease event.
+        It uses the exact formatting and cursor logic provided by the user.
+        """
+        input_value = self.string_var.get()
+
+        # Get current cursor position from the specific entry widget
+        cursor_position = self.entry_widget.index("insert")
+
+        # Remove commas for processing
+        raw_value = input_value.replace(",", "")
+
+        # Store the previous value to detect decimal removal (from instance attribute)
+        previous_raw_value_local = self._previous_raw_value
+        self._previous_raw_value = raw_value  # Store current for next iteration
+
+        if raw_value == "":
+            # Clear the entry and return if empty
+            self.entry_widget.delete(0, "end")
+            self.string_var.set("") # Also clear the StringVar
+            return
+
+        try:
+            # Automatically fix "." to "0."
+            if raw_value == ".":
+                raw_value = "0."
+                cursor_position += 1  # Move cursor after '0'
+            elif raw_value.startswith("."):
+                raw_value = "0" + raw_value
+                cursor_position += 1
+
+            # Check if a decimal was just removed
+            decimal_was_removed = (
+                    '.' in previous_raw_value_local and # Use the local previous value
+                    '.' not in raw_value and
+                    (len(raw_value) == len(previous_raw_value_local) - 1 or
+                     (previous_raw_value_local.startswith("0.") and len(raw_value) == len(previous_raw_value_local) - 2)
+                    )
+            )
+
+            # Allow typing like '123.'
+            if raw_value[-1] == "." and raw_value.count(".") == 1:
+                float_value = float(raw_value[:-1])  # parse without trailing dot
+                formatted_value = "{:,}".format(int(float_value)) + "."
+
+            elif "." in raw_value:
+                float_value = float(raw_value)
+                integer_part, decimal_part = raw_value.split(".")
+                formatted_integer = "{:,}".format(int(integer_part))
+                formatted_value = f"{formatted_integer}.{decimal_part}"
+
+            else:
+                float_value = float(raw_value)
+                formatted_value = "{:,}".format(int(float_value))
+
+            # Recalculate cursor position based on commas added/removed
+            num_commas_before = input_value[:cursor_position].count(",")
+            num_commas_after = formatted_value[:cursor_position].count(",")
+            new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+
+            # Adjust cursor position if decimal was removed and the new position should be at the start
+            if decimal_was_removed:
+                if previous_raw_value_local.startswith("0."):
+                    if raw_value == "0":
+                        new_cursor_position = 1
+                    else:
+                        new_cursor_position = 0
+                # else: (Original code had a pass here, keeping it as is)
+                #     pass
+
+            # Apply formatted text and restore cursor
+            self.entry_widget.delete(0, "end")
+            self.entry_widget.insert(0, formatted_value)
+            self.entry_widget.icursor(new_cursor_position)
+
+        except ValueError:
+            # If input is invalid (e.g., "abc"), do not format, just pass.
+            # The validation command should ideally prevent such inputs anyway.
+            pass
+
+
+
+class AdjustmentNumericInputFormatter:
+    def __init__(self, entry_widget: ttk.Entry, string_var: StringVar):
+        """
+        Initializes the formatter for a specific Tkinter Entry widget.
+
+        Args:
+            entry_widget: The ttk.Entry widget to format.
+            string_var: The Tkinter StringVar associated with the entry_widget.
+        """
+        self.entry_widget = entry_widget
+        self.string_var = string_var
+        self._previous_raw_value = ""
+
+        self.entry_widget.bind("<KeyRelease>", self.format_input_event)
+
+    def format_input_event(self, event):
+        """
+        Formats the input dynamically while preserving the cursor position.
+        """
+        input_value = self.string_var.get()
+        current_cursor_position = self.entry_widget.index("insert")
+
+        previous_raw_value_local = self._previous_raw_value
+        raw_value = input_value.replace(",", "")
+
+        # --- Step 1: Handle "0." and "-0." auto-conversion and initial cursor adjustment ---
+        modified_raw_value = raw_value
+        initial_cursor_adjustment = 0
+
+        if raw_value == ".":
+            modified_raw_value = "0."
+            initial_cursor_adjustment = 1
+        elif raw_value.startswith("."):
+            modified_raw_value = "0" + raw_value
+            initial_cursor_adjustment = 1
+        elif raw_value == "-.": # <--- NEW LOGIC HERE!
+            modified_raw_value = "-0."
+            initial_cursor_adjustment = 1 # Cursor moves after '0' (e.g., -0|)
+        elif raw_value.startswith("-."): # Handles cases like -.123
+            modified_raw_value = "-0" + raw_value[1:]
+            initial_cursor_adjustment = 1
+
+
+        self._previous_raw_value = raw_value # Store original raw_value for next iteration
+
+        # --- Step 2: Early exit for incomplete/unformattable states ---
+        if modified_raw_value == "":
+            self.string_var.set("")
+            self.entry_widget.delete(0, "end")
+            return
+        elif modified_raw_value in {"-"} or modified_raw_value.endswith("."):
+            # Note: "-." is now handled by the new logic above, so it's removed from here
+            return
+
+        raw_value = modified_raw_value
+        cursor_position = current_cursor_position + initial_cursor_adjustment
+
+        try:
+            # --- Step 3: Core formatting logic ---
+            sign = "-" if raw_value.startswith("-") else ""
+            value = raw_value.lstrip("-")
+
+            formatted_value = ""
+            if "." in value:
+                integer_part, decimal_part = value.split(".", 1)
+                formatted_integer = "{:,}".format(int(integer_part)) if integer_part else "0"
+                formatted_value = f"{sign}{formatted_integer}.{decimal_part}"
+            else:
+                formatted_value = f"{sign}{int(value):,}"
+
+            # --- Step 4: Recalculate cursor position based on commas ---
+            num_commas_before = input_value[:current_cursor_position].count(",")
+            num_commas_after = formatted_value[:cursor_position].count(",")
+            new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+
+            # --- Step 5: Decimal Removal Cursor Logic ---
+            decimal_was_removed = (
+                    '.' in previous_raw_value_local and
+                    '.' not in raw_value and
+                    (len(raw_value) == len(previous_raw_value_local) - 1 or
+                     (previous_raw_value_local.startswith("0.") and len(raw_value) == len(previous_raw_value_local) - 2)
+                    )
+            )
+
+            if decimal_was_removed:
+                if previous_raw_value_local.startswith("0."):
+                    if raw_value == "0":
+                        new_cursor_position = 1
+                    else:
+                        new_cursor_position = 0
+
+            # --- Step 6: Apply formatted text and restore cursor ---
+            self.entry_widget.delete(0, "end")
+            self.entry_widget.insert(0, formatted_value)
+            self.entry_widget.icursor(new_cursor_position)
+
+        except ValueError:
+            pass # Ignore formatting if still invalid input

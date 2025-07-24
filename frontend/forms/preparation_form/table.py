@@ -9,7 +9,7 @@ from uuid import UUID
 from datetime import datetime
 from ttkbootstrap.tooltip import ToolTip
 from .validation import EntryValidation
-from ..shared import SharedFunctions
+from ..shared import SharedFunctions, NumericInputFormatter
 
 
 class PreparationFormTable:
@@ -282,49 +282,6 @@ class PreparationFormTable:
 
 
             elif field == "QTY (Prepared)":
-                # Function to format numeric input dynamically with cursor preservation
-                def format_numeric_input_prepared(event):
-                    """
-                    Formats the input dynamically while preserving the cursor position.
-                    """
-                    input_value = qty_prepared_var.get()
-
-                    # Get current cursor position
-                    cursor_position = qty_prepared_entry.index("insert")
-
-                    # Remove commas for processing
-                    raw_value = input_value.replace(",", "")
-
-                    if raw_value == "" or raw_value == ".":
-                        return  # Prevent formatting when only `.` is typed
-
-                    try:
-                        if "." in raw_value and raw_value[-1] == ".":
-                            return  # Allow user to manually enter decimal places
-
-                        # Convert input to float and format
-                        float_value = float(raw_value)
-
-                        if "." in raw_value:
-                            integer_part, decimal_part = raw_value.split(".")
-                            formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
-                            formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
-                        else:
-                            formatted_value = "{:,}".format(int(float_value))  # Format whole number
-
-                        # Adjust cursor position based on new commas added
-                        num_commas_before = input_value[:cursor_position].count(",")
-                        num_commas_after = formatted_value[:cursor_position].count(",")
-
-                        new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
-
-                        # Prevent cursor jumping by resetting the value and restoring cursor position
-                        qty_prepared_entry.delete(0, "end")
-                        qty_prepared_entry.insert(0, formatted_value)
-                        qty_prepared_entry.icursor(new_cursor_position)  # Restore cursor position
-                    except ValueError:
-                        pass  # Ignore invalid input
-
                 qty_prepared_var = StringVar()
                 validate_numeric_command = self.edit_window.register(EntryValidation.validate_numeric_input)
                 qty_prepared_entry = ttk.Entry(self.edit_window,
@@ -338,56 +295,13 @@ class PreparationFormTable:
                 qty_prepared_entry.insert(0, record[idx])
                 qty_prepared_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
                 ToolTip(qty_prepared_entry, text="Enter the QTY (Prepared)")
-                qty_prepared_entry.bind("<KeyRelease>", format_numeric_input_prepared)
+                #  This calls the auto format class to format the value automatically
+                qty_preprared_formatter = NumericInputFormatter(qty_prepared_entry, qty_prepared_var)
 
                 old_qty_prepared = float(record[idx].replace(",", ""))
 
 
             elif field == "QTY (Return)":
-
-                # Function to format numeric input dynamically with cursor preservation
-                def format_numeric_input_return(event):
-                    """
-                    Formats the input dynamically while preserving the cursor position.
-                    """
-                    input_value = qty_return_var.get()
-
-                    # Get current cursor position
-                    cursor_position = qty_return_entry.index("insert")
-
-                    # Remove commas for processing
-                    raw_value = input_value.replace(",", "")
-
-                    if raw_value == "" or raw_value == ".":
-                        return  # Prevent formatting when only `.` is typed
-
-                    try:
-                        if "." in raw_value and raw_value[-1] == ".":
-                            return  # Allow user to manually enter decimal places
-
-                        # Convert input to float and format
-                        float_value = float(raw_value)
-
-                        if "." in raw_value:
-                            integer_part, decimal_part = raw_value.split(".")
-                            formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
-                            formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
-                        else:
-                            formatted_value = "{:,}".format(int(float_value))  # Format whole number
-
-                        # Adjust cursor position based on new commas added
-                        num_commas_before = input_value[:cursor_position].count(",")
-                        num_commas_after = formatted_value[:cursor_position].count(",")
-
-                        new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
-
-                        # Prevent cursor jumping by resetting the value and restoring cursor position
-                        qty_return_entry.delete(0, "end")
-                        qty_return_entry.insert(0, formatted_value)
-                        qty_return_entry.icursor(new_cursor_position)  # Restore cursor position
-                    except ValueError:
-                        pass  # Ignore invalid input
-
                 qty_return_var = StringVar()
                 validate_numeric_command = self.edit_window.register(EntryValidation.validate_numeric_input)
                 qty_return_entry = ttk.Entry(self.edit_window,
@@ -399,7 +313,8 @@ class PreparationFormTable:
                                              # Pass the current widget content ("%P")
                                              )
                 qty_return_entry.insert(0, record[idx])
-                qty_return_entry.bind("<KeyRelease>", format_numeric_input_return)
+                qty_return_formatter = NumericInputFormatter(qty_return_entry, qty_return_var)
+
                 qty_return_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
                 ToolTip(qty_return_entry, text="Enter the value for the Quantity (Return) in KG")
 

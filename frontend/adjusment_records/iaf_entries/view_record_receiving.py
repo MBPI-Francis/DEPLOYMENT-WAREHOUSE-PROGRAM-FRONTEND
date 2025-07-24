@@ -809,46 +809,6 @@ class ReceivingRecord:
         self.rm_codes_combobox.set(self.rm_code_value)
 
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
-
-        def format_numeric_input(event):
-            input_value = qty_var.get()
-
-            # Get current cursor position
-            cursor_position = self.qty_entry.index("insert")
-
-            # Remove commas for processing
-            raw_value = input_value.replace(",", "")
-
-            # Allow incomplete but valid numeric input
-            if raw_value in {"-", ".", "-."} or raw_value.endswith(".") or raw_value == "":
-                return
-
-            try:
-                # Extract sign
-                sign = "-" if raw_value.startswith("-") else ""
-                value = raw_value.lstrip("-")
-
-                # If there's a decimal point, format integer part only
-                if "." in value:
-                    integer_part, decimal_part = value.split(".", 1)
-                    formatted_integer = "{:,}".format(int(integer_part)) if integer_part else "0"
-                    formatted_value = f"{sign}{formatted_integer}.{decimal_part}"
-                else:
-                    formatted_value = f"{sign}{int(value):,}"
-
-                # Compute cursor shift from added/removed commas
-                num_commas_before = input_value[:cursor_position].count(",")
-                num_commas_after = formatted_value[:cursor_position].count(",")
-                new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
-
-                # Update entry field
-                self.qty_entry.delete(0, "end")
-                self.qty_entry.insert(0, formatted_value)
-                self.qty_entry.icursor(new_cursor_position)
-
-            except ValueError:
-                pass  # Ignore formatting if still invalid input (e.g. just a dash)
-
         # Tkinter StringVar for real-time updates
         qty_var = StringVar()
 

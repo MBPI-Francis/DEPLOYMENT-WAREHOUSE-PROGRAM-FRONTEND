@@ -68,6 +68,10 @@ class EntryValidation:
             return False
 
         try:
+
+            if raw_value == ".":
+                return True
+
             float_value = float(raw_value)  # Check if it's a valid float
 
             # Ensure only two decimal places

@@ -10,7 +10,7 @@ from tkinter import simpledialog
 from ttkbootstrap.widgets import DateEntry
 from .validation import EntryValidation
 from ttkbootstrap.dialogs import Messagebox
-from ..shared import SharedFunctions
+from ..shared import SharedFunctions, NumericInputFormatter
 
 
 class OutgoingFormTable:
@@ -252,51 +252,6 @@ class OutgoingFormTable:
                 previous_qty = record[idx]
                 previous_qty = float(previous_qty.replace(",", ""))
 
-
-
-                # Function to format numeric input dynamically with cursor preservation
-                def format_numeric_input(event):
-                    """
-                    Formats the input dynamically while preserving the cursor position.
-                    """
-                    input_value = qty_var.get()
-
-                    # Get current cursor position
-                    cursor_position = qty_entry.index("insert")
-
-                    # Remove commas for processing
-                    raw_value = input_value.replace(",", "")
-
-                    if raw_value == "" or raw_value == ".":
-                        return  # Prevent formatting when only `.` is typed
-
-                    try:
-                        if "." in raw_value and raw_value[-1] == ".":
-                            return  # Allow user to manually enter decimal places
-
-                        # Convert input to float and format
-                        float_value = float(raw_value)
-
-                        if "." in raw_value:
-                            integer_part, decimal_part = raw_value.split(".")
-                            formatted_integer = "{:,}".format(int(integer_part))  # Format integer part with commas
-                            formatted_value = f"{formatted_integer}.{decimal_part}"  # Preserve user-entered decimal part
-                        else:
-                            formatted_value = "{:,}".format(int(float_value))  # Format whole number
-
-                        # Adjust cursor position based on new commas added
-                        num_commas_before = input_value[:cursor_position].count(",")
-                        num_commas_after = formatted_value[:cursor_position].count(",")
-
-                        new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
-
-                        # Prevent cursor jumping by resetting the value and restoring cursor position
-                        qty_entry.delete(0, "end")
-                        qty_entry.insert(0, formatted_value)
-                        qty_entry.icursor(new_cursor_position)  # Restore cursor position
-                    except ValueError:
-                        pass  # Ignore invalid input
-
                 # Tkinter StringVar for real-time updates
                 qty_var = StringVar()
 
@@ -310,8 +265,10 @@ class OutgoingFormTable:
                                       validate="key",
                                       validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
                 qty_entry.insert(0, record[idx])
-                # Bind the event to format input dynamically while preserving cursor position
-                qty_entry.bind("<KeyRelease>", format_numeric_input)
+
+                #  This calls the auto format class to format the value automatically
+                qty_formatter = NumericInputFormatter(qty_entry, qty_var)
+
                 ToolTip(qty_entry, text="Enter the Quantity(kg)")
 
                 qty_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)

@@ -7,7 +7,7 @@ from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
 from .validation import EntryValidation
-from ..shared import SharedFunctions
+from ..shared import SharedFunctions, AdjustmentNumericInputFormatter
 from tkinter import StringVar
 import re
 
@@ -773,43 +773,43 @@ class Forms:
 
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
 
-        def format_numeric_input(event):
-            entry_widget = event.widget
-            input_value = entry_widget.get()
-            cursor_position = entry_widget.index("insert")
-
-            # Strip commas for processing
-            raw_value = input_value.replace(",", "")
-
-            # Allow incomplete but valid numeric input
-            if raw_value in {"-", ".", "-."} or raw_value.endswith(".") or raw_value == "":
-                return
-
-            try:
-                # Extract sign
-                sign = "-" if raw_value.startswith("-") else ""
-                value = raw_value.lstrip("-")
-
-                # If there's a decimal point, format integer part only
-                if "." in value:
-                    integer_part, decimal_part = value.split(".", 1)
-                    formatted_integer = "{:,}".format(int(integer_part)) if integer_part else "0"
-                    formatted_value = f"{sign}{formatted_integer}.{decimal_part}"
-                else:
-                    formatted_value = f"{sign}{int(value):,}"
-
-                # Compute cursor shift from added/removed commas
-                num_commas_before = input_value[:cursor_position].count(",")
-                num_commas_after = formatted_value[:cursor_position].count(",")
-                new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
-
-                # Update entry field
-                entry_widget.delete(0, "end")
-                entry_widget.insert(0, formatted_value)
-                entry_widget.icursor(new_cursor_position)
-
-            except ValueError:
-                pass  # Ignore formatting if still invalid input (e.g. just a dash)
+        # def format_numeric_input(event):
+        #     entry_widget = event.widget
+        #     input_value = entry_widget.get()
+        #     cursor_position = entry_widget.index("insert")
+        #
+        #     # Strip commas for processing
+        #     raw_value = input_value.replace(",", "")
+        #
+        #     # Allow incomplete but valid numeric input
+        #     if raw_value in {"-", ".", "-."} or raw_value.endswith(".") or raw_value == "":
+        #         return
+        #
+        #     try:
+        #         # Extract sign
+        #         sign = "-" if raw_value.startswith("-") else ""
+        #         value = raw_value.lstrip("-")
+        #
+        #         # If there's a decimal point, format integer part only
+        #         if "." in value:
+        #             integer_part, decimal_part = value.split(".", 1)
+        #             formatted_integer = "{:,}".format(int(integer_part)) if integer_part else "0"
+        #             formatted_value = f"{sign}{formatted_integer}.{decimal_part}"
+        #         else:
+        #             formatted_value = f"{sign}{int(value):,}"
+        #
+        #         # Compute cursor shift from added/removed commas
+        #         num_commas_before = input_value[:cursor_position].count(",")
+        #         num_commas_after = formatted_value[:cursor_position].count(",")
+        #         new_cursor_position = cursor_position + (num_commas_after - num_commas_before)
+        #
+        #         # Update entry field
+        #         entry_widget.delete(0, "end")
+        #         entry_widget.insert(0, formatted_value)
+        #         entry_widget.icursor(new_cursor_position)
+        #
+        #     except ValueError:
+        #         pass  # Ignore formatting if still invalid input (e.g. just a dash)
 
         # Tkinter StringVar for real-time updates
         qty_var = StringVar()
@@ -829,8 +829,9 @@ class Forms:
                                    validatecommand=(validate_numeric_command, "%P"))  # Pass input for validation
         self.qty_entry.grid(row=9, column=1, padx=(5, 0), pady=(0, 0), sticky=W)
 
-        # Bind the event to format input dynamically while preserving cursor position
-        self.qty_entry.bind("<KeyRelease>", format_numeric_input)
+        #  This calls the auto format class to format the value automatically
+        qty_formatter = AdjustmentNumericInputFormatter(self.qty_entry, qty_var)
+
         ToolTip(self.qty_entry, text="Enter the Variance if it is Gain or Loss")
 
         # -------------------------------[REASON FOR DISCREPANCY FIELD]----------------------------------#
