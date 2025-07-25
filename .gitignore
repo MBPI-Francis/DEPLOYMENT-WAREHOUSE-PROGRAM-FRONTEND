@@ -11,3 +11,4 @@ build/main/COLLECT-00.toc
 main.spec
 main.spec
 *.pyc
+/build
