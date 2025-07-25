@@ -8,7 +8,7 @@ from ttkbootstrap.tooltip import ToolTip
 from ttkbootstrap.dialogs.dialogs import Messagebox
 from datetime import datetime, timedelta
 from .validation import EntryValidation
-from ...forms.shared import SharedFunctions
+from ...forms.shared import SharedFunctions, NumericInputFormatter
 from tkinter import StringVar, messagebox
 
 
@@ -828,7 +828,7 @@ class ReceivingRecord:
         self.qty_entry.grid(row=4, column=4, padx=(3, 0), pady=(0, 0), sticky=W)
 
         # Bind the event to format input dynamically while preserving cursor position
-        self.qty_entry.bind("<KeyRelease>", format_numeric_input)
+        qty_formatter = NumericInputFormatter(self.qty_entry, qty_var)
         ToolTip(self.qty_entry, text="Enter the Quantity(kg)")
         self.qty_entry.insert(0, self.qty_value)
 
