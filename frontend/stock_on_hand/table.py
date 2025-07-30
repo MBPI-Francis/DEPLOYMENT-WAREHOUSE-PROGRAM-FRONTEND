@@ -22,18 +22,18 @@ class BeginningBalanceTable:
         self.search_entry.pack(side=LEFT)
         self.search_entry.bind("<Return>", self.search_data)
 
-        # Button to trigger the import process
-        import_button = ttk.Button(
-            search_frame,
-            text="Import New Beginning Balance",
-            bootstyle=WARNING,
-            command=self.confirmation_message.show_confirmation_message
-        )
-
-        import_button.pack(side=RIGHT)
-
-        # Add Tooltip
-        ToolTip(import_button, text="Import or generate a new beginning balance for raw materials.")
+        # # Button to trigger the import process
+        # import_button = ttk.Button(
+        #     search_frame,
+        #     text="Import New Beginning Balance",
+        #     bootstyle=WARNING,
+        #     command=self.confirmation_message.show_confirmation_message
+        # )
+        #
+        # import_button.pack(side=RIGHT)
+        #
+        # # Add Tooltip
+        # ToolTip(import_button, text="Import or generate a new beginning balance for raw materials.")
 
 
         # Add button to clear data

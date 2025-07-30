@@ -8,7 +8,7 @@ from ttkbootstrap.tooltip import ToolTip
 
 def beginning_balance_tab(notebook):
     soh_tab = ttk.Frame(notebook)
-    notebook.add(soh_tab, text="Beginning Balance")
+    notebook.add(soh_tab, text="Finalized Stocks")
     # Populate the Raw Materials Tab
 
 
@@ -18,7 +18,7 @@ def beginning_balance_tab(notebook):
     # Label for Beginning Balance
     raw_material_label = ttk.Label(
         soh_tab,
-        text=f"Beginning Balance as of {today_date}",
+        text=f"Finalized Stocks as of {today_date}",
         font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )
@@ -26,7 +26,7 @@ def beginning_balance_tab(notebook):
 
     table_label = ttk.Label(
         soh_tab,
-        text="The table below shows the latest stock on hand for each raw material per warehouse",
+        text="""This table shows the finalized stock levels from today, which will be used as the starting balance for the next day.""",
         font=("Arial", 11, "bold"),
         bootstyle=SECONDARY,
     )

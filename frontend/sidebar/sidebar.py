@@ -29,35 +29,43 @@ class Sidebar(ttk.Frame):
         #     width=18,
         # ).pack(pady=10)
 
+        # ttk.Button(
+        #     self,
+        #     text="Consumption Entry",
+        #     command=lambda: navigate_callback("consumption_entry"),
+        #     bootstyle="primary",
+        #     width=18,
+        # ).pack(pady=10)
+
         ttk.Button(
             self,
-            text="Consumption Entry",
+            text="Real-time Stocks",
             command=lambda: navigate_callback("consumption_entry"),
             bootstyle="primary",
             width=18,
         ).pack(pady=10)
 
 
-        ttk.Button(
-            self,
-            text="Adjustment Records",
-            command=lambda: navigate_callback("adjustment_records"),
-            bootstyle="primary",
-            width=18,
-        ).pack(pady=10)
+        # ttk.Button(
+        #     self,
+        #     text="Adjustment Records",
+        #     command=lambda: navigate_callback("adjustment_records"),
+        #     bootstyle="primary",
+        #     width=18,
+        # ).pack(pady=10)
 
 
-        ttk.Button(
-            self,
-            text="Historical Data",
-            command=lambda: navigate_callback("historical_data"),
-            bootstyle="primary",
-            width=18,
-        ).pack(pady=10)
+        # ttk.Button(
+        #     self,
+        #     text="Historical Data",
+        #     command=lambda: navigate_callback("historical_data"),
+        #     bootstyle="primary",
+        #     width=18,
+        # ).pack(pady=10)
 
         ttk.Button(
             self,
-            text="Stock On Hand",
+            text="Previous Stocks Data",
             command=lambda: navigate_callback("stock_on_hand"),
             bootstyle="primary",
             width=18,
@@ -72,13 +80,13 @@ class Sidebar(ttk.Frame):
             width=18,
         ).pack(pady=10)
 
-        ttk.Button(
-            self,
-            text="Raw Materials",
-            command=lambda: navigate_callback("raw_material"),
-            bootstyle="primary",
-            width=18,
-        ).pack(pady=10)
+        # ttk.Button(
+        #     self,
+        #     text="Raw Materials",
+        #     command=lambda: navigate_callback("raw_material"),
+        #     bootstyle="primary",
+        #     width=18,
+        # ).pack(pady=10)
 
         # Theme Selection UI
         self.theme_names = ("litera",

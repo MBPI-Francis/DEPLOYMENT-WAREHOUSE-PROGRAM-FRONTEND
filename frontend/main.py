@@ -17,7 +17,7 @@ from tkinter import font
 class App(ttk.Window):
     def __init__(self, theme_name="litera"):
         super().__init__(themename=theme_name)  # Choose the ttkbootstrap theme
-        self.title("Warehouse RM Stock Movement Program")
+        self.title("RM Management System")
         self.geometry("1300x700")
 
         # ----------- [FONTSTYLE FOR THE TABLES] ----------

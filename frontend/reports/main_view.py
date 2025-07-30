@@ -1,6 +1,6 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from .notes_form.main_tab import notes_form_tab
+from .data_table.main_tab import data_table_tab
 
 
 class ReportView:
@@ -27,7 +27,7 @@ class ReportView:
         notebook.grid(row=1, column=0, sticky=N + S + E + W, padx=10, pady=10)  # Use grid instead of pack
 
         # Create the frames for each tab
-        notes_form_tab(notebook)
+        data_table_tab(notebook)
         # receiving_report_tab(notebook)
         # outgoing_form_tab(notebook)
         # transfer_form_tab(notebook)

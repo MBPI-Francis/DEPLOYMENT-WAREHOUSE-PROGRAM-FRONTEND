@@ -23,7 +23,7 @@ class ConsumptionEntryView:
 
         # Add widgets inside the consumption_entry_frame
         label = ttk.Label(consumption_entry_frame,
-            text = "Raw Materials Stock Movements",
+            text = "Real-Time Inventory Changes – Raw Materials",
             font = ("Arial", 14, "bold")
         )
         label.grid(row=0, column=0, sticky="nsew")
@@ -37,13 +37,13 @@ class ConsumptionEntryView:
         notebook.grid(row=1, column=0, sticky=N + S + E + W, padx=10, pady=10)  # Use grid instead of pack
 
         # Create the frames for each tab
-        notes_form_tab(notebook)
-        receiving_report_tab(notebook)
-        transfer_form_tab(notebook)
-        held_form_tab(notebook)
-        outgoing_form_tab(notebook)
-        preparation_form_tab(notebook)
-        adjustment_form_tab(notebook)
+        # notes_form_tab(notebook)
+        # receiving_report_tab(notebook)
+        # transfer_form_tab(notebook)
+        # held_form_tab(notebook)
+        # outgoing_form_tab(notebook)
+        # preparation_form_tab(notebook)
+        # adjustment_form_tab(notebook)
         submit_entries_tab(notebook)
 
 
