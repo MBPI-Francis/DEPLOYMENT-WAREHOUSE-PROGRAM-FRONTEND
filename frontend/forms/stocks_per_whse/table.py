@@ -1,3 +1,5 @@
+# table.py
+
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import requests
@@ -9,43 +11,55 @@ from ttkbootstrap.tooltip import ToolTip
 
 
 class StocksPerWHSE:
-    def __init__(self, root):
-        self.root = root
-        self.original_data = {}  # <-- 1. Dictionary to store data for each warehouse
+    # The 'root' parameter will now be the main notebook from ConsumptionEntryView
+    def __init__(self, main_notebook):
+        self.main_notebook = main_notebook
+        self.original_data = {}
+        self.tabs = {}
 
-        # --- 2. Create the main notebook for the tabs ---
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill=BOTH, expand=YES, padx=10, pady=5)
+        # --- KEY CHANGE ---
+        # Instead of creating its own notebook, this class will now
+        # add its tabs directly to the main_notebook it received.
 
-        # --- 3. Define the warehouses and create a tab for each one ---
+        # 1. Define the warehouses you want to create tabs for.
         warehouses = ["Warehouse #1", "Warehouse #2", "Warehouse #4"]
-        self.tabs = {}  # To hold widgets for each tab
 
+        # 2. Loop through the warehouses and create a tab for each one
         for wh_name in warehouses:
-            # Create a dedicated frame for the tab's content
-            tab_frame = ttk.Frame(self.notebook)
-            self.notebook.add(tab_frame, text=wh_name)
+            # Create a frame that will be the content of the tab
+            tab_frame = ttk.Frame(self.main_notebook)
 
-            # Use a helper function to create the content for each tab
+            # Add this frame as a new tab to the main notebook
+            self.main_notebook.add(tab_frame, text=wh_name)
+
+            # Use the helper function to fill the tab with widgets (search, table, etc.)
             widgets = self.create_warehouse_tab(tab_frame, wh_name)
             self.tabs[wh_name] = widgets
 
-        # Initial data load
+        # 3. Load the initial data into the newly created tables
         self.refresh_all_tables()
 
     def create_warehouse_tab(self, parent_tab, warehouse_name):
-        """Helper function to create the widgets for a single warehouse tab."""
+        """Helper function to create the widgets for a single warehouse tab. (This function remains the same)"""
+
+        # Populate the Raw Materials Tab
+        submit_entries_label = ttk.Label(
+            parent_tab,
+            text=f"This table provides real-time updates on the daily stock of raw materials for {warehouse_name}",
+            font=("Arial", 14, "bold"),
+            bootstyle=PRIMARY,
+        )
+        submit_entries_label.pack(pady=(10, 0), padx=20)
 
         # Frame for search and buttons
         search_frame = ttk.Frame(parent_tab)
-        search_frame.pack(fill=X, padx=10, pady=(5, 0))
+        search_frame.pack(fill=X, padx=10, pady=(20, 0))
 
-        ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side=LEFT, padx=5)
+        ttk.Label(search_frame, text="Search:", style="CustomLabel.TLabel").pack(side=LEFT, padx=(0, 5))
 
         search_entry = ttk.Entry(search_frame, width=50)
         search_entry.pack(side=LEFT)
 
-        # --- 4. Bind the search function with the specific warehouse name ---
         search_entry.bind("<Return>", lambda event, wh=warehouse_name: self.search_data(event, wh))
 
         btn_refresh = ttk.Button(
@@ -84,9 +98,10 @@ class StocksPerWHSE:
 
         tree.pack(fill=BOTH, expand=YES)
 
-        # Return a dictionary of the created widgets for this tab
         return {"tree": tree, "search_entry": search_entry}
 
+    # The rest of the methods (fetch_data, refresh_all_tables, sort_treeview, search_data)
+    # remain unchanged as their logic is correct.
     def fetch_data(self):
         """Fetch all data from the API."""
         url = server_ip + "/api/get/new_soh/with_zero/"
@@ -98,17 +113,14 @@ class StocksPerWHSE:
             Messagebox.showerror("API Error", "Failed to fetch data from the server.")
             return []
 
-    # --- 5. Modified refresh method to handle all tables ---
     def refresh_all_tables(self):
         """Fetch fresh data and populate all warehouse tables."""
         all_data = self.fetch_data()
 
         for wh_name, widgets in self.tabs.items():
-            # Clear existing data in the tree and original data storage
             widgets["tree"].delete(*widgets["tree"].get_children())
             self.original_data[wh_name] = []
 
-            # Filter data for the current warehouse
             warehouse_specific_data = [item for item in all_data if item["warehousename"] == wh_name]
 
             for item in warehouse_specific_data:
@@ -129,7 +141,6 @@ class StocksPerWHSE:
             tree.move(k, "", index)
         tree.heading(col, command=lambda: self.sort_treeview(col, tree, not reverse))
 
-    # --- 6. Unified search function that works for the correct tab ---
     def search_data(self, event, warehouse_name):
         """Filter data for the specified warehouse tab."""
         widgets = self.tabs[warehouse_name]
@@ -140,12 +151,10 @@ class StocksPerWHSE:
         tree.delete(*tree.get_children())
 
         if not search_term:
-            # If search is empty, reload original data for that tab
             for record in self.original_data[warehouse_name]:
                 tree.insert("", END, values=record)
             return
 
-        # Filter and display matching records
         filtered_data = [
             record for record in self.original_data[warehouse_name]
             if any(search_term in str(value).lower() for value in record)

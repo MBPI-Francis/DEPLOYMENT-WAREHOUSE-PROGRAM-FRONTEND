@@ -1,21 +1,12 @@
+# stocks_per_whse/main_tab.py
 
-import ttkbootstrap as ttk
-from ttkbootstrap.constants import *
-from .entry_fields import entry_fields
+# Make sure you are importing the updated class
+from .table import StocksPerWHSE
 
-
-def stock_per_whse_tab(notebook):
-    stock_per_whse_tab = ttk.Frame(notebook)
-    notebook.add(stock_per_whse_tab, text="Warehouse Stocks")
-
-    # Populate the Raw Materials Tab
-    submit_entries_label = ttk.Label(
-        stock_per_whse_tab,
-        text="This table provides real-time updates on the daily stock of raw materials that are grouped by status",
-        font=("Arial", 14, "bold"),
-        bootstyle=PRIMARY,
-    )
-    submit_entries_label.pack(pady=(10,0), padx=20)
-
-
-    entry_fields(stock_per_whse_tab)
+def stock_per_whse_tab(parent_notebook):
+    """
+    Initializes the warehouse tabs and adds them directly to the parent notebook.
+    """
+    # No longer creates an intermediate frame.
+    # Just create an instance of the class, which will handle adding its own tabs.
+    StocksPerWHSE(parent_notebook)
