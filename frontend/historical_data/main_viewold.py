@@ -30,7 +30,7 @@ class HistoricalDataView:
         # transfer_form_tab(notebook)
         # preparation_form_tab(notebook)
         # held_form_tab(notebook)
-        # submit_entries_tab(notebook)
+        # stock_per_whse_tab(notebook)
 
         # Configure rows and columns to be responsive
         historical_data_frame.grid_rowconfigure(0, weight=0)  # Label row does not resize
