@@ -13572,6 +13572,7 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.preparation_form.adjustment_form">frontend.historical_data.preparation_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.receiving_form.adjustment_form">frontend.historical_data.receiving_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.adjustment_form">frontend.historical_data.transfer_form.adjustment_form</a>
+ &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
 
@@ -14439,11 +14440,16 @@ imported by:
 imports:
     <a href="#backend.settings.database">backend.settings.database</a>
  &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#frontend.forms.shared">frontend.forms.shared</a>
  &#8226;   <a href="#frontend.historical_data.shared_confirmation_messages">frontend.historical_data.shared_confirmation_messages</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form">frontend.historical_data.transfer_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.adjustment_form">frontend.historical_data.transfer_form.adjustment_form</a>
+ &#8226;   <a href="#io">io</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pandas">pandas</a>
  &#8226;   <a href="#requests">requests</a>
  &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.filedialog">tkinter.filedialog</a>
  &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
  &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
  &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
@@ -14451,6 +14457,7 @@ imports:
  &#8226;   <a href="#ttkbootstrap.tooltip">ttkbootstrap.tooltip</a>
  &#8226;   <a href="#ttkbootstrap.widgets">ttkbootstrap.widgets</a>
  &#8226;   <a href="#uuid">uuid</a>
+ &#8226;   <a href="#xlsxwriter">xlsxwriter</a>
 
   </div>
   <div class="import">
@@ -16985,6 +16992,7 @@ imported by:
  &#8226;   <a href="#encodings.uu_codec">encodings.uu_codec</a>
  &#8226;   <a href="#et_xmlfile.incremental_tree">et_xmlfile.incremental_tree</a>
  &#8226;   <a href="#fileinput">fileinput</a>
+ &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
  &#8226;   <a href="#getpass">getpass</a>
  &#8226;   <a href="#gzip">gzip</a>
@@ -17276,6 +17284,7 @@ imported by:
 <span class="moduletype">AliasNode</span>  <div class="import">
 imports:
     <a href="#jaraco">jaraco</a>
+ &#8226;   <a href="#jaraco.text.yield_lines">jaraco.text.yield_lines</a>
  &#8226;   <a href="#setuptools._vendor.jaraco.text">setuptools._vendor.jaraco.text</a>
 
   </div>
@@ -17284,6 +17293,19 @@ imported by:
     <a href="#pkg_resources">pkg_resources</a>
  &#8226;   <a href="#setuptools._entry_points">setuptools._entry_points</a>
  &#8226;   <a href="#setuptools._reqs">setuptools._reqs</a>
+ &#8226;   <a href="#setuptools.command._requirestxt">setuptools.command._requirestxt</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="jaraco.text.yield_lines"></a>
+  <a target="code" href="" type="text/plain"><tt>jaraco.text.yield_lines</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
+imported by:
+    <a href="#jaraco.text">jaraco.text</a>
+ &#8226;   <a href="#setuptools._entry_points">setuptools._entry_points</a>
  &#8226;   <a href="#setuptools.command._requirestxt">setuptools.command._requirestxt</a>
 
   </div>
@@ -30392,6 +30414,7 @@ imported by:
  &#8226;   <a href="#fileinput">fileinput</a>
  &#8226;   <a href="#fnmatch">fnmatch</a>
  &#8226;   <a href="#frontend.forms.submit_entries.entry_fields">frontend.forms.submit_entries.entry_fields</a>
+ &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
  &#8226;   <a href="#genericpath">genericpath</a>
@@ -31155,7 +31178,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
+    <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
+ &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
  &#8226;   <a href="#pandas">pandas</a>
  &#8226;   <a href="#pandas._config">pandas._config</a>
  &#8226;   <a href="#pandas._libs">pandas._libs</a>
@@ -46735,6 +46759,7 @@ imports:
  &#8226;   <a href="#itertools">itertools</a>
  &#8226;   <a href="#jaraco.functools">jaraco.functools</a>
  &#8226;   <a href="#jaraco.text">jaraco.text</a>
+ &#8226;   <a href="#jaraco.text.yield_lines">jaraco.text.yield_lines</a>
  &#8226;   <a href="#more_itertools">more_itertools</a>
  &#8226;   <a href="#operator">operator</a>
  &#8226;   <a href="#setuptools">setuptools</a>
@@ -48821,6 +48846,7 @@ imports:
  &#8226;   <a href="#io">io</a>
  &#8226;   <a href="#itertools">itertools</a>
  &#8226;   <a href="#jaraco.text">jaraco.text</a>
+ &#8226;   <a href="#jaraco.text.yield_lines">jaraco.text.yield_lines</a>
  &#8226;   <a href="#packaging.requirements">packaging.requirements</a>
  &#8226;   <a href="#setuptools">setuptools</a>
  &#8226;   <a href="#setuptools._reqs">setuptools._reqs</a>
@@ -51538,6 +51564,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#frontend.forms.submit_entries.entry_fields">frontend.forms.submit_entries.entry_fields</a>
+ &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
@@ -56018,7 +56045,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
+    <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
+ &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
  &#8226;   <a href="#pandas.io.excel._xlsxwriter">pandas.io.excel._xlsxwriter</a>
  &#8226;   <a href="#xlsxwriter">xlsxwriter</a>
  &#8226;   <a href="#xlsxwriter.app">xlsxwriter.app</a>
