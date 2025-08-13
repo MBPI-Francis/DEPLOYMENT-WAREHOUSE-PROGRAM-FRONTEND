@@ -57,6 +57,16 @@ class Sidebar(ttk.Frame):
 
         ttk.Button(
             self,
+            text="Real-time Stocks",
+            command=lambda: navigate_callback("real_time_stocks"),
+            bootstyle="primary",
+            width=18,
+        ).pack(pady=10)
+
+
+
+        ttk.Button(
+            self,
             text="Stock On Hand",
             command=lambda: navigate_callback("stock_on_hand"),
             bootstyle="primary",

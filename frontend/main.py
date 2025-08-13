@@ -11,6 +11,7 @@ from frontend.forms.main_view import ConsumptionEntryView
 from frontend.stock_on_hand.main_view import StockOnHandView
 from frontend.adjusment_records.main_view import AdjustmentFormRecordsView
 from frontend.reports.main_view import ReportView
+from frontend.realtime_stocks.main_view import RealTimeStocksView
 from tkinter import StringVar, N, S, E, W, VERTICAL
 from tkinter import font
 
@@ -96,7 +97,8 @@ class App(ttk.Window):
             "stock_on_hand": StockOnHandView(self.content_frame),
             "historical_data": HistoricalDataView(self.content_frame),
             "adjustment_records": AdjustmentFormRecordsView(self.content_frame),
-            "reports": ReportView(self.content_frame)
+            "reports": ReportView(self.content_frame),
+            "real_time_stocks": RealTimeStocksView(self.content_frame),
         }
 
         # Default View
