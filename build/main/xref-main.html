@@ -152,6 +152,7 @@ imports:
  &#8226;   <a href="#frontend.forms.main_view">frontend.forms.main_view</a>
  &#8226;   <a href="#frontend.historical_data.main_view">frontend.historical_data.main_view</a>
  &#8226;   <a href="#frontend.raw_material.main_view">frontend.raw_material.main_view</a>
+ &#8226;   <a href="#frontend.realtime_stocks.main_view">frontend.realtime_stocks.main_view</a>
  &#8226;   <a href="#frontend.reports.main_view">frontend.reports.main_view</a>
  &#8226;   <a href="#frontend.sidebar">frontend.sidebar</a>
  &#8226;   <a href="#frontend.status.main_view">frontend.status.main_view</a>
@@ -6085,6 +6086,9 @@ imported by:
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
@@ -12322,6 +12326,7 @@ imported by:
  &#8226;   <a href="#frontend.forms">frontend.forms</a>
  &#8226;   <a href="#frontend.historical_data">frontend.historical_data</a>
  &#8226;   <a href="#frontend.raw_material">frontend.raw_material</a>
+ &#8226;   <a href="#frontend.realtime_stocks">frontend.realtime_stocks</a>
  &#8226;   <a href="#frontend.reports">frontend.reports</a>
  &#8226;   <a href="#frontend.sidebar">frontend.sidebar</a>
  &#8226;   <a href="#frontend.status">frontend.status</a>
@@ -13573,6 +13578,7 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.receiving_form.adjustment_form">frontend.historical_data.receiving_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.adjustment_form">frontend.historical_data.transfer_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
 
@@ -14668,6 +14674,187 @@ imports:
   <div class="import">
 imported by:
     <a href="#frontend.raw_material.entry_fields">frontend.raw_material.entry_fields</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks"></a>
+  <a target="code" href="-" type="text/plain"><tt>frontend.realtime_stocks</tt></a>
+<span class="moduletype">NamespacePackage</span>  <div class="import">
+imports:
+    <a href="#frontend">frontend</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.realtime_stocks.main_view">frontend.realtime_stocks.main_view</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary">frontend.realtime_stocks.rm_summary</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse">frontend.realtime_stocks.stocks_per_whse</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks.main_view"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/realtime_stocks/main_view.py" type="text/plain"><tt>frontend.realtime_stocks.main_view</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#frontend.realtime_stocks">frontend.realtime_stocks</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.main_tab">frontend.realtime_stocks.rm_summary.main_tab</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.main_tab">frontend.realtime_stocks.stocks_per_whse.main_tab</a>
+ &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
+ &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks.rm_summary"></a>
+  <a target="code" href="-" type="text/plain"><tt>frontend.realtime_stocks.rm_summary</tt></a>
+<span class="moduletype">NamespacePackage</span>  <div class="import">
+imports:
+    <a href="#frontend.realtime_stocks">frontend.realtime_stocks</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.main_tab">frontend.realtime_stocks.rm_summary.main_tab</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks.rm_summary.entry_fields"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/realtime_stocks/rm_summary/entry_fields.py" type="text/plain"><tt>frontend.realtime_stocks.rm_summary.entry_fields</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#backend.settings.database">backend.settings.database</a>
+ &#8226;   <a href="#frontend.forms.shared">frontend.forms.shared</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary">frontend.realtime_stocks.rm_summary</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
+ &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
+ &#8226;   <a href="#win32com.client">win32com.client</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.realtime_stocks.rm_summary.main_tab">frontend.realtime_stocks.rm_summary.main_tab</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks.rm_summary.main_tab"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/realtime_stocks/rm_summary/main_tab.py" type="text/plain"><tt>frontend.realtime_stocks.rm_summary.main_tab</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#frontend.realtime_stocks.rm_summary">frontend.realtime_stocks.rm_summary</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
+ &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
+ &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.realtime_stocks.main_view">frontend.realtime_stocks.main_view</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks.rm_summary.table"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/realtime_stocks/rm_summary/table.py" type="text/plain"><tt>frontend.realtime_stocks.rm_summary.table</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#backend.settings.database">backend.settings.database</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary">frontend.realtime_stocks.rm_summary</a>
+ &#8226;   <a href="#pandas">pandas</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+ &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
+ &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
+ &#8226;   <a href="#ttkbootstrap.dialogs">ttkbootstrap.dialogs</a>
+ &#8226;   <a href="#ttkbootstrap.tooltip">ttkbootstrap.tooltip</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks.stocks_per_whse"></a>
+  <a target="code" href="-" type="text/plain"><tt>frontend.realtime_stocks.stocks_per_whse</tt></a>
+<span class="moduletype">NamespacePackage</span>  <div class="import">
+imports:
+    <a href="#frontend.realtime_stocks">frontend.realtime_stocks</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.realtime_stocks.stocks_per_whse.main_tab">frontend.realtime_stocks.stocks_per_whse.main_tab</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks.stocks_per_whse.main_tab"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/realtime_stocks/stocks_per_whse/main_tab.py" type="text/plain"><tt>frontend.realtime_stocks.stocks_per_whse.main_tab</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#frontend.realtime_stocks.stocks_per_whse">frontend.realtime_stocks.stocks_per_whse</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.realtime_stocks.main_view">frontend.realtime_stocks.main_view</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="frontend.realtime_stocks.stocks_per_whse.table"></a>
+  <a target="code" href="///C:/Users/Administrator/Desktop/MBPI-Projects/DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND/frontend/realtime_stocks/stocks_per_whse/table.py" type="text/plain"><tt>frontend.realtime_stocks.stocks_per_whse.table</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#backend.settings.database">backend.settings.database</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse">frontend.realtime_stocks.stocks_per_whse</a>
+ &#8226;   <a href="#requests">requests</a>
+ &#8226;   <a href="#tkinter">tkinter</a>
+ &#8226;   <a href="#tkinter.messagebox">tkinter.messagebox</a>
+ &#8226;   <a href="#ttkbootstrap">ttkbootstrap</a>
+ &#8226;   <a href="#ttkbootstrap.constants">ttkbootstrap.constants</a>
+ &#8226;   <a href="#ttkbootstrap.dialogs">ttkbootstrap.dialogs</a>
+ &#8226;   <a href="#ttkbootstrap.tooltip">ttkbootstrap.tooltip</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#frontend.realtime_stocks.stocks_per_whse.main_tab">frontend.realtime_stocks.stocks_per_whse.main_tab</a>
 
   </div>
 
@@ -31179,6 +31366,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
  &#8226;   <a href="#frontend.stock_on_hand.historical_data.table">frontend.stock_on_hand.historical_data.table</a>
  &#8226;   <a href="#pandas">pandas</a>
  &#8226;   <a href="#pandas._config">pandas._config</a>
@@ -44993,6 +45181,9 @@ imported by:
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
@@ -51461,6 +51652,8 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.transfer_form.adjustment_form">frontend.historical_data.transfer_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.sidebar.sidebar">frontend.sidebar.sidebar</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
@@ -51642,6 +51835,8 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.transfer_form.adjustment_form">frontend.historical_data.transfer_form.adjustment_form</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.raw_material.generate_rawmaterial.core_function">frontend.raw_material.generate_rawmaterial.core_function</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
@@ -52042,6 +52237,11 @@ imported by:
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.main_view">frontend.raw_material.main_view</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.main_view">frontend.realtime_stocks.main_view</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.main_tab">frontend.realtime_stocks.rm_summary.main_tab</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
  &#8226;   <a href="#frontend.reports.main_view">frontend.reports.main_view</a>
  &#8226;   <a href="#frontend.reports.notes_form.main_tab">frontend.reports.notes_form.main_tab</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
@@ -52185,6 +52385,11 @@ imported by:
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
  &#8226;   <a href="#frontend.raw_material.main_view">frontend.raw_material.main_view</a>
  &#8226;   <a href="#frontend.raw_material.table">frontend.raw_material.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.main_view">frontend.realtime_stocks.main_view</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.main_tab">frontend.realtime_stocks.rm_summary.main_tab</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
  &#8226;   <a href="#frontend.reports.main_view">frontend.reports.main_view</a>
  &#8226;   <a href="#frontend.reports.notes_form.main_tab">frontend.reports.notes_form.main_tab</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
@@ -52245,6 +52450,8 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.outgoing_form.table">frontend.historical_data.outgoing_form.table</a>
  &#8226;   <a href="#frontend.historical_data.preparation_form.table">frontend.historical_data.preparation_form.table</a>
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.generate_status.core_function">frontend.status.generate_status.core_function</a>
@@ -52650,6 +52857,8 @@ imported by:
  &#8226;   <a href="#frontend.historical_data.transfer_form.table">frontend.historical_data.transfer_form.table</a>
  &#8226;   <a href="#frontend.raw_material.entry_fields">frontend.raw_material.entry_fields</a>
  &#8226;   <a href="#frontend.raw_material.main_tab">frontend.raw_material.main_tab</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.table">frontend.realtime_stocks.rm_summary.table</a>
+ &#8226;   <a href="#frontend.realtime_stocks.stocks_per_whse.table">frontend.realtime_stocks.stocks_per_whse.table</a>
  &#8226;   <a href="#frontend.reports.notes_form.table">frontend.reports.notes_form.table</a>
  &#8226;   <a href="#frontend.status.generate_status.confirm_messages">frontend.status.generate_status.confirm_messages</a>
  &#8226;   <a href="#frontend.status.main_tab">frontend.status.main_tab</a>
@@ -55521,6 +55730,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#frontend.forms.submit_entries.entry_fields">frontend.forms.submit_entries.entry_fields</a>
+ &#8226;   <a href="#frontend.realtime_stocks.rm_summary.entry_fields">frontend.realtime_stocks.rm_summary.entry_fields</a>
  &#8226;   <a href="#win32com.client">win32com.client</a>
  &#8226;   <a href="#win32com.client.CLSIDToClass">win32com.client.CLSIDToClass</a>
  &#8226;   <a href="#win32com.client.build">win32com.client.build</a>

@@ -90,7 +90,7 @@ def entry_fields(note_form_tab):
         change_status_date = change_status_date_entry.entry.get()
 
         # Set focus to the Entry field
-        rm_codes_combobox.focus_set()
+        warehouse_combobox.focus_set()
 
 
         # Convert date to YYYY-MM-DD

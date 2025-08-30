@@ -123,9 +123,8 @@ def entry_fields(note_form_tab):
         cleaned_qty = float(qty.replace(",", ""))
         transfer_date = transfer_date_entry.entry.get()
 
-
         # Set focus to the Entry field
-        rm_codes_combobox.focus_set()
+        warehouse_from_combobox.focus_set()
 
         # Convert date to YYYY-MM-DD
         try:
