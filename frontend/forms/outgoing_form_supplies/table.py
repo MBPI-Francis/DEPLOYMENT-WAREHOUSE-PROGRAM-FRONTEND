@@ -61,12 +61,11 @@ class OutgoingFormTable:
         self.tree = ttk.Treeview(
             master=tree_frame,
             columns=(   "Date Encoded",
-                        "OGR No.",
+                        "SOGR No.",
                         "Raw Material",
                         "Quantity(kg)",
                         "Status",
                         "Warehouse",
-                        "Issued to",
                         "Outgoing Date",
          ),
             show='headings',
@@ -109,7 +108,7 @@ class OutgoingFormTable:
             data = response.json()
             self.tree.delete(*self.tree.get_children())  # Clear existing data
             for item in data:
-                if item.get("outgoing_type") != "RM":
+                if item.get("outgoing_type") != "SUPPLY":
                     continue
 
                 qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
@@ -122,7 +121,6 @@ class OutgoingFormTable:
                     qty_kg_formatted,
                     item["status"],
                     item["wh_name"],
-                    item["outgoing_destination"],
                     datetime.fromisoformat(item["outgoing_date"]).strftime("%m/%d/%Y"),
 
                 )
@@ -158,7 +156,7 @@ class OutgoingFormTable:
 
         """Open edit form."""
         record = self.tree.item(item, 'values')
-        record = (record[1], record[2], record[3], record[4], record[5], record[6], record[7])
+        record = (record[1], record[2], record[3], record[4], record[5], record[6])
 
         if not record:
             return
@@ -187,12 +185,11 @@ class OutgoingFormTable:
         self.edit_window.protocol("WM_DELETE_WINDOW", self.on_edit_window_close)
 
         fields = [
-                    "OGR No.",
+                    "SOGR No.",
                     "Raw Material",
                     "Quantity(kg)",
                     "Status",
                     "Warehouse",
-                    "Issued to",
                     "Outgoing Date",
                   ]
 
@@ -281,18 +278,8 @@ class OutgoingFormTable:
 
                 old_qty = float(record[idx].replace(",", ""))
 
-            elif field == "Issued to":
-                # Fetch Raw Material Data from API
-                destinations = ("N/A", "COMPOUNDING", "EXTRUDER", "LABORATORY", "PULVERIZER")
 
-                destination_entry = ttk.Combobox(self.edit_window, values=destinations, state="readonly", width=20,
-                                        font=self.shared_functions.custom_font_size)
-                destination_entry.set(record[idx])  # Set current value in the combobox
-                destination_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
-                ToolTip(destination_entry, text="Choose a raw material")  # Tooltip
-
-
-            elif field == "OGR No.":
+            elif field == "SOGR No.":
                 ref_entry = ttk.Entry(self.edit_window, width=22, font=self.shared_functions.custom_font_size)
                 ref_entry.grid(row=idx, column=1, padx=10, pady=5, sticky=W)
                 ref_entry.insert(0, record[idx])
@@ -341,7 +328,6 @@ class OutgoingFormTable:
                 "status_id": get_selected_status_id(),
                 "outgoing_date":  outgoing_date,
                 "qty_kg": cleaned_qty,
-                "outgoing_destination": destination_entry.get()
             }
 
             # Validate the data entries in front-end side

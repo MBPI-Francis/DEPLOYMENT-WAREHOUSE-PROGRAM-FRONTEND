@@ -66,7 +66,6 @@ def entry_fields(note_form_tab):
         warehouse_id = get_selected_warehouse_id()
         rm_code_id = get_selected_rm_code_id()
         ref_number = ref_number_entry.get()
-        destination = destination_combobox.get()
 
         qty = qty_entry.get()
 
@@ -102,8 +101,7 @@ def entry_fields(note_form_tab):
             "outgoing_date": outgoing_date,
             "qty_kg": cleaned_qty,
             "status_id": status_id,
-            "outgoing_type": "RM",
-            "outgoing_destination": destination,
+            "outgoing_type": "SUPPLY"
         }
 
 
@@ -235,7 +233,7 @@ def entry_fields(note_form_tab):
     refno_frame.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="e")
 
     # REF Number Entry Field
-    ref_number_label = ttk.Label(refno_frame, text="OGR No.", style="CustomLabel.TLabel")
+    ref_number_label = ttk.Label(refno_frame, text="SOGR No.", style="CustomLabel.TLabel")
     ref_number_label.grid(row=0, column=0, padx=5, pady=(0, 0), sticky=W)
     ref_number_entry = ttk.Entry(refno_frame, width=30, font=shared_functions.custom_font_size)
     ref_number_entry.grid(row=1, column=0, padx=5, pady=(0, 0), sticky=W)
@@ -307,29 +305,8 @@ def entry_fields(note_form_tab):
 
     #  This calls the auto format class to format the value automatically
     qty_formatter = NumericInputFormatter(qty_entry, qty_var)
+
     ToolTip(qty_entry, text="Enter the Quantity(kg)")
-
-
-    # Combobox for RM CODE Drop Down
-    destination_label = ttk.Label(rmcode_frame, text="Issued to", style="CustomLabel.TLabel")
-    destination_label.grid(row=0, column=3, padx=(0,0), pady=(0, 0), sticky=W)
-
-
-    destinations = ("OTHERS","COMPOUNDING", "EXTRUDER", "LABORATORY", "PULVERIZER")
-    destination_combobox = ttk.Combobox(
-        rmcode_frame,
-        values=destinations,
-        state="readonly",
-        width=15,
-        font=shared_functions.custom_font_size
-    )
-
-    # Bind the key release event to the combobox to trigger uppercase conversion
-    destination_combobox.bind("<KeyRelease>", on_combobox_key_release)
-
-    destination_combobox.grid(row=1, column=3, pady=(0, 0), padx=(0, 0))
-    ToolTip(destination_combobox, text="Choose a destination")
-    destination_combobox.set("OTHERS")
 
 
     def format_date_while_typing(event):
@@ -537,8 +514,7 @@ def entry_fields(note_form_tab):
     status_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, outgoing_date_entry.entry))
     outgoing_date_entry.entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, rm_codes_combobox))
     rm_codes_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, qty_entry))
-    qty_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, destination_combobox))
-    destination_combobox.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, ref_number_entry))
+    qty_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, ref_number_entry))
     ref_number_entry.bind("<Tab>", lambda e: shared_functions.focus_next_widget(e, btn_add_outgoing))
 
 

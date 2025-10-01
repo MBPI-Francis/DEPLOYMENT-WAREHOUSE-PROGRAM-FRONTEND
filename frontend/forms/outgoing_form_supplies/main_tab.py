@@ -4,13 +4,13 @@ from ttkbootstrap.constants import *
 from .entry_fields import entry_fields
 
 
-def outgoing_form_tab(notebook):
+def supplies_outgoing_form_tab(notebook):
     outgoing_form_tab = ttk.Frame(notebook)
-    notebook.add(outgoing_form_tab, text="RM Outgoing")
+    notebook.add(outgoing_form_tab, text="Supplies Outgoing")
     # Populate the Raw Materials Tab
     outgoing_form_label = ttk.Label(
         outgoing_form_tab,
-        text="Raw Material Outgoing Form",
+        text="Supply Outgoing Form",
         font=("Arial", 14, "bold"),
         bootstyle=PRIMARY,
     )

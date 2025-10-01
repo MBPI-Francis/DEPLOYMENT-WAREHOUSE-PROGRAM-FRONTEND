@@ -6,6 +6,7 @@ from .transfer_form.main_tab import transfer_form_tab
 from .preparation_form.main_tab import preparation_form_tab
 from .outgoing_form.main_tab import outgoing_form_tab
 from .receiving_form.main_tab import receiving_report_tab
+from .outgoing_form_supply.main_tab import supplies_outgoing_form_tab
 
 class HistoricalDataView:
     def __init__(self, parent):
@@ -34,6 +35,7 @@ class HistoricalDataView:
         notes_form_tab(notebook)
         receiving_report_tab(notebook)
         outgoing_form_tab(notebook)
+        supplies_outgoing_form_tab(notebook)
         transfer_form_tab(notebook)
         preparation_form_tab(notebook)
         held_form_tab(notebook)

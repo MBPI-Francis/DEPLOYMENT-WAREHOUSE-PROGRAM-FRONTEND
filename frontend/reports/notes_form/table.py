@@ -1,4 +1,6 @@
-# import ttkbootstrap as ttk
+
+
+# -- VERSION 1
 # from ttkbootstrap import DateEntry
 # from ttkbootstrap.constants import *
 # import requests
@@ -414,6 +416,7 @@
 #             self.tree.insert("", END, values=record)
 
 
+# -- VERSION 2
 import ttkbootstrap as ttk
 from ttkbootstrap import DateEntry
 from ttkbootstrap.constants import *
@@ -543,9 +546,11 @@ class NoteTable:
         self.document_types_data = [ # Renamed to avoid conflict
             {"id": "all", "document_type_name": "All"},
             {"id": "preparation_form_report", "document_type_name": "Preparation Form"},
-            {"id": "outgoing_form_report", "document_type_name": "Outgoing Form"},
+            {"id": "rm_outgoing_form_report", "document_type_name": "RM Outgoing Form"},
+            {"id": "supply_outgoing_form_report", "document_type_name": "Supply Outgoing Form"},
             {"id": "receiving_form_report", "document_type_name": "Receiving Form"},
-            {"id": "adjustment_form_report", "document_type_name": "Adjustment Form"},
+            {"id": "adjustment_form_entries", "document_type_name": "Adjustment Form Entries"},
+            {"id": "adjustment_form_spillage", "document_type_name": "Adjustment Form Spillage"},
             {"id": "transfer_form_report", "document_type_name": "Transfer Form"},
             {"id": "change_status_form_report", "document_type_name": "Change Status Form"},
         ]
@@ -558,7 +563,7 @@ class NoteTable:
         self.document_type_combobox = ttk.Combobox(search_frame,
                                               values=document_type_names,
                                               state="readonly",
-                                              width=15,
+                                              width=25,
                                               font=self.shared_functions.custom_font_size
                                               )
         self.document_type_combobox.grid(row=1, column=5, padx=(10, 0), pady=(0, 0), sticky=W)
@@ -819,3 +824,4 @@ class NoteTable:
 
     def populate_treeview(self, data):
         pass # This helper is now largely replaced by the logic within filter_data.
+

@@ -25,9 +25,6 @@ class EntryValidation:
 
             elif key == "outgoing_date" and not value:
                 text_list.append("Outgoing Date")
-
-            elif key == "outgoing_destination" and not value:
-                text_list.append("Issued to")
         return text_list
 
     # Validation function for numeric input

@@ -242,14 +242,14 @@ class ViewForm:
 
         # ----------------------------------[QUANTITY FIELD]----------------------------------#
         # Quantity Entry Field
-        qty_label = ttk.Label(form_frame, text="Quantity Lost", style="CustomLabel.TLabel")
+        qty_label = ttk.Label(form_frame, text="Variance (Gain/Loss)", style="CustomLabel.TLabel")
         qty_label.grid(row=8, column=1, padx=(3,0),  pady=(10, 0), sticky=W)
 
         self.qty_entry = ttk.Entry(form_frame,
                               width=29,
                               font=self.shared_functions.custom_font_size)
-        cleaned_qty_value = self.qty_value.replace("-", "").strip()
-        self.qty_entry.insert(0, cleaned_qty_value)
+        # cleaned_qty_value = self.qty_value.replace("-", "").strip()
+        self.qty_entry.insert(0, self.qty_value)
         self.qty_entry.config(state="disabled")
         self.qty_entry.grid(row=9, column=1, padx=(5,0), pady=(0, 0), sticky=W)
 

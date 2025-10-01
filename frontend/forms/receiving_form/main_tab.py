@@ -7,7 +7,7 @@ from .entry_fields import entry_fields
 
 def receiving_report_tab(notebook):
     receiving_report_tab = ttk.Frame(notebook)
-    notebook.add(receiving_report_tab, text="Receiving Form")
+    notebook.add(receiving_report_tab, text="Receiving")
     # Populate the Raw Materials Tab
     receiving_report_label = ttk.Label(
         receiving_report_tab,

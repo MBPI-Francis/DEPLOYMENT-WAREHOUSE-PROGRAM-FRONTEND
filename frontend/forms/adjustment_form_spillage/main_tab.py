@@ -6,7 +6,7 @@ from .entry_fields import entry_fields
 
 def adjustment_form_tab(notebook):
     adjustment_form_tab = ttk.Frame(notebook)
-    notebook.add(adjustment_form_tab, text="Adjustment Form")
+    notebook.add(adjustment_form_tab, text="Adjustment")
     # Populate the Raw Materials Tab
     adjustment_form_label = ttk.Label(
         adjustment_form_tab,

@@ -11,7 +11,7 @@ from frontend.historical_data.shared_confirmation_messages import ConfirmationMe
 
 
 
-class OutgoingFormTable:
+class SupplyOutgoingFormTable:
     def __init__(self, root):
         self.root = root
         self.adjustment_form = AdjustmentForm(self)
@@ -51,7 +51,6 @@ class OutgoingFormTable:
                      "Quantity(kg)",
                      "Status",
                      "Warehouse",
-                     "Issued to",
                      "Outgoing Date",
                      "Date Computed"),
             show='headings',
@@ -115,9 +114,8 @@ class OutgoingFormTable:
             data = response.json()
             self.tree.delete(*self.tree.get_children())  # Clear existing data
             for item in data:
-                if item.get("outgoing_type") != "RM":
+                if item.get("outgoing_type") != "SUPPLY":
                     continue
-
                 qty_kg_formatted = "{:,.2f}".format(float(item["qty_kg"]))  # Format qty_kg with commas
                 record = (
                     item["id"],  # Store ID
@@ -127,7 +125,6 @@ class OutgoingFormTable:
                     qty_kg_formatted,
                     item["status"],
                     item["wh_name"],
-                    item["outgoing_destination"],
                     datetime.fromisoformat(item["outgoing_date"]).strftime("%m/%d/%Y"),
                     datetime.fromisoformat(item["date_computed"]).strftime("%m/%d/%Y"),
                     item["is_adjusted"]

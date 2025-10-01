@@ -10,7 +10,7 @@ def notes_form_tab(notebook):
 
 
     note_form_tab = ttk.Frame(notebook)
-    notebook.add(note_form_tab, text="Notes Form")
+    notebook.add(note_form_tab, text="Notes")
     # Populate the Raw Materials Tab
     note_form_label = ttk.Label(
         note_form_tab,

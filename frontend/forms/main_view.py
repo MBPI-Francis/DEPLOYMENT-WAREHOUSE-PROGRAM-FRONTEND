@@ -6,6 +6,7 @@ from .notes_form.main_tab import notes_form_tab
 from .transfer_form.main_tab import transfer_form_tab
 from .preparation_form.main_tab import preparation_form_tab
 from .outgoing_form.main_tab import outgoing_form_tab
+from .outgoing_form_supplies.main_tab import supplies_outgoing_form_tab
 from .receiving_form.main_tab import receiving_report_tab
 from .submit_entries.main_tab import submit_entries_tab
 from .adjustment_form_spillage.main_tab import adjustment_form_tab
@@ -23,7 +24,7 @@ class ConsumptionEntryView:
 
         # Add widgets inside the consumption_entry_frame
         label = ttk.Label(consumption_entry_frame,
-            text = "Raw Materials Stock Movements",
+            text = "Raw Material Transaction Forms",
             font = ("Arial", 14, "bold")
         )
         label.grid(row=0, column=0, sticky="nsew")
@@ -42,6 +43,7 @@ class ConsumptionEntryView:
         transfer_form_tab(notebook)
         held_form_tab(notebook)
         outgoing_form_tab(notebook)
+        supplies_outgoing_form_tab(notebook)
         preparation_form_tab(notebook)
         adjustment_form_tab(notebook)
         submit_entries_tab(notebook)
