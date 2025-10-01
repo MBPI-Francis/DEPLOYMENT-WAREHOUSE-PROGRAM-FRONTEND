@@ -1,0 +1,4 @@
+Here is the command using pyinstaller to create an exe file
+
+
+pyinstaller --noconfirm --windowed --onedir --icon="C:\Users\Administrator\Desktop\MBPI-Projects\DEPLOYMENT-WAREHOUSE-PROGRAM-FRONTEND\icon_whse_program.png" frontend\\main.py

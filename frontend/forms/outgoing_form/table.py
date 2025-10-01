@@ -172,7 +172,7 @@ class OutgoingFormTable:
 
         # Define edit window size
         window_width = 320
-        window_height = 290
+        window_height = 335
 
         # Calculate the position (center relative to main window)
         x = root_x + (root_width // 2) - (window_width // 2)
@@ -283,7 +283,7 @@ class OutgoingFormTable:
 
             elif field == "Issued to":
                 # Fetch Raw Material Data from API
-                destinations = ("N/A", "COMPOUNDING", "EXTRUDER", "LABORATORY", "PULVERIZER")
+                destinations = ("OTHERS", "COMPOUNDING", "EXTRUDER", "LABORATORY", "PULVERIZER")
 
                 destination_entry = ttk.Combobox(self.edit_window, values=destinations, state="readonly", width=20,
                                         font=self.shared_functions.custom_font_size)
