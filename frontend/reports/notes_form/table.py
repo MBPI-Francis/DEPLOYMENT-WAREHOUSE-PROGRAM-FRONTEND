@@ -1,5 +1,4 @@
-
-
+import pandas as pd
 # -- VERSION 1
 # from ttkbootstrap import DateEntry
 # from ttkbootstrap.constants import *
@@ -746,71 +745,308 @@ class NoteTable:
         except Exception as e:
             messagebox.showerror("Error", f"An unexpected error occurred: {e}", parent=self.root)
 
+    # Original
+    # def export_data(self):
+    #     """Fetch filtered data and trigger export via API, then save to user's local disk."""
+    #     params = self._get_filter_params()
+    #     if params is None: # Error in parsing dates
+    #         return
+    #
+    #     export_url = f"{server_ip}/api/reports/v1/form-entries/export-to-file/"
+    #
+    #     try:
+    #         # Send GET request to get the file content directly
+    #         response = requests.get(export_url, params=params, stream=True) # Use stream=True for potentially large files
+    #         response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
+    #
+    #         # Get suggested filename from headers, or use a default
+    #         filename = "report.xlsx"
+    #         if "Content-Disposition" in response.headers:
+    #             cd = response.headers["Content-Disposition"]
+    #             if "filename=" in cd:
+    #                 # Extract filename, handling potential quotes
+    #                 filename_part = cd.split("filename=")[-1].strip()
+    #                 if filename_part.startswith('"') and filename_part.endswith('"'):
+    #                     filename = filename_part[1:-1]
+    #                 else:
+    #                     filename = filename_part
+    #
+    #         # Determine the default directory on the user's desktop
+    #         # For Windows: C:\Users\Username\Desktop\Warehouse Reports
+    #         # For macOS/Linux: /home/Username/Desktop/Warehouse Reports
+    #         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    #         warehouse_reports_dir = os.path.join(desktop_path, "Warehouse Reports")
+    #
+    #         # Create the directory if it doesn't exist on the user's machine
+    #         os.makedirs(warehouse_reports_dir, exist_ok=True)
+    #
+    #         # Open a "Save As" dialog for the user
+    #         save_path = filedialog.asksaveasfilename(
+    #             defaultextension=".xlsx",
+    #             filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+    #             initialdir=warehouse_reports_dir, # Default to the Warehouse Reports folder
+    #             initialfile=filename,           # Suggest the filename from the API
+    #             title="Save Warehouse Report"
+    #         )
+    #
+    #         if save_path:
+    #             # Read content in chunks and write to the chosen file
+    #             with open(save_path, "wb") as f:
+    #                 for chunk in response.iter_content(chunk_size=8192):
+    #                     if chunk: # filter out keep-alive new chunks
+    #                         f.write(chunk)
+    #             messagebox.showinfo("Export Successful", f"Report saved to:\n{save_path}", parent=self.root)
+    #         else:
+    #             messagebox.showinfo("Export Cancelled", "File save operation cancelled.", parent=self.root)
+    #
+    #     except requests.exceptions.ConnectionError:
+    #         messagebox.showerror("Connection Error", "Could not connect to the API server. Please check your network or server status.", parent=self.root)
+    #     except requests.exceptions.Timeout:
+    #         messagebox.showerror("Timeout Error", "The request to the API server timed out.", parent=self.root)
+    #     except requests.exceptions.HTTPError as e:
+    #         messagebox.showerror("API Error", f"HTTP Error: {e.response.status_code} - {e.response.text}", parent=self.root)
+    #     except requests.exceptions.RequestException as e:
+    #         messagebox.showerror("Request Error", f"An error occurred during the API request: {e}", parent=self.root)
+    #     except Exception as e:
+    #         messagebox.showerror("Error", f"An unexpected error occurred during export: {e}", parent=self.root)
+
+
+    # Modified
+    # def export_data(self):
+    #     """
+    #     Exports data by first downloading the primary report from the API,
+    #     then fetching raw data to calculate skipped document numbers and
+    #     appending them as a new sheet to the downloaded file.
+    #     """
+    #     params = self._get_filter_params()
+    #     if params is None:
+    #         return
+    #
+    #     # Let user choose where to save the file first
+    #     desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    #     warehouse_reports_dir = os.path.join(desktop_path, "Warehouse Reports")
+    #     os.makedirs(warehouse_reports_dir, exist_ok=True)
+    #
+    #     save_path = filedialog.asksaveasfilename(
+    #         defaultextension=".xlsx",
+    #         filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+    #         initialdir=warehouse_reports_dir,
+    #         initialfile="RM_Transaction_Report.xlsx",
+    #         title="Save Warehouse Report"
+    #     )
+    #
+    #     # If the user cancels the save dialog, do nothing
+    #     if not save_path:
+    #         messagebox.showinfo("Export Cancelled", "File save operation cancelled.", parent=self.root)
+    #         return
+    #
+    #     # --- STAGE 1: Download the original Excel file from the backend ---
+    #     export_url = f"{server_ip}/api/reports/v1/form-entries/export-to-file/"
+    #     try:
+    #         response = requests.get(export_url, params=params, stream=True)
+    #         response.raise_for_status()
+    #
+    #         # Save the original report from the backend
+    #         with open(save_path, "wb") as f:
+    #             for chunk in response.iter_content(chunk_size=8192):
+    #                 f.write(chunk)
+    #
+    #     except requests.exceptions.RequestException as e:
+    #         messagebox.showerror("Export Failed", f"Could not download the report from the server: {e}",
+    #                              parent=self.root)
+    #         return  # Stop if the base file can't be downloaded
+    #     except Exception as e:
+    #         messagebox.showerror("Error", f"An unexpected error occurred during file download: {e}", parent=self.root)
+    #         return
+    #
+    #     # --- STAGE 2: Fetch raw data, calculate skipped numbers, and append the new sheet ---
+    #     try:
+    #         # Get the raw data for analysis
+    #         data_url = f"{server_ip}/api/reports/v1/form-entries/"
+    #         response = requests.get(data_url, params=params)
+    #         response.raise_for_status()
+    #         data = response.json()
+    #
+    #         if not data:
+    #             # If there's no data, the original export is still saved. Inform the user.
+    #             messagebox.showinfo("Export Successful",
+    #                                 f"Report saved to:\n{save_path}\n\n(No data found for skipped number analysis.)",
+    #                                 parent=self.root)
+    #             return
+    #
+    #         df = pd.DataFrame(data)
+    #
+    #         # Define the consolidation logic for document types
+    #         def get_category(doc_type):
+    #             if not isinstance(doc_type, str): return None
+    #             if 'adjustment_form_preparation' in doc_type: return 'adjustment_form_preparation'
+    #             if 'adjustment_form_receiving' in doc_type: return 'adjustment_form_receiving'
+    #             if 'adjustment_form_transfer' in doc_type: return 'adjustment_form_transfer'
+    #             if 'adjustment_form_outgoing' in doc_type: return 'adjustment_form_outgoing'
+    #             if doc_type in ['preparation_form_report', 'receiving_form_report', 'rm_outgoing_form_report',
+    #                             'transfer_form_report', 'change_status_form_report', 'supply_outgoing_form_report',
+    #                             'adjustment_form_spillage']:
+    #                 return doc_type
+    #             return None
+    #
+    #         df['category'] = df['document_type'].apply(get_category)
+    #         df_categorized = df.dropna(subset=['category'])
+    #
+    #         skipped_numbers_data = {}
+    #         for category, group in df_categorized.groupby('category'):
+    #             doc_numbers = pd.to_numeric(group['document_number'], errors='coerce').dropna().unique()
+    #             doc_numbers.sort()
+    #
+    #             if len(doc_numbers) > 1:
+    #                 min_num, max_num = int(doc_numbers.min()), int(doc_numbers.max())
+    #                 full_range = set(range(min_num, max_num + 1))
+    #                 existing_numbers = set(doc_numbers.astype(int))
+    #                 skipped = sorted(list(full_range - existing_numbers))
+    #                 if skipped:
+    #                     skipped_numbers_data[category] = skipped
+    #
+    #         # Create DataFrame for the skipped numbers sheet
+    #         df_skipped = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in skipped_numbers_data.items()]))
+    #
+    #         # Append the new sheet only if there are skipped numbers to report
+    #         if not df_skipped.empty:
+    #             # Use ExcelWriter in 'append' mode to add a new sheet without disturbing existing ones
+    #             with pd.ExcelWriter(save_path, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+    #                 df_skipped.to_excel(writer, sheet_name='Skipped Numbers', index=False)
+    #
+    #         # Final success message
+    #         messagebox.showinfo("Export Successful", f"Report saved with all sheets to:\n{save_path}", parent=self.root)
+    #
+    #     except requests.exceptions.RequestException as e:
+    #         messagebox.showwarning("Export Warning",
+    #                                f"Main report was saved, but failed to add 'Skipped Numbers' sheet. Error: {e}",
+    #                                parent=self.root)
+    #     except Exception as e:
+    #         messagebox.showwarning("Export Warning",
+    #                                f"Main report was saved, but an error occurred while generating 'Skipped Numbers' sheet: {e}",
+    #                                parent=self.root)
 
     def export_data(self):
-        """Fetch filtered data and trigger export via API, then save to user's local disk."""
+        """
+        Exports data by first downloading the primary report from the API (containing Sheet 1 and Sheet 2),
+        then calculates skipped numbers and appends them as a new third sheet ('Skipped Numbers') to the downloaded file.
+        """
         params = self._get_filter_params()
-        if params is None: # Error in parsing dates
+        if params is None:
             return
 
+        # First, ask the user where they want to save the final report.
+        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+        warehouse_reports_dir = os.path.join(desktop_path, "Warehouse Reports")
+        os.makedirs(warehouse_reports_dir, exist_ok=True)
+
+        save_path = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+            initialdir=warehouse_reports_dir,
+            initialfile="RM_Transaction_Report.xlsx",
+            title="Save Warehouse Report"
+        )
+
+        # If the user cancels, we stop everything.
+        if not save_path:
+            messagebox.showinfo("Export Cancelled", "File save operation cancelled.", parent=self.root)
+            return
+
+        # =================================================================================
+        # STAGE 1: DOWNLOAD AND SAVE THE ORIGINAL EXCEL FILE FROM YOUR BACKEND
+        # This part is identical to your original code.
+        # The file at 'save_path' will contain the first two sheets exactly as your backend made them.
+        # =================================================================================
         export_url = f"{server_ip}/api/reports/v1/form-entries/export-to-file/"
-
         try:
-            # Send GET request to get the file content directly
-            response = requests.get(export_url, params=params, stream=True) # Use stream=True for potentially large files
-            response.raise_for_status() # Raises HTTPError for bad responses (4xx or 5xx)
+            response = requests.get(export_url, params=params, stream=True)
+            response.raise_for_status()
 
-            # Get suggested filename from headers, or use a default
-            filename = "report.xlsx"
-            if "Content-Disposition" in response.headers:
-                cd = response.headers["Content-Disposition"]
-                if "filename=" in cd:
-                    # Extract filename, handling potential quotes
-                    filename_part = cd.split("filename=")[-1].strip()
-                    if filename_part.startswith('"') and filename_part.endswith('"'):
-                        filename = filename_part[1:-1]
-                    else:
-                        filename = filename_part
+            # Save the original report from the backend to the path the user chose.
+            with open(save_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
 
-            # Determine the default directory on the user's desktop
-            # For Windows: C:\Users\Username\Desktop\Warehouse Reports
-            # For macOS/Linux: /home/Username/Desktop/Warehouse Reports
-            desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-            warehouse_reports_dir = os.path.join(desktop_path, "Warehouse Reports")
-
-            # Create the directory if it doesn't exist on the user's machine
-            os.makedirs(warehouse_reports_dir, exist_ok=True)
-
-            # Open a "Save As" dialog for the user
-            save_path = filedialog.asksaveasfilename(
-                defaultextension=".xlsx",
-                filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
-                initialdir=warehouse_reports_dir, # Default to the Warehouse Reports folder
-                initialfile=filename,           # Suggest the filename from the API
-                title="Save Warehouse Report"
-            )
-
-            if save_path:
-                # Read content in chunks and write to the chosen file
-                with open(save_path, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk: # filter out keep-alive new chunks
-                            f.write(chunk)
-                messagebox.showinfo("Export Successful", f"Report saved to:\n{save_path}", parent=self.root)
-            else:
-                messagebox.showinfo("Export Cancelled", "File save operation cancelled.", parent=self.root)
-
-        except requests.exceptions.ConnectionError:
-            messagebox.showerror("Connection Error", "Could not connect to the API server. Please check your network or server status.", parent=self.root)
-        except requests.exceptions.Timeout:
-            messagebox.showerror("Timeout Error", "The request to the API server timed out.", parent=self.root)
-        except requests.exceptions.HTTPError as e:
-            messagebox.showerror("API Error", f"HTTP Error: {e.response.status_code} - {e.response.text}", parent=self.root)
         except requests.exceptions.RequestException as e:
-            messagebox.showerror("Request Error", f"An error occurred during the API request: {e}", parent=self.root)
+            messagebox.showerror("Export Failed", f"Could not download the report from the server: {e}",
+                                 parent=self.root)
+            return  # Stop if the base file can't be downloaded
         except Exception as e:
-            messagebox.showerror("Error", f"An unexpected error occurred during export: {e}", parent=self.root)
+            messagebox.showerror("Error", f"An unexpected error occurred during file download: {e}", parent=self.root)
+            return
 
+        # =================================================================================
+        # STAGE 2: FETCH DATA, CALCULATE SKIPPED NUMBERS, AND APPEND THE THIRD SHEET
+        # This part now works on the file that was just saved.
+        # =================================================================================
+        try:
+            # Fetch the raw data needed for the calculation.
+            data_url = f"{server_ip}/api/reports/v1/form-entries/"
+            response = requests.get(data_url, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            if not data:
+                # If there's no data, the original file with 2 sheets is still saved.
+                messagebox.showinfo("Export Successful",
+                                    f"Report saved to:\n{save_path}\n\n(No data found for skipped number analysis.)",
+                                    parent=self.root)
+                return
+
+            df = pd.DataFrame(data)
+
+            # --- Logic to find skipped numbers (unchanged from before) ---
+            def get_category(doc_type):
+                if not isinstance(doc_type, str): return None
+                if 'adjustment_form_preparation' in doc_type: return 'adjustment_form_preparation'
+                if 'adjustment_form_receiving' in doc_type: return 'adjustment_form_receiving'
+                if 'adjustment_form_transfer' in doc_type: return 'adjustment_form_transfer'
+                if 'adjustment_form_outgoing' in doc_type: return 'adjustment_form_outgoing'
+                if doc_type in ['preparation_form_report', 'receiving_form_report', 'rm_outgoing_form_report',
+                                'transfer_form_report', 'change_status_form_report', 'supply_outgoing_form_report',
+                                'adjustment_form_spillage']:
+                    return doc_type
+                return None
+
+            df['category'] = df['document_type'].apply(get_category)
+            df_categorized = df.dropna(subset=['category'])
+            skipped_numbers_data = {}
+            for category, group in df_categorized.groupby('category'):
+                doc_numbers = pd.to_numeric(group['document_number'], errors='coerce').dropna().unique()
+                doc_numbers.sort()
+                if len(doc_numbers) > 1:
+                    min_num, max_num = int(doc_numbers.min()), int(doc_numbers.max())
+                    full_range = set(range(min_num, max_num + 1))
+                    existing_numbers = set(doc_numbers.astype(int))
+                    skipped = sorted(list(full_range - existing_numbers))
+                    if skipped:
+                        skipped_numbers_data[category] = skipped
+            df_skipped = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in skipped_numbers_data.items()]))
+
+            # --- KEY PART: Appending the new sheet ---
+            # We only proceed if there are actually skipped numbers to report.
+            if not df_skipped.empty:
+                # We open the Excel file we already saved in "append" mode.
+                # 'mode="a"' tells pandas to ADD to the file, not create a new one.
+                # This PRESERVES the existing sheets.
+                with pd.ExcelWriter(save_path, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+                    df_skipped.to_excel(writer, sheet_name='Skipped Numbers', index=False)
+
+            # The final file now contains Sheet 1, Sheet 2, AND the new 'Skipped Numbers' sheet.
+            messagebox.showinfo("Export Successful", f"Report with all three sheets saved to:\n{save_path}",
+                                parent=self.root)
+
+        except requests.exceptions.RequestException as e:
+            messagebox.showwarning("Export Warning",
+                                   f"Main report (2 sheets) was saved, but failed to add 'Skipped Numbers' sheet. Error: {e}",
+                                   parent=self.root)
+        except Exception as e:
+            messagebox.showwarning("Export Warning",
+                                   f"Main report (2 sheets) was saved, but an error occurred while adding the 'Skipped Numbers' sheet: {e}",
+                                   parent=self.root)
+
+            
     def sort_treeview(self, col, reverse):
         """Sort treeview column data."""
         items = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
