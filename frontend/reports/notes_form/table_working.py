@@ -1,4 +1,4 @@
-# -- VERSION 3 (With Skipped Number Exclusions)
+# -- VERSION 2 (Final with Centered Dialogs)
 import ttkbootstrap as ttk
 from ttkbootstrap import DateEntry
 from ttkbootstrap.constants import *
@@ -124,8 +124,7 @@ class NoteTable:
         tree_frame = ttk.Frame(self.root)
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
         self.tree = ttk.Treeview(master=tree_frame, columns=(
-            "Date Encoded", "Date Reported", "Document Type", "Document No.", "Raw Material", "QTY", "Location",
-            "Status"),
+        "Date Encoded", "Date Reported", "Document Type", "Document No.", "Raw Material", "QTY", "Location", "Status"),
                                  show='headings', style="Custom.Treeview", bootstyle=PRIMARY)
         tree_scroll_y = ttk.Scrollbar(tree_frame, orient=VERTICAL, command=self.tree.yview)
         tree_scroll_y.pack(side=RIGHT, fill=Y)
@@ -141,6 +140,7 @@ class NoteTable:
 
         self.filter_data()
 
+    # --- (Previous helper functions are unchanged) ---
     def _get_filter_params(self):
         params = {}
         try:
@@ -189,6 +189,7 @@ class NoteTable:
         except Exception as e:
             messagebox.showerror("Error", f"An unexpected error occurred: {e}", parent=self.root)
 
+    # --- NEW HELPER FUNCTIONS ---
     def _center_window(self, win):
         """Helper function to center a Toplevel window over the main application window."""
         win.update_idletasks()
@@ -225,6 +226,7 @@ class NoteTable:
         if response == "Yes":
             self._open_file(save_path)
 
+    # --- MODIFIED export_data and worker functions ---
     def export_data(self):
         params = self._get_filter_params()
         if params is None:
@@ -246,6 +248,7 @@ class NoteTable:
             messagebox.showinfo("Export Cancelled", "File save operation cancelled.", parent=self.root)
             return
 
+        # --- SETUP AND RUN LOADER + THREAD ---
         loader = Toplevel(self.root)
         loader.title("Exporting...")
         loader.geometry("300x100")
@@ -253,6 +256,7 @@ class NoteTable:
         loader.transient(self.root)
         loader.grab_set()
 
+        # Center the loader window
         self._center_window(loader)
 
         ttk.Label(loader, text="Exporting report, please wait...", bootstyle=INFO).pack(pady=10)
@@ -266,39 +270,8 @@ class NoteTable:
         )
         export_thread.start()
 
-    # --- MODIFIED _perform_export_worker with new feature ---
     def _perform_export_worker(self, params, save_path, loader):
         try:
-            # --- 1. NEW: Load the exclusion data from the Excel file ---
-            exclusion_file_path = 'frontend/reports/notes_form/excluded_doc_no.xlsx'
-            exclusions = {}
-            try:
-                if os.path.exists(exclusion_file_path):
-                    df_exclusions = pd.read_excel(exclusion_file_path)
-                    # Ensure the required columns exist
-                    if 'Forms' in df_exclusions.columns and 'Value of List' in df_exclusions.columns:
-                        for _, row in df_exclusions.iterrows():
-                            form_name = row['Forms']
-                            # Check for empty or NaN values in the exclusion list column
-                            if pd.notna(row['Value of List']):
-                                # Split the comma-separated string into a list of numbers
-                                excluded_numbers_str = str(row['Value of List']).split(',')
-                                excluded_set = set()
-                                for num_str in excluded_numbers_str:
-                                    try:
-                                        # Add the cleaned integer to a set for fast lookup
-                                        excluded_set.add(int(num_str.strip()))
-                                    except (ValueError, TypeError):
-                                        # Ignore any non-numeric values in the list
-                                        continue
-                                if excluded_set:
-                                    exclusions[form_name] = excluded_set
-            except FileNotFoundError:
-                print(f"INFO: Exclusion file not found at '{exclusion_file_path}'. Proceeding without exclusions.")
-            except Exception as e:
-                print(f"WARNING: Could not read or process the exclusion file. Error: {e}")
-
-            # --- (Original export logic remains the same) ---
             export_url = f"{server_ip}/api/reports/v1/form-entries/export-to-file/"
             response = requests.get(export_url, params=params, stream=True)
             response.raise_for_status()
@@ -317,10 +290,14 @@ class NoteTable:
 
             df = pd.DataFrame(data)
 
+            # Correctly restored consolidation logic
             def get_category(doc_type):
-                if not isinstance(doc_type, str): return None
-                if doc_type == 'adjustment_form_spillage': return 'adjustment_form_spillage'
-                if 'adjustment_form' in doc_type: return 'adjustment_form_entries'
+                if not isinstance(doc_type, str):
+                    return None
+                if doc_type == 'adjustment_form_spillage':
+                    return 'adjustment_form_spillage'
+                if 'adjustment_form' in doc_type:
+                    return 'adjustment_form_entries'
                 if doc_type in ['preparation_form_report', 'receiving_form_report', 'rm_outgoing_form_report',
                                 'transfer_form_report', 'change_status_form_report', 'supply_outgoing_form_report']:
                     return doc_type
@@ -337,19 +314,8 @@ class NoteTable:
                     full_range = set(range(min_num, max_num + 1))
                     existing_numbers = set(doc_numbers.astype(int))
                     skipped = sorted(list(full_range - existing_numbers))
-
-                    # --- 2. NEW: Filter the skipped list using the exclusion data ---
                     if skipped:
-                        # Get the set of numbers to exclude for this specific category
-                        # If the category is not in our exclusion map, it returns an empty set.
-                        exclusion_set_for_category = exclusions.get(category, set())
-
-                        # Create the final list by keeping only numbers that are NOT in the exclusion set
-                        final_skipped = [num for num in skipped if num not in exclusion_set_for_category]
-
-                        # --- 3. MODIFIED: Add the filtered list to the final report data ---
-                        if final_skipped:
-                            skipped_numbers_data[category] = final_skipped
+                        skipped_numbers_data[category] = skipped
 
             df_skipped = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in skipped_numbers_data.items()]))
 
@@ -368,6 +334,7 @@ class NoteTable:
         finally:
             self.root.after(0, loader.destroy)
 
+    # --- (sort_treeview and other methods remain unchanged) ---
     def sort_treeview(self, col, reverse):
         items = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
         items.sort(reverse=reverse)
