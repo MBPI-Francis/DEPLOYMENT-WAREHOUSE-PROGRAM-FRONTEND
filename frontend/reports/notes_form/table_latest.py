@@ -1,4 +1,4 @@
-# -- VERSION 4 (With Exclusions + Professional Formatting)
+# -- VERSION 3 (With Skipped Number Exclusions)
 import ttkbootstrap as ttk
 from ttkbootstrap import DateEntry
 from ttkbootstrap.constants import *
@@ -12,15 +12,9 @@ from ttkbootstrap.tooltip import ToolTip
 from frontend.forms.shared import SharedFunctions
 import os
 import pandas as pd
-import threading
-import sys
-import subprocess
-
-# --- NEW IMPORTS FOR EXCEL FORMATTING ---
-import openpyxl
-from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.utils import get_column_letter
+import threading  # For running the export in the background
+import sys  # For checking the operating system
+import subprocess  # For opening files on macOS/Linux
 
 
 class NoteTable:
@@ -35,7 +29,8 @@ class NoteTable:
         search_frame = ttk.Frame(self.root)
         search_frame.pack(fill=X, padx=10, pady=(15, 0))
 
-        # --- GUI SETUP (Unchanged) ---
+        # --- (All your GUI widget definitions remain here, unchanged) ---
+
         # Date Entry field FROM
         date_label_from = ttk.Label(search_frame, text="Date FROM", style="CustomLabel.TLabel")
         date_label_from.grid(row=0, column=0, padx=5, pady=0, sticky=W)
@@ -125,7 +120,7 @@ class NoteTable:
         btn_export.grid(row=1, column=7, padx=(10, 0), pady=(0, 0), sticky=E)
         ToolTip(btn_export, text="Click the button to export the data into excel.")
 
-        # Treeview setup
+        # --- (Treeview setup remains here, unchanged) ---
         tree_frame = ttk.Frame(self.root)
         tree_frame.pack(fill=BOTH, expand=YES, padx=10, pady=10)
         self.tree = ttk.Treeview(master=tree_frame, columns=(
@@ -195,6 +190,7 @@ class NoteTable:
             messagebox.showerror("Error", f"An unexpected error occurred: {e}", parent=self.root)
 
     def _center_window(self, win):
+        """Helper function to center a Toplevel window over the main application window."""
         win.update_idletasks()
         main_win = self.root.winfo_toplevel()
         main_width = main_win.winfo_width()
@@ -259,7 +255,7 @@ class NoteTable:
 
         self._center_window(loader)
 
-        ttk.Label(loader, text="Exporting and Formatting report, please wait...", bootstyle=INFO).pack(pady=10)
+        ttk.Label(loader, text="Exporting report, please wait...", bootstyle=INFO).pack(pady=10)
         progress = ttk.Progressbar(loader, mode='indeterminate', bootstyle=STRIPED + SUCCESS)
         progress.pack(pady=10, padx=20, fill=X)
         progress.start()
@@ -270,103 +266,39 @@ class NoteTable:
         )
         export_thread.start()
 
-    # --- HELPER FUNCTION FOR EXCEL FORMATTING ---
-    def _apply_excel_formatting(self, worksheet, title_text):
-        """
-        Applies professional formatting to an Excel Worksheet.
-        Includes: Title, Bold Headers, Borders, and Auto-width columns.
-        """
-        # 1. Insert a Title Row at the very top
-        worksheet.insert_rows(1)
-        title_cell = worksheet['A1']
-        title_cell.value = title_text
-
-        # Style the Title
-        title_font = Font(name='Arial', size=14, bold=True, color="000000")
-        title_cell.font = title_font
-        title_cell.alignment = Alignment(horizontal='center', vertical='center')
-
-        # Merge Title across columns (Approximate based on existing columns)
-        max_col = worksheet.max_column
-        if max_col > 1:
-            worksheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=max_col)
-
-        # 2. Define Styles for Headers and Data
-        # Header Style: Dark Blue background, White Bold text
-        header_font = Font(name='Arial', size=10, bold=True, color="FFFFFF")
-        header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
-        header_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
-
-        # Border Style: Thin black border for everything
-        thin_border = Side(border_style="thin", color="000000")
-        border_all = Border(top=thin_border, left=thin_border, right=thin_border, bottom=thin_border)
-
-        # Data Style
-        data_font = Font(name='Arial', size=10)
-        data_align = Alignment(vertical='center')
-
-        # 3. Apply Formatting to Header Row (Row 2, because we inserted Title at Row 1)
-        # Note: If the sheet was empty except for title, max_row might be 1.
-        if worksheet.max_row >= 2:
-            for cell in worksheet[2]:
-                cell.font = header_font
-                cell.fill = header_fill
-                cell.alignment = header_align
-                cell.border = border_all
-
-        # 4. Apply Formatting to Data Rows (Row 3 onwards) and Auto-size Columns
-        for col in worksheet.columns:
-            max_length = 0
-            column_letter = get_column_letter(col[0].column)
-
-            for cell in col:
-                # Apply border to every cell
-                cell.border = border_all
-
-                # Skip styling the Title row (Row 1)
-                if cell.row > 2:
-                    cell.font = data_font
-                    cell.alignment = data_align
-
-                # Calculate max width logic
-                try:
-                    if cell.value:
-                        cell_len = len(str(cell.value))
-                        if cell_len > max_length:
-                            max_length = cell_len
-                except:
-                    pass
-
-            # Set Column Width (with a little padding, maxing out at 50 to prevent huge cols)
-            adjusted_width = min(max_length + 4, 60)
-            worksheet.column_dimensions[column_letter].width = adjusted_width
-
-    # --- WORKER FUNCTION ---
+    # --- MODIFIED _perform_export_worker with new feature ---
     def _perform_export_worker(self, params, save_path, loader):
         try:
-            # 1. Load Exclusions
+            # --- 1. NEW: Load the exclusion data from the Excel file ---
             exclusion_file_path = 'frontend/reports/notes_form/excluded_doc_no.xlsx'
             exclusions = {}
             try:
                 if os.path.exists(exclusion_file_path):
                     df_exclusions = pd.read_excel(exclusion_file_path)
+                    # Ensure the required columns exist
                     if 'Forms' in df_exclusions.columns and 'Value of List' in df_exclusions.columns:
                         for _, row in df_exclusions.iterrows():
                             form_name = row['Forms']
+                            # Check for empty or NaN values in the exclusion list column
                             if pd.notna(row['Value of List']):
+                                # Split the comma-separated string into a list of numbers
                                 excluded_numbers_str = str(row['Value of List']).split(',')
                                 excluded_set = set()
                                 for num_str in excluded_numbers_str:
                                     try:
+                                        # Add the cleaned integer to a set for fast lookup
                                         excluded_set.add(int(num_str.strip()))
                                     except (ValueError, TypeError):
+                                        # Ignore any non-numeric values in the list
                                         continue
                                 if excluded_set:
                                     exclusions[form_name] = excluded_set
+            except FileNotFoundError:
+                print(f"INFO: Exclusion file not found at '{exclusion_file_path}'. Proceeding without exclusions.")
             except Exception as e:
-                print(f"WARNING: Exclusion file issue: {e}")
+                print(f"WARNING: Could not read or process the exclusion file. Error: {e}")
 
-            # 2. Download File from API
+            # --- (Original export logic remains the same) ---
             export_url = f"{server_ip}/api/reports/v1/form-entries/export-to-file/"
             response = requests.get(export_url, params=params, stream=True)
             response.raise_for_status()
@@ -374,7 +306,6 @@ class NoteTable:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
 
-            # 3. Get Data for Skipped Calculation
             data_url = f"{server_ip}/api/reports/v1/form-entries/"
             response = requests.get(data_url, params=params)
             response.raise_for_status()
@@ -407,39 +338,24 @@ class NoteTable:
                     existing_numbers = set(doc_numbers.astype(int))
                     skipped = sorted(list(full_range - existing_numbers))
 
+                    # --- 2. NEW: Filter the skipped list using the exclusion data ---
                     if skipped:
+                        # Get the set of numbers to exclude for this specific category
+                        # If the category is not in our exclusion map, it returns an empty set.
                         exclusion_set_for_category = exclusions.get(category, set())
+
+                        # Create the final list by keeping only numbers that are NOT in the exclusion set
                         final_skipped = [num for num in skipped if num not in exclusion_set_for_category]
 
+                        # --- 3. MODIFIED: Add the filtered list to the final report data ---
                         if final_skipped:
                             skipped_numbers_data[category] = final_skipped
 
             df_skipped = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in skipped_numbers_data.items()]))
 
-            # 4. EXCEL FORMATTING WITH OPENPYXL
-            # Load the downloaded workbook
-            wb = openpyxl.load_workbook(save_path)
-
-            # A. Format Main Sheet (Generated by API)
-            # Assuming API puts data in active sheet
-            main_ws = wb.active
-            main_ws.title = "RM Transaction Report"  # Rename sheet
-            self._apply_excel_formatting(main_ws, "Transaction Report")
-
-            # B. Add and Format Skipped Numbers Sheet
             if not df_skipped.empty:
-                ws_skipped = wb.create_sheet("Skipped Numbers")
-
-                # Write DataFrame to sheet (Headers at Row 1, Data at Row 2 initially)
-                # dataframe_to_rows yields index=False, header=True
-                for r in dataframe_to_rows(df_skipped, index=False, header=True):
-                    ws_skipped.append(r)
-
-                # Apply formatting (This will insert a Title row at 1, pushing existing data down)
-                self._apply_excel_formatting(ws_skipped, "Skipped Document Numbers Report")
-
-            # Save changes
-            wb.save(save_path)
+                with pd.ExcelWriter(save_path, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+                    df_skipped.to_excel(writer, sheet_name='Skipped Numbers', index=False)
 
             self.root.after(0, self._show_completion_dialog, save_path)
 
