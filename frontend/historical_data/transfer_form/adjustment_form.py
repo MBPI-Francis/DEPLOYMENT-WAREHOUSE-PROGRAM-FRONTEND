@@ -160,7 +160,7 @@ class AdjustmentForm:
             response = requests.post(f"{server_ip}/api/adjustment_form/form_entries/v1/create/transfer_form/", json=data)
             if response.status_code == 200:  # Successfully created
 
-                self.root.refresh_table()
+                self.root.filter_data()
                 self.add_record_window.destroy()
                 messagebox.showinfo("Success",
                                     "The record successfully adjusted. Please see the New Adjusted Ending Balance to confirm the adjustment.")
