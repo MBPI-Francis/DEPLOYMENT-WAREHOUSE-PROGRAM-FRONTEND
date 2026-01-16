@@ -341,6 +341,7 @@ class OutgoingFormTable:
                 "status_id": get_selected_status_id(),
                 "outgoing_date":  outgoing_date,
                 "qty_kg": cleaned_qty,
+                "outgoing_type": 'RM',
                 "outgoing_destination": destination_entry.get()
             }
 

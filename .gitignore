@@ -12,3 +12,5 @@ main.spec
 main.spec
 *.pyc
 /build
+/build
+/dist

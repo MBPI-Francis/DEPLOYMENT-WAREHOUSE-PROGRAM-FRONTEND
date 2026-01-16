@@ -327,6 +327,7 @@ class OutgoingFormTable:
                 "ref_number": ref_entry.get(),
                 "status_id": get_selected_status_id(),
                 "outgoing_date":  outgoing_date,
+                "outgoing_type": 'SUPPLY',
                 "qty_kg": cleaned_qty,
             }
 
