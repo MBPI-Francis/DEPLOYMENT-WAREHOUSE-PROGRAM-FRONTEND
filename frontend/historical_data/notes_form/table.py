@@ -45,7 +45,7 @@ class NoteTable:
                      "Product Code",
                      "Lot No.",
                      "Product Kind",
-                     "Consumption Date",
+                     "Date Reported",
                      "Date Computed"
                      ),
             show='headings',
@@ -69,7 +69,7 @@ class NoteTable:
 
 
         # Define column headers
-        col_names = ["Product Code", "Lot No.", "Product Kind", "Consumption Date", "Date Encoded", "Date Computed"]
+        col_names = ["Product Code", "Lot No.", "Product Kind", "Date Reported", "Date Encoded", "Date Computed"]
         for col in col_names:
             self.tree.heading(col, text=col, command=lambda _col=col: self.sort_treeview(_col, False), anchor=W)
             self.tree.column(col, anchor=W)
@@ -106,10 +106,41 @@ class NoteTable:
 
     def sort_treeview(self, col, reverse):
         """Sort treeview column data."""
+        # Get the items in the current column
         items = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
-        items.sort(reverse=reverse)
+
+        def custom_sort(item):
+            val = item[0]
+
+            # Handle 'Date Encoded' format (includes time)
+            if col == "Date Encoded":
+                try:
+                    return datetime.strptime(val, "%m/%d/%Y %I:%M %p")
+                except ValueError:
+                    return datetime.min  # Fallback if empty/invalid
+
+            # Handle other Date formats (only date, no time)
+            elif col in ("Date Reported", "Date Computed"):
+                try:
+                    return datetime.strptime(val, "%m/%d/%Y")
+                except ValueError:
+                    return datetime.min  # Fallback if empty/invalid
+
+            # Try sorting numerically if possible (e.g., Lot No.)
+            else:
+                try:
+                    return float(val)
+                except ValueError:
+                    return val.lower()  # Fallback to case-insensitive alphabetical string sort
+
+        # Sort the items using the custom logic
+        items.sort(key=custom_sort, reverse=reverse)
+
+        # Rearrange the items in the Treeview
         for index, (val, k) in enumerate(items):
             self.tree.move(k, "", index)
+
+        # Toggle the sorting direction for the next click
         self.tree.heading(col, command=lambda: self.sort_treeview(col, not reverse))
 
     def search_data(self, event=None):

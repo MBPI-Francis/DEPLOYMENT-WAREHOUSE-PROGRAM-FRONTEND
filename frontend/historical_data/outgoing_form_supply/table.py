@@ -46,7 +46,7 @@ class SupplyOutgoingFormTable:
             master=tree_frame,
             columns=(
                      "Date Encoded",
-                     "OGR No.",
+                     "SOGR No.",
                      "Raw Material",
                      "Quantity(kg)",
                      "Status",
