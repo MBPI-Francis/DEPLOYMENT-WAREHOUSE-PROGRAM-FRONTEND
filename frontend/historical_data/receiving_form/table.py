@@ -154,11 +154,49 @@ class ReceivingFormTable:
             self.tree.insert("", END, iid=record[0], values=record[1:])
 
     def sort_treeview(self, col, reverse):
-        """Sort treeview column data."""
+        """Sort treeview column data chronologically, numerically, or alphabetically."""
+        # Get the items in the current column
         items = [(self.tree.set(k, col), k) for k in self.tree.get_children('')]
-        items.sort(reverse=reverse)
+
+        def custom_sort(item):
+            val = item[0]
+
+            # Handle 'Date Encoded' format (includes time)
+            if col == "Date Encoded":
+                try:
+                    return datetime.strptime(val, "%m/%d/%Y %I:%M %p")
+                except ValueError:
+                    return datetime.min  # Fallback if empty/invalid
+
+            # Handle other Date formats (only date, no time)
+            elif col in ("Receiving Date", "Date Computed"):
+                try:
+                    return datetime.strptime(val, "%m/%d/%Y")
+                except ValueError:
+                    return datetime.min  # Fallback if empty/invalid
+
+            # Handle Quantity (remove commas before float conversion)
+            elif col == "Quantity(kg)":
+                try:
+                    return float(val.replace(",", ""))
+                except ValueError:
+                    return 0.0  # Fallback for empty strings
+
+            # Try sorting numerically if possible (e.g., RR No.)
+            else:
+                try:
+                    return float(val.replace(",", ""))
+                except ValueError:
+                    return val.lower()  # Fallback to case-insensitive alphabetical string sort
+
+        # Sort the items using the custom logic
+        items.sort(key=custom_sort, reverse=reverse)
+
+        # Rearrange the items in the Treeview
         for index, (val, k) in enumerate(items):
             self.tree.move(k, "", index)
+
+        # Toggle the sorting direction for the next click
         self.tree.heading(col, command=lambda: self.sort_treeview(col, not reverse))
 
     def search_data(self, event=None):
