@@ -534,7 +534,7 @@ class AdjustmentForm:
 
         # ----------------------------------[Adjustment Type FIELD]----------------------------------#
 
-        adjustment_types_choices = ('Paper Form Error', 'System Entry Error')
+        adjustment_types_choices = ('Paper Form Error', 'System Entry Error', 'Program Error')
 
         adjustment_type_label = ttk.Label(first_child_frame, text="Adjustment Type", style="CustomLabel.TLabel")
         adjustment_type_label.grid(row=2, column=1, padx=(8, 0), pady=(10, 0), sticky=W)

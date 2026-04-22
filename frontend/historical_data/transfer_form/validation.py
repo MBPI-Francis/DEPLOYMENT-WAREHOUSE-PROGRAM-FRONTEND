@@ -1,4 +1,6 @@
 import requests
+from ttkbootstrap.dialogs import Messagebox
+
 from backend.settings.database import server_ip
 
 
@@ -19,7 +21,7 @@ class EntryValidation:
             elif key == "rm_code_id" and not value:
                 text_list.append("Raw Material")
 
-            elif key == "qty_kg" and not value:
+            elif key == "qty_kg" and (value is None or value == ""):
                 text_list.append("Quantity")
 
             elif key == "status_id" and not value:
