@@ -20,14 +20,6 @@ class Sidebar(ttk.Frame):
         #     width=18,
         # ).pack(pady=10)
         #
-        # # Navigation Buttons
-        # ttk.Button(
-        #     self,
-        #     text="Warehouse",
-        #     command=lambda: navigate_callback("warehouse"),
-        #     bootstyle="primary",
-        #     width=18,
-        # ).pack(pady=10)
 
         ttk.Button(
             self,
@@ -86,6 +78,15 @@ class Sidebar(ttk.Frame):
             self,
             text="Raw Materials",
             command=lambda: navigate_callback("raw_material"),
+            bootstyle="primary",
+            width=18,
+        ).pack(pady=10)
+
+        # # Navigation Buttons
+        ttk.Button(
+            self,
+            text="Warehouse",
+            command=lambda: navigate_callback("warehouse"),
             bootstyle="primary",
             width=18,
         ).pack(pady=10)

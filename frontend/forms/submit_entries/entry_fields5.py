@@ -115,54 +115,6 @@ def entry_fields(note_form_tab):
             Messagebox.show_info(e, "Data Entry Error")
 
 
-    # Function to check whether the currently selected Ending Inventory Report
-    # Date (date_entry_value) has already been submitted before, by asking the
-    # backend for the beginning_balance records and checking their
-    # date_computed field against the selected date.
-    def has_beginning_balance_been_set_for_date(selected_date_str):
-        try:
-            response = requests.get(f"{server_ip}/api/get/beginning_balance/")
-            response.raise_for_status()
-            records = response.json()
-        except requests.exceptions.RequestException as e:
-            Messagebox.show_error(
-                f"Could not check if this date was already submitted: {e}",
-                "Data Entry Error"
-            )
-            # If we can't verify, don't block the user — let them proceed as before.
-            return False
-
-        for record in records:
-            if record.get("date_computed") == selected_date_str:
-                return True
-        return False
-
-    # Function called when the "MAKE THIS DATA AS THE NEW BEGINNING BALANCE"
-    # button is clicked. Checks whether the selected Ending Inventory Report
-    # Date has already been submitted and, if so, warns the user before
-    # letting them proceed to the existing confirmation panel.
-    def handle_make_beginning_balance_click():
-        date_entry_value = date_entry.entry.get()
-
-        # Convert the selected date to YYYY-MM-DD to match date_computed's format
-        try:
-            selected_date_str = datetime.strptime(date_entry_value, "%m/%d/%Y").strftime("%Y-%m-%d")
-        except ValueError:
-            Messagebox.show_error("Invalid date format. Please use MM/DD/YYYY.", "Date Entry Error")
-            return
-
-        if has_beginning_balance_been_set_for_date(selected_date_str):
-            proceed = Messagebox.yesno(
-                f"A beginning balance has already been submitted for {date_entry_value}.\n\n"
-                "Do you want to proceed and submit again for this date?",
-                "Date Already Submitted"
-            )
-            if proceed != "Yes":
-                return  # User chose No (or closed the dialog) — cancel.
-
-        show_confirmation_panel()
-
-
     # Function to show confirmation panel
     def show_confirmation_panel():
         # confirmation_window = ttk.Toplevel(form_frame)
@@ -451,7 +403,7 @@ def entry_fields(note_form_tab):
     btn_submit = ttk.Button(
         form_frame,
         text="MAKE THIS DATA AS THE NEW BEGINNING BALANCE",
-        command=handle_make_beginning_balance_click,
+        command=show_confirmation_panel,
         bootstyle=INFO
     )
     btn_submit.grid(row=2, column=3, pady=(0,0),padx=5,)

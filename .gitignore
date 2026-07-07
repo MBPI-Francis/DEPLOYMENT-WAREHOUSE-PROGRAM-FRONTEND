@@ -16,3 +16,5 @@ main.spec
 /dist
 /build
 /dist
+/frontend
+/build
